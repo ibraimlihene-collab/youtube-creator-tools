@@ -1,0 +1,34 @@
+{
+  "app": {
+    "title": "YouCreator Tools",
+    "tabs": {
+      "silence": "Silence Remover",
+      "demo": "Demo"
+    },
+    "theme": {
+      "light": "Light Mode",
+      "dark": "Dark Mode"
+    }
+  },
+  "silenceRemover": {
+    "title": "Silence Remover",
+    "chooseFile": "Choose File",
+    "process": "Process",
+    "reset": "Reset",
+    "download": "Download Result",
+    "tip1": "Support common audio formats like MP3, WAV, M4A.",
+    "tip2": "For video we will process the audio track then remux later.",
+    "tip3": "Everything runs locally in your browser.",
+    "settings": "Settings",
+    "autoMode": "Auto Mode",
+    "silenceDuration": "Silence Duration",
+    "silenceThreshold": "Silence Threshold",
+    "padding": "Cut Padding",
+    "unitMs": "ms",
+    "unitDb": "dB",
+    "log": "Log",
+    "fileStatus": "File Status",
+    "noFile": "No file selected yet.",
+    "previewNote": "Audio preview from the selected file."
+  }
+}

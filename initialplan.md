@@ -17,5 +17,5 @@ for inspiration use a merge of [brilliant.org](http://brilliant.org/) design wit
 ام بالنسبه على كيفيه سيعمل الموقع لن يعمل على سيرفر  بالكل شيء سيعمل فقط على الفرونت اند اي دون حاجه لاي سيرفر او عميل بكل سوف يعمل على متصفح المستخدم النهائي
 
 بالنسبه بدك كنوجات المستخدمه لصنع الموقع اريدك ان تستخدم typescript, react, vite, tailwindcss, daisyui, please use some fancy icons, and or fancy emojeis with circle backgrounds like in (dulingo or billiant.org), etc…
-
+make sure everthing is responsive.
 عند العمل قم بادراج ثيمات daisy ui thmes to be picked easilly…

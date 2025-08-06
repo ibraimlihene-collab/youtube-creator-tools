@@ -3,11 +3,23 @@
     "title": "YouCreator Tools",
     "tabs": {
       "silence": "Silence Remover",
+      "cpm": "CPM Calculator",
       "demo": "Demo"
     },
     "theme": {
       "light": "Light Mode",
       "dark": "Dark Mode"
+    },
+    "tools": {
+      "silenceRemover": {
+        "title": "Silence Remover"
+      },
+      "cpmCalculator": {
+        "title": "CPM Calculator"
+      },
+      "thumbnailDownloader": {
+        "title": "Thumbnail Downloader"
+      }
     }
   },
   "silenceRemover": {
@@ -29,6 +41,9 @@
     "log": "Log",
     "fileStatus": "File Status",
     "noFile": "No file selected yet.",
-    "previewNote": "Audio preview from the selected file."
+    "previewNote": "Audio preview from the selected file.",
+    "analyzing": "Analyzing...",
+    "interactivePreview": "Interactive Preview",
+    "autoModeNote": "Auto mode is enabled. Settings are adjusted automatically."
   }
 }

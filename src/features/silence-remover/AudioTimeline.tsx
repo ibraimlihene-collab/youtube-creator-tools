@@ -3,12 +3,14 @@ import React, { useEffect, useRef } from 'react';
 interface AudioTimelineProps {
   audioBuffer: AudioBuffer | null;
   silentIntervals: [number, number][];
+  currentTime: number;
   onIntervalClick?: (start: number, end: number) => void;
 }
 
 const AudioTimeline: React.FC<AudioTimelineProps> = ({ 
   audioBuffer, 
   silentIntervals,
+  currentTime,
   onIntervalClick
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -72,7 +74,16 @@ const AudioTimeline: React.FC<AudioTimelineProps> = ({
     ctx.strokeStyle = '#4a90e2';
     ctx.lineWidth = 1;
     ctx.stroke();
-  }, [audioBuffer, silentIntervals]);
+    // Draw playhead
+    const playheadX = (currentTime / audioBuffer.duration) * width;
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(playheadX, 0);
+    ctx.lineTo(playheadX, height);
+    ctx.stroke();
+
+  }, [audioBuffer, silentIntervals, currentTime]);
   
   const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!audioBuffer || !onIntervalClick) return;

@@ -3,11 +3,23 @@
     "title": "YouCreator Tools",
     "tabs": {
       "silence": "إزالة فراغات الصوت",
+      "cpm": "حاسبة CPM",
       "demo": "تجربة"
     },
     "theme": {
       "light": "وضع النهار",
       "dark": "وضع الليل"
+    },
+    "tools": {
+      "silenceRemover": {
+        "title": "مزيل الصمت"
+      },
+      "cpmCalculator": {
+        "title": "حاسبة CPM"
+      },
+      "thumbnailDownloader": {
+        "title": "تحميل الصور المصغرة"
+      }
     }
   },
   "silenceRemover": {
@@ -29,6 +41,9 @@
     "log": "السجل",
     "fileStatus": "حالة الملف",
     "noFile": "لم يتم اختيار ملف بعد.",
-    "previewNote": "معاينة صوتية من الملف المختار."
+    "previewNote": "معاينة صوتية من الملف المختار.",
+    "analyzing": "جاري التحليل...",
+    "interactivePreview": "معاينة تفاعلية",
+    "autoModeNote": "الوضع التلقائي مفعل. يتم ضبط الإعدادات تلقائيًا."
   }
 }

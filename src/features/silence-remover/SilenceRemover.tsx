@@ -1,10 +1,11 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FaCut, FaCloudUploadAlt, FaDownload, FaMagic, FaInfoCircle } from 'react-icons/fa';
 import ar from '../../locales/ar.json';
 import en from '../../locales/en.json';
 import { decodeAudio, detectSilentIntervals, removeSilentIntervals, exportToWav } from '../../lib/audioProcessor';
 import { extractAudioFromVideo, replaceAudioInVideo } from '../../lib/videoProcessor';
 import AudioTimeline from './AudioTimeline';
+import SmartAudioPlayer from './SmartAudioPlayer';
 
 type SilenceSettings = {
   minSilenceDurationMs: number; // الحد الأدنى لمدة الصمت بالمللي ثانية
@@ -33,26 +34,64 @@ const SilenceRemover: React.FC = () => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [resultBlob, setResultBlob] = useState<Blob | null>(null);
   const [log, setLog] = useState<string[]>([]);
+  const [analyzing, setAnalyzing] = useState(false);
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
   const [silentIntervals, setSilentIntervals] = useState<[number, number][]>([]);
+  const [currentTime, setCurrentTime] = useState<number>(0);
 
-  const pushLog = (message: string) => setLog(prev => [...prev, message]);
+  const pushLog = useCallback((message: string) => {
+    setLog(prev => [...prev, message]);
+  }, []);
 
   const onPickFile = () => {
     inputRef.current?.click();
+  };
+
+  const analyzeAudio = async (file: File) => {
+    setAnalyzing(true);
+    pushLog('Analyzing audio...');
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      let audioBuffer: AudioBuffer;
+      if (file.type.startsWith('video/')) {
+        pushLog('Extracting audio from video for analysis...');
+        audioBuffer = await extractAudioFromVideo(arrayBuffer);
+      } else {
+        audioBuffer = await decodeAudio(arrayBuffer);
+      }
+      setAudioBuffer(audioBuffer);
+      pushLog('Audio analysis complete.');
+      
+      // Calculate initial silent intervals with current settings
+      const initialSilentIntervals = detectSilentIntervals(audioBuffer, {
+        minSilenceDuration: settings.minSilenceDurationMs / 1000,
+        silenceThreshold: settings.silenceThresholdDb,
+        frameDuration: 0.1,
+        padding: settings.paddingMs / 1000
+      });
+      setSilentIntervals(initialSilentIntervals);
+      pushLog(`Found ${initialSilentIntervals.length} silent interval(s) for preview.`);
+    } catch (e) {
+      console.error(e);
+      pushLog(`Audio analysis failed: ${e instanceof Error ? e.message : 'Unknown error'}`);
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   const onFileChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const f = e.target.files?.[0] ?? null;
     setResultBlob(null);
     setPreviewUrl(null);
+    setAudioBuffer(null);
+    setSilentIntervals([]);
     if (f) {
       setFile(f);
       const url = URL.createObjectURL(f);
       setPreviewUrl(url);
-      setAudioBuffer(null);
-      setSilentIntervals([]);
       pushLog(`Selected: ${f.name} (${Math.round(f.size / 1024)} KB)`);
+      // Start audio analysis immediately
+      analyzeAudio(f);
     }
   };
 
@@ -68,29 +107,17 @@ const SilenceRemover: React.FC = () => {
   };
 
   const onProcess = async () => {
-    if (!file) return;
+    if (!file || !audioBuffer) return;
     setProcessing(true);
     pushLog('Starting processing...');
     
     try {
-      pushLog('Loading file...');
-      const arrayBuffer = await file.arrayBuffer();
-      
-      let audioBuffer: AudioBuffer;
-      let isVideo = file.type.startsWith('video/');
-      
-      if (isVideo) {
-        pushLog('Extracting audio from video...');
-        audioBuffer = await extractAudioFromVideo(arrayBuffer);
-      } else {
-        audioBuffer = await decodeAudio(arrayBuffer);
-      }
-      
-      // Store audio buffer for timeline visualization
-      setAudioBuffer(audioBuffer);
+      // Use the already analyzed audioBuffer
+      const audioBufferToProcess = audioBuffer;
+      const isVideo = file.type.startsWith('video/');
       
       pushLog(`Detecting silence with: minSilence=${settings.minSilenceDurationMs}ms, threshold=${settings.silenceThresholdDb}dB, pad=${settings.paddingMs}ms`);
-      const silentIntervals = detectSilentIntervals(audioBuffer, {
+      const silentIntervals = detectSilentIntervals(audioBufferToProcess, {
         minSilenceDuration: settings.minSilenceDurationMs / 1000,
         silenceThreshold: settings.silenceThresholdDb,
         frameDuration: 0.1,
@@ -98,17 +125,19 @@ const SilenceRemover: React.FC = () => {
       });
       
       pushLog(`Found ${silentIntervals.length} silent interval(s)`);
+      // Update silentIntervals state for the final processing
       setSilentIntervals(silentIntervals);
       
       pushLog('Removing silent segments...');
       
-      const processedBuffer = await removeSilentIntervals(audioBuffer, silentIntervals);
+      const processedBuffer = await removeSilentIntervals(audioBufferToProcess, silentIntervals);
       
       pushLog('Exporting to WAV...');
       const wavBuffer = await exportToWav(processedBuffer);
       
       if (isVideo) {
         pushLog('Replacing audio in video...');
+        const arrayBuffer = await file.arrayBuffer();
         const videoBuffer = await replaceAudioInVideo(arrayBuffer, wavBuffer);
         const blob = new Blob([videoBuffer], { type: file.type });
         setResultBlob(blob);
@@ -187,6 +216,22 @@ const SilenceRemover: React.FC = () => {
     </div>
   );
 
+  // Update silent intervals when settings change (for real-time preview)
+  useEffect(() => {
+    if (!audioBuffer) return;
+    // Don't run this if in auto mode, as settings are not user-adjustable
+    if (settings.autoMode) return;
+
+    const updatedSilentIntervals = detectSilentIntervals(audioBuffer, {
+      minSilenceDuration: settings.minSilenceDurationMs / 1000,
+      silenceThreshold: settings.silenceThresholdDb,
+      frameDuration: 0.1,
+      padding: settings.paddingMs / 1000
+    });
+    setSilentIntervals(updatedSilentIntervals);
+    pushLog(`Preview updated with ${updatedSilentIntervals.length} silent interval(s).`);
+  }, [settings, audioBuffer, pushLog]);
+
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-8">
       <div className="flex items-center justify-between mb-6">
@@ -213,13 +258,13 @@ const SilenceRemover: React.FC = () => {
                   className="hidden"
                   onChange={onFileChange}
                 />
-                <button className="btn btn-outline btn-primary gap-2" onClick={onPickFile}>
+                <button className="btn btn-outline btn-primary gap-2" onClick={onPickFile} disabled={analyzing || processing}>
                   <FaCloudUploadAlt /> {t.chooseFile}
                 </button>
-                <button className="btn btn-secondary gap-2" onClick={onProcess} disabled={!file || processing}>
+                <button className="btn btn-secondary gap-2" onClick={onProcess} disabled={!file || processing || analyzing}>
                   <FaMagic /> {t.process}
                 </button>
-                <button className="btn" onClick={onReset} disabled={processing}>
+                <button className="btn" onClick={onReset} disabled={processing || analyzing}>
                   {t.reset}
                 </button>
                 <button className="btn btn-success gap-2" onClick={download} disabled={!resultBlob}>
@@ -227,29 +272,35 @@ const SilenceRemover: React.FC = () => {
                 </button>
               </div>
 
-              {previewUrl && (
+              {analyzing && (
+                <div className="flex items-center justify-center p-8">
+                  <span className="loading loading-lg loading-spinner text-primary"></span>
+                  <p className="ml-4">{t.analyzing}</p>
+                </div>
+              )}
+
+              {previewUrl && !analyzing && (
                 <div className="mt-4 space-y-4">
-                  {file?.type.startsWith('audio/') ? (
-                    <audio className="w-full" controls src={previewUrl} />
-                  ) : (
-                    <video className="w-full" controls src={previewUrl} />
+                  {file?.type.startsWith('video/') && (
+                    <video className="w-full rounded-lg" controls src={previewUrl} />
                   )}
                   
                   {audioBuffer && (
-                    <div className="card bg-base-100 shadow-md">
-                      <div className="card-body">
-                        <h3 className="card-title text-lg">Audio Timeline</h3>
-                        <p className="text-sm opacity-70 mb-2">
-                          Silent intervals are highlighted in red. Click on them to see details.
-                        </p>
-                        <AudioTimeline
-                          audioBuffer={audioBuffer}
-                          silentIntervals={silentIntervals}
-                          onIntervalClick={(start, end) => {
-                            pushLog(`Silent interval: ${start.toFixed(2)}s - ${end.toFixed(2)}s (${(end - start).toFixed(2)}s)`);
-                          }}
-                        />
-                      </div>
+                    <div className="space-y-4">
+                      <h3 className="card-title">{t.interactivePreview}</h3>
+                      <AudioTimeline
+                        audioBuffer={audioBuffer}
+                        silentIntervals={silentIntervals}
+                        currentTime={currentTime}
+                        onIntervalClick={(start, end) => {
+                          pushLog(`Silent interval: ${start.toFixed(2)}s - ${end.toFixed(2)}s (${(end - start).toFixed(2)}s)`);
+                        }}
+                      />
+                      <SmartAudioPlayer
+                        audioBuffer={audioBuffer}
+                        silentIntervals={silentIntervals}
+                        onTimeUpdate={setCurrentTime}
+                      />
                     </div>
                   )}
                   
@@ -264,7 +315,7 @@ const SilenceRemover: React.FC = () => {
               <h2 className="card-title">{t.settings}</h2>
 
               <div className="form-control w-fit">
-                <label className="label cursor-pointer">
+                <label className="label cursor-pointer gap-2">
                   <span className="label-text">{t.autoMode}</span>
                   <input
                     type="checkbox"
@@ -275,7 +326,7 @@ const SilenceRemover: React.FC = () => {
                 </label>
               </div>
 
-              <div className="grid md:grid-cols-3 gap-6">
+              <div className={`grid md:grid-cols-3 gap-6 ${settings.autoMode ? 'opacity-50' : ''}`}>
                 <SettingNumber
                   label={t.silenceDuration}
                   unit={t.unitMs}
@@ -308,16 +359,18 @@ const SilenceRemover: React.FC = () => {
                 />
               </div>
 
-              <div className="alert alert-info mt-4">
-                <span>{t.autoMode}</span>
-              </div>
+              {settings.autoMode && (
+                <div className="alert alert-info mt-4">
+                  <span>{t.autoModeNote}</span>
+                </div>
+              )}
             </div>
           </div>
 
           <div className="card bg-base-100 shadow-md">
             <div className="card-body">
               <h2 className="card-title">{t.log}</h2>
-              <div className="prose max-w-none">
+              <div className="prose max-w-none h-40 overflow-y-auto bg-base-200 rounded-lg p-2">
                 <ul className="list-disc ms-6">
                   {log.map((l, i) => (<li key={i} className="text-sm opacity-80">{l}</li>))}
                 </ul>
@@ -357,6 +410,7 @@ const SilenceRemover: React.FC = () => {
 
         </div>
       </div>
+
     </div>
   );
 };

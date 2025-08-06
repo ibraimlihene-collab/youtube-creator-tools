@@ -19,6 +19,15 @@
       },
       "thumbnailDownloader": {
         "title": "تحميل الصور المصغرة"
+      },
+      "thumbnailPreviewer": {
+        "title": "معاينة الصورة المصغرة"
+      },
+      "hashtagGenerator": {
+        "title": "مولد الهاشتاجات"
+      },
+      "colorPaletteGenerator": {
+        "title": "مولد لوحة الألوان"
       }
     }
   },

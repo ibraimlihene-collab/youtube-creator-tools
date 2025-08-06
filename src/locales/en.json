@@ -19,6 +19,15 @@
       },
       "thumbnailDownloader": {
         "title": "Thumbnail Downloader"
+      },
+      "thumbnailPreviewer": {
+        "title": "Thumbnail Previewer"
+      },
+      "hashtagGenerator": {
+        "title": "Hashtag Generator"
+      },
+      "colorPaletteGenerator": {
+        "title": "Color Palette Generator"
       }
     }
   },

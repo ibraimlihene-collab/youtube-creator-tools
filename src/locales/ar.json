@@ -28,6 +28,12 @@
       },
       "colorPaletteGenerator": {
         "title": "مولد لوحة الألوان"
+      },
+      "thumbnailGenerator": {
+        "title": "مولد الصور المصغرة"
+      },
+      "videoRephraser": {
+        "title": "معيد صياغة الفيديو"
       }
     }
   },

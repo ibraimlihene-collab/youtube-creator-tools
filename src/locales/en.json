@@ -28,6 +28,12 @@
       },
       "colorPaletteGenerator": {
         "title": "Color Palette Generator"
+      },
+      "thumbnailGenerator": {
+        "title": "Thumbnail Generator"
+      },
+      "videoRephraser": {
+        "title": "Video Rephraser"
       }
     }
   },

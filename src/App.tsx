@@ -11,6 +11,8 @@ import {
   Sun,
   Moon,
   Languages,
+  Image,
+  Repeat,
 } from 'lucide-react';
 import ColorPaletteGenerator from './features/color-palette-generator/ColorPaletteGenerator';
 import CpmCalculator from './features/cpm-calculator/CpmCalculator';
@@ -18,6 +20,8 @@ import HashtagGenerator from './features/hashtag-generator/HashtagGenerator';
 import SilenceRemover from './features/silence-remover/SilenceRemover';
 import ThumbnailDownloader from './features/thumbnail-downloader/ThumbnailDownloader';
 import ThumbnailPreviewer from './features/thumbnail-previewer/ThumbnailPreviewer';
+import ThumbnailGenerator from './features/thumbnail-generator/ThumbnailGenerator';
+import VideoRephraser from './features/video-rephraser/VideoRephraser';
 import ar from './locales/ar.json';
 import en from './locales/en.json';
 import ToolCard from './components/ToolCard';
@@ -30,7 +34,9 @@ type Tool =
   | 'thumbnailDownloader'
   | 'thumbnailPreviewer'
   | 'hashtagGenerator'
-  | 'colorPaletteGenerator';
+  | 'colorPaletteGenerator'
+  | 'thumbnailGenerator'
+  | 'videoRephraser';
 
 const tools: { id: Tool; icon: React.ElementType }[] = [
   { id: 'silenceRemover', icon: Scissors },
@@ -39,6 +45,8 @@ const tools: { id: Tool; icon: React.ElementType }[] = [
   { id: 'thumbnailPreviewer', icon: Eye },
   { id: 'hashtagGenerator', icon: Tags },
   { id: 'colorPaletteGenerator', icon: Palette },
+  { id: 'thumbnailGenerator', icon: Image },
+  { id: 'videoRephraser', icon: Repeat },
 ];
 
 function App() {
@@ -90,6 +98,12 @@ function App() {
         break;
       case 'colorPaletteGenerator':
         toolComponent = <ColorPaletteGenerator />;
+        break;
+      case 'thumbnailGenerator':
+        toolComponent = <ThumbnailGenerator />;
+        break;
+      case 'videoRephraser':
+        toolComponent = <VideoRephraser />;
         break;
       default:
         return null;

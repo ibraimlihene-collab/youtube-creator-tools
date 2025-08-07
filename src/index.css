@@ -69,9 +69,7 @@
   @apply bg-base-300 rounded-full;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-base-400;
-}
+
 
 /* Focus styles for better accessibility */
 .btn:focus,

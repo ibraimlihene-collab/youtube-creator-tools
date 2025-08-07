@@ -233,184 +233,292 @@ const SilenceRemover: React.FC = () => {
   }, [settings, audioBuffer, pushLog]);
 
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
-          <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary">
-            <FaCut />
-          </span>
-          {t.title}
-        </h1>
-        <div className="tooltip tooltip-left" data-tip="Runs 100% in your browser - no server needed">
-          <FaInfoCircle className="opacity-70" />
+    <div className="max-w-7xl mx-auto space-y-6">
+      <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl p-6 border border-primary/20">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center shadow-lg">
+              <FaCut className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                {t.title}
+              </h1>
+              <p className="text-sm opacity-70">Remove silence from audio and video files</p>
+            </div>
+          </div>
+          <div className="tooltip tooltip-left" data-tip="Runs 100% in your browser - no server needed">
+            <FaInfoCircle className="w-5 h-5 opacity-70" />
+          </div>
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-        <div className="lg:col-span-2 space-y-4">
-          <div className="card bg-base-100 shadow-md">
-            <div className="card-body gap-4">
-              <div className="flex flex-wrap gap-2">
-                <input
-                  ref={inputRef}
-                  type="file"
-                  accept={fileAccept}
-                  className="hidden"
-                  onChange={onFileChange}
-                />
-                <button className="btn btn-outline btn-primary gap-2" onClick={onPickFile} disabled={analyzing || processing}>
-                  <FaCloudUploadAlt /> {t.chooseFile}
-                </button>
-                <button className="btn btn-secondary gap-2" onClick={onProcess} disabled={!file || processing || analyzing}>
-                  <FaMagic /> {t.process}
-                </button>
-                <button className="btn" onClick={onReset} disabled={processing || analyzing}>
-                  {t.reset}
-                </button>
-                <button className="btn btn-success gap-2" onClick={download} disabled={!resultBlob}>
-                  <FaDownload /> {t.download}
-                </button>
-              </div>
-
-              {analyzing && (
-                <div className="flex items-center justify-center p-8">
-                  <span className="loading loading-lg loading-spinner text-primary"></span>
-                  <p className="ml-4">{t.analyzing}</p>
-                </div>
-              )}
-
-              {previewUrl && !analyzing && (
-                <div className="mt-4 space-y-4">
-                  {file?.type.startsWith('video/') && (
-                    <video className="w-full rounded-lg" controls src={previewUrl} />
-                  )}
-                  
-                  {audioBuffer && (
-                    <div className="space-y-4">
-                      <h3 className="card-title">{t.interactivePreview}</h3>
-                      <AudioTimeline
-                        audioBuffer={audioBuffer}
-                        silentIntervals={silentIntervals}
-                        currentTime={currentTime}
-                        onIntervalClick={(start, end) => {
-                          pushLog(`Silent interval: ${start.toFixed(2)}s - ${end.toFixed(2)}s (${(end - start).toFixed(2)}s)`);
-                        }}
-                      />
-                      <SmartAudioPlayer
-                        audioBuffer={audioBuffer}
-                        silentIntervals={silentIntervals}
-                        onTimeUpdate={setCurrentTime}
-                      />
-                    </div>
-                  )}
-                  
-                  <p className="text-xs opacity-70 mt-1">{t.previewNote}</p>
-                </div>
-              )}
+      <div className="grid lg:grid-cols-4 gap-6" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+        <div className="lg:col-span-3 space-y-6">
+          {/* Upload and Controls */}
+          <div className="bg-base-100/80 backdrop-blur-sm rounded-2xl border border-base-300 p-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <input
+                ref={inputRef}
+                type="file"
+                accept={fileAccept}
+                className="hidden"
+                onChange={onFileChange}
+              />
+              <button
+                className="btn btn-outline btn-primary btn-lg flex-1 gap-2"
+                onClick={onPickFile}
+                disabled={analyzing || processing}
+              >
+                <FaCloudUploadAlt /> {t.chooseFile}
+              </button>
+              <button
+                className="btn btn-secondary btn-lg flex-1 gap-2"
+                onClick={onProcess}
+                disabled={!file || processing || analyzing}
+              >
+                <FaMagic /> {t.process}
+              </button>
+              <button
+                className="btn btn-outline btn-lg flex-1 gap-2"
+                onClick={onReset}
+                disabled={processing || analyzing}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                {t.reset}
+              </button>
+              <button
+                className="btn btn-success btn-lg flex-1 gap-2"
+                onClick={download}
+                disabled={!resultBlob}
+              >
+                <FaDownload /> {t.download}
+              </button>
             </div>
-          </div>
 
-          <div className="card bg-base-100 shadow-md">
-            <div className="card-body">
-              <h2 className="card-title">{t.settings}</h2>
-
-              <div className="form-control w-fit">
-                <label className="label cursor-pointer gap-2">
-                  <span className="label-text">{t.autoMode}</span>
-                  <input
-                    type="checkbox"
-                    className="toggle toggle-primary"
-                    checked={settings.autoMode}
-                    onChange={(e) => setSettings(s => ({ ...s, autoMode: e.target.checked }))}
-                  />
-                </label>
+            {analyzing && (
+              <div className="flex flex-col items-center justify-center p-12 bg-base-200/50 rounded-xl">
+                <span className="loading loading-lg loading-spinner text-primary"></span>
+                <p className="mt-4 text-lg font-medium">{t.analyzing}</p>
+                <p className="text-sm opacity-70">Processing your file...</p>
               </div>
+            )}
 
-              <div className={`grid md:grid-cols-3 gap-6 ${settings.autoMode ? 'opacity-50' : ''}`}>
-                <SettingNumber
-                  label={t.silenceDuration}
-                  unit={t.unitMs}
-                  min={100}
-                  max={2000}
-                  step={50}
-                  value={settings.minSilenceDurationMs}
-                  disabled={settings.autoMode}
-                  onChange={(n) => setSettings(s => ({ ...s, minSilenceDurationMs: n }))}
-                />
-                <SettingNumber
-                  label={t.silenceThreshold}
-                  unit={t.unitDb}
-                  min={-80}
-                  max={-10}
-                  step={1}
-                  value={settings.silenceThresholdDb}
-                  disabled={settings.autoMode}
-                  onChange={(n) => setSettings(s => ({ ...s, silenceThresholdDb: n }))}
-                />
-                <SettingNumber
-                  label={t.padding}
-                  unit={t.unitMs}
-                  min={0}
-                  max={500}
-                  step={10}
-                  value={settings.paddingMs}
-                  disabled={settings.autoMode}
-                  onChange={(n) => setSettings(s => ({ ...s, paddingMs: n }))}
-                />
-              </div>
-
-              {settings.autoMode && (
-                <div className="alert alert-info mt-4">
-                  <span>{t.autoModeNote}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="card bg-base-100 shadow-md">
-            <div className="card-body">
-              <h2 className="card-title">{t.log}</h2>
-              <div className="prose max-w-none h-40 overflow-y-auto bg-base-200 rounded-lg p-2">
-                <ul className="list-disc ms-6">
-                  {log.map((l, i) => (<li key={i} className="text-sm opacity-80">{l}</li>))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="card bg-base-100 shadow-md">
-            <div className="card-body">
-              <h2 className="card-title">Tips</h2>
-              <ul className="list-disc ms-6 text-sm opacity-80 space-y-1">
-                <li>{t.tip1}</li>
-                <li>{t.tip2}</li>
-                <li>{t.tip3}</li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="card bg-base-100 shadow-md">
-            <div className="card-body">
-              <h2 className="card-title">{t.fileStatus}</h2>
-              <div className="text-sm opacity-80">
-                {file ? (
-                  <div>
-                    <div>Name: {file.name}</div>
-                    <div>Size: {Math.round(file.size / 1024)} KB</div>
-                    <div>Type: {file.type || 'Unknown'}</div>
+            {previewUrl && !analyzing && (
+              <div className="space-y-6">
+                {file?.type.startsWith('video/') && (
+                  <div className="bg-base-200/50 rounded-xl p-4">
+                    <h3 className="font-semibold mb-3">Video Preview</h3>
+                    <video className="w-full max-h-96 rounded-lg" controls src={previewUrl} />
                   </div>
-                ) : (
-                  <div>{t.noFile}</div>
+                )}
+                
+                {audioBuffer && (
+                  <div className="bg-base-200/50 rounded-xl p-6">
+                    <h3 className="font-semibold mb-4 flex items-center gap-2">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                      </svg>
+                      {t.interactivePreview}
+                    </h3>
+                    <AudioTimeline
+                      audioBuffer={audioBuffer}
+                      silentIntervals={silentIntervals}
+                      currentTime={currentTime}
+                      onIntervalClick={(start, end) => {
+                        pushLog(`Silent interval: ${start.toFixed(2)}s - ${end.toFixed(2)}s (${(end - start).toFixed(2)}s)`);
+                      }}
+                    />
+                    <SmartAudioPlayer
+                      audioBuffer={audioBuffer}
+                      silentIntervals={silentIntervals}
+                      onTimeUpdate={setCurrentTime}
+                    />
+                  </div>
                 )}
               </div>
+            )}
+          </div>
+
+          {/* Settings */}
+          <div className="bg-base-100/80 backdrop-blur-sm rounded-2xl border border-base-300 p-6">
+            <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              {t.settings}
+            </h2>
+
+            <div className="form-control mb-6">
+              <label className="label cursor-pointer gap-3">
+                <span className="label-text font-medium">{t.autoMode}</span>
+                <input
+                  type="checkbox"
+                  className="toggle toggle-primary"
+                  checked={settings.autoMode}
+                  onChange={(e) => setSettings(s => ({ ...s, autoMode: e.target.checked }))}
+                />
+              </label>
+            </div>
+
+            <div className={`grid md:grid-cols-3 gap-6 ${settings.autoMode ? 'opacity-50' : ''}`}>
+              <SettingNumber
+                label={t.silenceDuration}
+                unit={t.unitMs}
+                min={100}
+                max={2000}
+                step={50}
+                value={settings.minSilenceDurationMs}
+                disabled={settings.autoMode}
+                onChange={(n) => setSettings(s => ({ ...s, minSilenceDurationMs: n }))}
+              />
+              <SettingNumber
+                label={t.silenceThreshold}
+                unit={t.unitDb}
+                min={-80}
+                max={-10}
+                step={1}
+                value={settings.silenceThresholdDb}
+                disabled={settings.autoMode}
+                onChange={(n) => setSettings(s => ({ ...s, silenceThresholdDb: n }))}
+              />
+              <SettingNumber
+                label={t.padding}
+                unit={t.unitMs}
+                min={0}
+                max={500}
+                step={10}
+                value={settings.paddingMs}
+                disabled={settings.autoMode}
+                onChange={(n) => setSettings(s => ({ ...s, paddingMs: n }))}
+              />
+            </div>
+
+            {settings.autoMode && (
+              <div className="alert alert-info mt-6">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{t.autoModeNote}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Processing Log */}
+          <div className="bg-base-100/80 backdrop-blur-sm rounded-2xl border border-base-300 p-6">
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              {t.log}
+            </h2>
+            <div className="bg-base-200/50 rounded-lg p-4 h-48 overflow-y-auto font-mono text-sm">
+              {log.length === 0 ? (
+                <div className="flex items-center justify-center h-full text-base-400">
+                  <p>No processing logs yet</p>
+                </div>
+              ) : (
+                <ul className="space-y-1">
+                  {log.map((l, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <span className="text-primary">•</span>
+                      <span className="opacity-80">{l}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* Tips */}
+          <div className="bg-base-100/80 backdrop-blur-sm rounded-2xl border border-base-300 p-6">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+              Tips
+            </h2>
+            <ul className="space-y-3 text-sm">
+              <li className="flex items-start gap-2">
+                <span className="text-primary">•</span>
+                <span>{t.tip1}</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary">•</span>
+                <span>{t.tip2}</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary">•</span>
+                <span>{t.tip3}</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* File Status */}
+          <div className="bg-base-100/80 backdrop-blur-sm rounded-2xl border border-base-300 p-6">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              {t.fileStatus}
+            </h2>
+            <div className="space-y-3">
+              {file ? (
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="opacity-70">Name:</span>
+                    <span className="font-medium truncate max-w-[150px]">{file.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="opacity-70">Size:</span>
+                    <span className="font-medium">{Math.round(file.size / 1024)} KB</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="opacity-70">Type:</span>
+                    <span className="font-medium">{file.type || 'Unknown'}</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-4 text-base-400">
+                  {t.noFile}
+                </div>
+              )}
             </div>
           </div>
 
+          {/* Processing Stats */}
+          {audioBuffer && (
+            <div className="bg-base-100/80 backdrop-blur-sm rounded-2xl border border-base-300 p-6">
+              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Analysis
+              </h2>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="opacity-70">Duration:</span>
+                  <span className="font-medium">{audioBuffer.duration.toFixed(2)}s</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="opacity-70">Silent intervals:</span>
+                  <span className="font-medium">{silentIntervals.length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="opacity-70">Sample rate:</span>
+                  <span className="font-medium">{audioBuffer.sampleRate} Hz</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-
     </div>
   );
 };

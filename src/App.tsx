@@ -1,5 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FaCalculator, FaCut, FaGithub, FaImage, FaPalette, FaPhotoVideo, FaTags, FaTwitter } from 'react-icons/fa';
+import {
+  Palette,
+  Scissors,
+  Calculator,
+  Download,
+  Eye,
+  Tags,
+  Github,
+  Twitter,
+  Sun,
+  Moon,
+  Languages,
+} from 'lucide-react';
 import ColorPaletteGenerator from './features/color-palette-generator/ColorPaletteGenerator';
 import CpmCalculator from './features/cpm-calculator/CpmCalculator';
 import HashtagGenerator from './features/hashtag-generator/HashtagGenerator';
@@ -8,19 +20,36 @@ import ThumbnailDownloader from './features/thumbnail-downloader/ThumbnailDownlo
 import ThumbnailPreviewer from './features/thumbnail-previewer/ThumbnailPreviewer';
 import ar from './locales/ar.json';
 import en from './locales/en.json';
+import ToolCard from './components/ToolCard';
 
 type Lang = 'ar' | 'en';
-type Theme = "light" | "dark" | "cupcake" | "bumblebee" | "emerald" | "corporate" | "synthwave" | "retro" | "cyberpunk" | "valentine" | "halloween" | "garden" | "forest" | "aqua" | "lofi" | "pastel" | "fantasy" | "wireframe" | "black" | "luxury" | "dracula" | "cmyk" | "autumn" | "business" | "acid" | "lemonade" | "night" | "coffee" | "winter" | "customDark";
+type Theme = 'light' | 'dark' | 'customDark';
+type Tool =
+  | 'silenceRemover'
+  | 'cpmCalculator'
+  | 'thumbnailDownloader'
+  | 'thumbnailPreviewer'
+  | 'hashtagGenerator'
+  | 'colorPaletteGenerator';
+
+const tools: { id: Tool; icon: React.ElementType }[] = [
+  { id: 'silenceRemover', icon: Scissors },
+  { id: 'cpmCalculator', icon: Calculator },
+  { id: 'thumbnailDownloader', icon: Download },
+  { id: 'thumbnailPreviewer', icon: Eye },
+  { id: 'hashtagGenerator', icon: Tags },
+  { id: 'colorPaletteGenerator', icon: Palette },
+];
 
 function App() {
   const [lang, setLang] = useState<Lang>(() => (localStorage.getItem('lang') as Lang) || 'ar');
   const [theme, setTheme] = useState<Theme>('customDark');
+  const [activeTool, setActiveTool] = useState<Tool>('silenceRemover');
 
   const t = useMemo(() => (lang === 'ar' ? ar : en), [lang]);
 
   useEffect(() => {
     localStorage.setItem('lang', lang);
-    // اتجاه الصفحة حسب اللغة
     const html = document.querySelector('html');
     if (html) {
       html.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
@@ -36,140 +65,124 @@ function App() {
     }
   }, [theme]);
 
+  const renderTool = () => {
+    const activeToolInfo = tools.find(tool => tool.id === activeTool);
+    if (!activeToolInfo) return null;
+
+    const { id, icon } = activeToolInfo;
+
+    let toolComponent;
+    switch (id) {
+      case 'silenceRemover':
+        toolComponent = <SilenceRemover />;
+        break;
+      case 'cpmCalculator':
+        toolComponent = <CpmCalculator />;
+        break;
+      case 'thumbnailDownloader':
+        toolComponent = <ThumbnailDownloader />;
+        break;
+      case 'thumbnailPreviewer':
+        toolComponent = <ThumbnailPreviewer />;
+        break;
+      case 'hashtagGenerator':
+        toolComponent = <HashtagGenerator lang={lang} />;
+        break;
+      case 'colorPaletteGenerator':
+        toolComponent = <ColorPaletteGenerator />;
+        break;
+      default:
+        return null;
+    }
+
+    return (
+      <ToolCard title={t.app.tools[id].title} icon={icon}>
+        {toolComponent}
+      </ToolCard>
+    );
+  };
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="navbar bg-base-200/50 backdrop-blur-sm sticky top-0 z-10 shadow-sm">
-        <div className="container mx-auto">
-          <div className="flex-1">
-            <span className="btn btn-ghost text-xl font-bold">{t.app.title}</span>
+    <div className="flex h-screen bg-gradient-to-br from-base-200 to-base-300 text-base-content">
+      {/* Sidebar */}
+      <aside className="w-72 bg-base-100/95 backdrop-blur-sm border-r border-base-300 flex flex-col shadow-xl">
+        <div className="flex items-center gap-3 p-6 border-b border-base-300">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg">
+            <span className="text-white font-bold text-xl">YC</span>
           </div>
-          <div className="flex-none gap-2">
-            <div className="join">
-              <button className={`btn btn-sm join-item ${lang === 'ar' ? 'btn-primary' : ''}`} onClick={() => setLang('ar')}>AR</button>
-              <button className={`btn btn-sm join-item ${lang === 'en' ? 'btn-primary' : ''}`} onClick={() => setLang('en')}>EN</button>
-            </div>
-            <div className="dropdown dropdown-end">
-              <div tabIndex={0} role="button" className="btn btn-ghost">
-                {t.app.theme.light}
-              </div>
-              <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                <li><a onClick={() => setTheme('light')}>Light</a></li>
-                <li><a onClick={() => setTheme('dark')}>Dark</a></li>
-                <li><a onClick={() => setTheme('cupcake')}>Cupcake</a></li>
-                <li><a onClick={() => setTheme('bumblebee')}>Bumblebee</a></li>
-                <li><a onClick={() => setTheme('emerald')}>Emerald</a></li>
-                <li><a onClick={() => setTheme('corporate')}>Corporate</a></li>
-                <li><a onClick={() => setTheme('synthwave')}>Synthwave</a></li>
-                <li><a onClick={() => setTheme('retro')}>Retro</a></li>
-                <li><a onClick={() => setTheme('cyberpunk')}>Cyberpunk</a></li>
-                <li><a onClick={() => setTheme('valentine')}>Valentine</a></li>
-                <li><a onClick={() => setTheme('halloween')}>Halloween</a></li>
-                <li><a onClick={() => setTheme('garden')}>Garden</a></li>
-                <li><a onClick={() => setTheme('forest')}>Forest</a></li>
-                <li><a onClick={() => setTheme('aqua')}>Aqua</a></li>
-                <li><a onClick={() => setTheme('lofi')}>Lofi</a></li>
-                <li><a onClick={() => setTheme('pastel')}>Pastel</a></li>
-                <li><a onClick={() => setTheme('fantasy')}>Fantasy</a></li>
-                <li><a onClick={() => setTheme('wireframe')}>Wireframe</a></li>
-                <li><a onClick={() => setTheme('black')}>Black</a></li>
-                <li><a onClick={() => setTheme('luxury')}>Luxury</a></li>
-                <li><a onClick={() => setTheme('dracula')}>Dracula</a></li>
-                <li><a onClick={() => setTheme('cmyk')}>CMYK</a></li>
-                <li><a onClick={() => setTheme('autumn')}>Autumn</a></li>
-                <li><a onClick={() => setTheme('business')}>Business</a></li>
-                <li><a onClick={() => setTheme('acid')}>Acid</a></li>
-                <li><a onClick={() => setTheme('lemonade')}>Lemonade</a></li>
-                <li><a onClick={() => setTheme('night')}>Night</a></li>
-                <li><a onClick={() => setTheme('coffee')}>Coffee</a></li>
-                <li><a onClick={() => setTheme('winter')}>Winter</a></li>
-                <li><a onClick={() => setTheme('customDark')}>Custom Dark</a></li>
-              </ul>
-            </div>
-            <a className="btn btn-ghost btn-circle" href="https://github.com" target="_blank" rel="noreferrer" aria-label="GitHub">
-              <FaGithub className="h-5 w-5" />
+          <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+            {t.app.title}
+          </h1>
+        </div>
+        
+        <nav className="flex-grow px-4 py-6">
+          <ul className="space-y-2">
+            {tools.map(({ id, icon: Icon }) => (
+              <li key={id}>
+                <button
+                  onClick={() => setActiveTool(id)}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 ${
+                    activeTool === id
+                      ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-content shadow-lg'
+                      : 'hover:bg-base-200/50 hover:shadow-md'
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="font-medium">{t.app.tools[id].title}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        
+        <div className="p-4 border-t border-base-300">
+          <div className="flex justify-around mb-4">
+            <a
+              href="https://github.com"
+              target="_blank"
+              rel="noreferrer"
+              className="btn btn-ghost btn-circle hover:bg-primary/10 hover:text-primary transition-colors"
+              title="GitHub"
+            >
+              <Github className="w-5 h-5" />
             </a>
-            <a className="btn btn-ghost btn-circle" href="https://twitter.com" target="_blank" rel="noreferrer" aria-label="Twitter">
-              <FaTwitter className="h-5 w-5" />
+            <a
+              href="https://twitter.com"
+              target="_blank"
+              rel="noreferrer"
+              className="btn btn-ghost btn-circle hover:bg-primary/10 hover:text-primary transition-colors"
+              title="Twitter"
+            >
+              <Twitter className="w-5 h-5" />
             </a>
+          </div>
+          <div className="flex justify-around">
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="btn btn-ghost btn-circle hover:bg-primary/10 hover:text-primary transition-colors"
+              title="Toggle Theme"
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+            <button
+              onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
+              className="btn btn-ghost btn-circle hover:bg-primary/10 hover:text-primary transition-colors"
+              title="Toggle Language"
+            >
+              <Languages className="w-5 h-5" />
+            </button>
           </div>
         </div>
-      </header>
+      </aside>
 
-      <main className="flex-grow container mx-auto p-4 md:p-8">
-        <div className="space-y-12">
-        {/* Silence Remover Section */}
-        <section>
-          <h2 className="text-2xl font-bold mb-4 flex items-center gap-3">
-            <FaCut className="text-primary" />
-            <span>{t.app.tools.silenceRemover.title}</span>
-          </h2>
-          <SilenceRemover />
-        </section>
-
-        <div className="divider"></div>
-
-        {/* CPM Calculator Section */}
-        <section>
-          <h2 className="text-2xl font-bold mb-4 flex items-center gap-3">
-            <FaCalculator className="text-primary" />
-            <span>{t.app.tools.cpmCalculator.title}</span>
-          </h2>
-          <CpmCalculator />
-        </section>
-
-        <div className="divider"></div>
-
-        {/* Thumbnail Downloader Section */}
-        <section>
-          <h2 className="text-2xl font-bold mb-4 flex items-center gap-3">
-            <FaImage className="text-primary" />
-            <span>{t.app.tools.thumbnailDownloader.title}</span>
-          </h2>
-          <ThumbnailDownloader />
-        </section>
-
-        <div className="divider"></div>
-
-        {/* Thumbnail Previewer Section */}
-        <section>
-          <h2 className="text-2xl font-bold mb-4 flex items-center gap-3">
-            <FaPhotoVideo className="text-primary" />
-            <span>{t.app.tools.thumbnailPreviewer.title}</span>
-          </h2>
-          <ThumbnailPreviewer />
-        </section>
-
-        <div className="divider"></div>
-
-        {/* Hashtag Generator Section */}
-        <section>
-          <h2 className="text-2xl font-bold mb-4 flex items-center gap-3">
-            <FaTags className="text-primary" />
-            <span>{t.app.tools.hashtagGenerator.title}</span>
-          </h2>
-          <HashtagGenerator lang={lang} />
-        </section>
-
-        <div className="divider"></div>
-
-        {/* Color Palette Generator Section */}
-        <section>
-          <h2 className="text-2xl font-bold mb-4 flex items-center gap-3">
-            <FaPalette className="text-primary" />
-            <span>{t.app.tools.colorPaletteGenerator.title}</span>
-          </h2>
-          <ColorPaletteGenerator />
-        </section>
+      {/* Main Content */}
+      <main className="flex-1 p-6 md:p-8 overflow-y-auto">
+        <div className="max-w-6xl mx-auto">
+          {renderTool()}
         </div>
       </main>
-
-      <footer className="footer footer-center p-4 bg-base-200 text-base-content">
-        <div>
-          <p>Copyright © 2024 - All right reserved by YouCreator Tools</p>
-        </div>
-      </footer>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

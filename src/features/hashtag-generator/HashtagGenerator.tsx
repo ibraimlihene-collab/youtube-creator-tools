@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const HashtagGenerator = ({ lang }: { lang: 'ar' | 'en' }) => {
   const [text, setText] = useState('');
@@ -24,34 +24,97 @@ const HashtagGenerator = ({ lang }: { lang: 'ar' | 'en' }) => {
   };
 
   return (
-    <div>
-      <textarea
-        className="textarea textarea-bordered w-full"
-        rows={6}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Enter your text here..."
-      ></textarea>
-      <button className="btn btn-primary mt-4" onClick={generateHashtags}>
-        Generate Hashtags
-      </button>
+    <div className="space-y-6">
+      <div className="form-control">
+        <label className="label label-text font-medium mb-2">
+          Enter your text here
+        </label>
+        <textarea
+          className="textarea textarea-bordered textarea-lg w-full resize-none"
+          rows={6}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Paste your content here to generate relevant hashtags..."
+        ></textarea>
+        <div className="label justify-start">
+          <span className="label-text-alt text-sm opacity-70">
+            {text.length} characters
+          </span>
+        </div>
+      </div>
+      
+      <div className="flex flex-wrap gap-3">
+        <button
+          className="btn btn-primary btn-lg"
+          onClick={generateHashtags}
+          disabled={!text.trim()}
+        >
+          Generate Hashtags
+        </button>
+        <button
+          className="btn btn-outline btn-lg"
+          onClick={() => {
+            setText('');
+            setHashtags([]);
+          }}
+          disabled={!text.trim()}
+        >
+          Clear
+        </button>
+      </div>
+
       {hashtags.length > 0 && (
-        <div className="mt-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-bold">Generated Hashtags:</h3>
-            <button
-              className="btn btn-ghost btn-sm"
-              onClick={() => navigator.clipboard.writeText(hashtags.join(' '))}
-            >
-              Copy
-            </button>
+        <div className="mt-6 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-semibold">Generated Hashtags</h3>
+              <p className="text-sm opacity-70">
+                Found {hashtags.length} relevant hashtags
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => navigator.clipboard.writeText(hashtags.join(' '))}
+              >
+                Copy All
+              </button>
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={() => navigator.clipboard.writeText(hashtags.slice(0, 10).join(' '))}
+              >
+                Copy Top 10
+              </button>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2 mt-2">
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {hashtags.map((tag, index) => (
-              <span key={index} className="badge badge-lg badge-outline">
-                {tag}
-              </span>
+              <div
+                key={index}
+                className="group relative"
+              >
+                <div className="badge badge-lg badge-outline cursor-pointer hover:badge-primary transition-all duration-200 transform hover:scale-105">
+                  {tag}
+                </div>
+                <button
+                  className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 btn btn-ghost btn-xs btn-circle"
+                  onClick={() => navigator.clipboard.writeText(tag)}
+                  title="Copy hashtag"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </button>
+              </div>
             ))}
+          </div>
+          
+          <div className="alert alert-info">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Pro tip: Use a mix of popular and niche hashtags for better reach!</span>
           </div>
         </div>
       )}

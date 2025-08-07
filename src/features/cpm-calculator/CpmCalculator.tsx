@@ -72,59 +72,120 @@ const CpmCalculator: React.FC = () => {
   }, [selectedFieldId, selectedCategory]);
 
   return (
-    <div className="card bg-base-100 shadow-xl">
-      <div className="card-body">
-        <h2 className="card-title">حاسبة تقدير أرباح يوتيوب (CPM)</h2>
-        <p className="mb-4">اختر مجالك وفئة الدولة لترى تقدير تكلفة الألف ظهور (CPM).</p>
-        
-        <div className="grid md:grid-cols-2 gap-4">
-          {/* Field Selector */}
-          <div className="form-control w-full">
-            <label className="label">
-              <span className="label-text">اختر المجال</span>
-            </label>
-            <select 
-              className="select select-bordered"
-              value={selectedFieldId}
-              onChange={(e) => setSelectedFieldId(Number(e.target.value))}
-            >
-              <option disabled value="">اختر...</option>
-              {cpmData.map(item => (
-                <option key={item.id} value={item.id}>{item.field}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Category Selector */}
-          <div className="form-control w-full">
-            <label className="label">
-              <span className="label-text">اختر فئة الدولة</span>
-            </label>
-            <select 
-              className="select select-bordered"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value as any)}
-            >
-              <option disabled value="">اختر...</option>
-              <option value="rich">دول غنية</option>
-              <option value="medium">دول متوسطة</option>
-              <option value="poor">الدول النامية</option>
-            </select>
-          </div>
+    <div className="space-y-6">
+      <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl p-6 border border-primary/20">
+        <h2 className="text-2xl font-bold mb-2">YouTube CPM Calculator</h2>
+        <p className="opacity-80">Estimate your YouTube earnings based on your niche and target audience</p>
+      </div>
+      
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Field Selector */}
+        <div className="form-control">
+          <label className="label label-text font-medium mb-2">
+            <span className="flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Select Your Niche
+            </span>
+          </label>
+          <select
+            className="select select-bordered select-lg"
+            value={selectedFieldId}
+            onChange={(e) => setSelectedFieldId(Number(e.target.value))}
+          >
+            <option disabled value="">Choose a niche...</option>
+            {cpmData.map(item => (
+              <option key={item.id} value={item.id}>{item.field}</option>
+            ))}
+          </select>
         </div>
 
-        {/* Result Display */}
-        {result && (
-          <div className="mt-6">
-            <div className="alert alert-success">
+        {/* Category Selector */}
+        <div className="form-control">
+          <label className="label label-text font-medium mb-2">
+            <span className="flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Country Category
+            </span>
+          </label>
+          <select
+            className="select select-bordered select-lg"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value as any)}
+          >
+            <option disabled value="">Select category...</option>
+            <option value="rich">🇺🇸🇬🇧🇨🇦🇦🇺 Wealthy Countries</option>
+            <option value="medium">🇧🇷🇮🇳🇹🇷🇵🇱 Medium Countries</option>
+            <option value="poor">🇵🇰🇳🇬🇻🇳🇧🇩 Developing Countries</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Result Display */}
+      {result && (
+        <div className="mt-8">
+          <div className="bg-gradient-to-r from-success/10 to-success/5 rounded-2xl p-6 border border-success/20">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               <div>
-                <span className="text-lg font-bold">الـ CPM المقدر هو:</span>
-                <span className="text-2xl font-mono ml-2">${result}</span>
+                <h3 className="text-lg font-semibold mb-1">Estimated CPM</h3>
+                <p className="text-sm opacity-70">Cost Per Mille (1000 views)</p>
+              </div>
+              <div className="text-center md:text-right">
+                <div className="text-4xl font-bold text-success">
+                  ${result}
+                </div>
+                <div className="text-sm opacity-70 mt-1">
+                  {selectedCategory === 'rich' && 'Premium advertiser rates'}
+                  {selectedCategory === 'medium' && 'Moderate advertiser rates'}
+                  {selectedCategory === 'poor' && 'Basic advertiser rates'}
+                </div>
               </div>
             </div>
           </div>
-        )}
-      </div>
+          
+          <div className="grid md:grid-cols-3 gap-4 mt-6">
+            <div className="card bg-base-100/50 backdrop-blur-sm">
+              <div className="card-body items-center text-center">
+                <div className="text-2xl mb-2">💰</div>
+                <h4 className="font-semibold">Revenue Potential</h4>
+                <p className="text-sm opacity-70">
+                  {selectedCategory === 'rich' ? 'High' : selectedCategory === 'medium' ? 'Medium' : 'Moderate'}
+                </p>
+              </div>
+            </div>
+            <div className="card bg-base-100/50 backdrop-blur-sm">
+              <div className="card-body items-center text-center">
+                <div className="text-2xl mb-2">📈</div>
+                <h4 className="font-semibold">Growth Rate</h4>
+                <p className="text-sm opacity-70">
+                  {selectedFieldId ? 'Varies by niche' : 'Select niche'}
+                </p>
+              </div>
+            </div>
+            <div className="card bg-base-100/50 backdrop-blur-sm">
+              <div className="card-body items-center text-center">
+                <div className="text-2xl mb-2">🎯</div>
+                <h4 className="font-semibold">Competition</h4>
+                <p className="text-sm opacity-70">
+                  {selectedFieldId ? 'High in popular niches' : 'Select niche'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {!result && (
+        <div className="alert alert-info">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>Select your niche and country category to see estimated CPM rates</span>
+        </div>
+      )}
     </div>
   );
 };

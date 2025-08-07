@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 // Helper function to convert hex to HSL
 const hexToHsl = (hex: string): [number, number, number] => {
@@ -113,49 +113,97 @@ const ColorPaletteGenerator = () => {
   };
 
   return (
-    <div>
-      <div className="flex items-center gap-4 mb-4">
-        <input
-          type="color"
-          value={baseColor}
-          onChange={(e) => {
-            setBaseColor(e.target.value);
-            generatePalette(e.target.value);
-          }}
-          className="input input-bordered"
-        />
-        <select
-          value={paletteType}
-          onChange={(e) => {
-            setPaletteType(e.target.value);
-            generatePalette(baseColor, e.target.value);
-          }}
-          className="select select-bordered"
-        >
-          <option value="analogous">Analogous</option>
-          <option value="complementary">Complementary</option>
-          <option value="triadic">Triadic</option>
-        </select>
-        <button className="btn btn-primary" onClick={() => generatePalette(generateRandomColor())}>
-          Generate Random Palette
-        </button>
-        <button className="btn btn-secondary" onClick={downloadPalette}>
-          Download
-        </button>
+    <div className="space-y-6">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="form-control">
+          <label className="label label-text font-medium mb-2">Base Color</label>
+          <div className="relative">
+            <input
+              type="color"
+              value={baseColor}
+              onChange={(e) => {
+                setBaseColor(e.target.value);
+                generatePalette(e.target.value);
+              }}
+              className="w-full h-12 rounded-lg border-2 border-base-300 cursor-pointer"
+            />
+            <div className="absolute inset-0 rounded-lg pointer-events-none border-2 border-transparent hover:border-primary/30 transition-colors"></div>
+          </div>
+        </div>
+        
+        <div className="form-control">
+          <label className="label label-text font-medium mb-2">Palette Type</label>
+          <select
+            value={paletteType}
+            onChange={(e) => {
+              setPaletteType(e.target.value);
+              generatePalette(baseColor, e.target.value);
+            }}
+            className="select select-bordered select-sm"
+          >
+            <option value="analogous">Analogous</option>
+            <option value="complementary">Complementary</option>
+            <option value="triadic">Triadic</option>
+          </select>
+        </div>
+        
+        <div className="form-control">
+          <label className="label label-text font-medium mb-2">Actions</label>
+          <div className="flex gap-2">
+            <button
+              className="btn btn-primary btn-sm flex-1"
+              onClick={() => generatePalette(generateRandomColor())}
+            >
+              Random
+            </button>
+            <button
+              className="btn btn-secondary btn-sm flex-1"
+              onClick={downloadPalette}
+            >
+              Download
+            </button>
+          </div>
+        </div>
+        
+        <div className="form-control">
+          <label className="label label-text font-medium mb-2">Quick Copy</label>
+          {colors.length > 0 && (
+            <button
+              className="btn btn-outline btn-sm w-full"
+              onClick={() => navigator.clipboard.writeText(colors.join(', '))}
+            >
+              Copy All Colors
+            </button>
+          )}
+        </div>
       </div>
 
       {colors.length > 0 && (
-        <div className="mt-4">
-          <div className="flex flex-wrap gap-4 mt-2">
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold mb-4">Generated Palette</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {colors.map((color, index) => (
-              <div key={index} className="relative cursor-pointer" onClick={() => handleCopy(color)}>
+              <div
+                key={index}
+                className="group relative cursor-pointer transform transition-all duration-200 hover:scale-105"
+                onClick={() => handleCopy(color)}
+              >
                 <div
-                  className="w-24 h-24 rounded-lg shadow-md"
+                  className="w-full h-32 rounded-xl shadow-lg border-2 border-base-300 overflow-hidden"
                   style={{ backgroundColor: color }}
-                ></div>
-                <span className="block text-center mt-2 font-mono">{color}</span>
+                >
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                </div>
+                <div className="mt-3 text-center">
+                  <div className="font-mono text-sm font-medium bg-base-200 rounded-lg px-2 py-1">
+                    {color}
+                  </div>
+                  <div className="text-xs opacity-70 mt-1">
+                    HSL({hexToHsl(color).map(Math.round).join(', ')})
+                  </div>
+                </div>
                 {copiedColor === color && (
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 py-1 bg-success text-success-content rounded-md text-xs">
+                  <div className="absolute top-2 right-2 px-2 py-1 bg-success text-success-content rounded-md text-xs font-medium shadow-lg">
                     Copied!
                   </div>
                 )}

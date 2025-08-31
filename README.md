@@ -2,6 +2,16 @@
 
 A comprehensive suite of free tools designed to help YouTube content creators enhance their videos, optimize their content, and grow their channels.
 
+## About the Developer
+
+Hi there! My name is Ibrahim, and I'm from a small village in Morocco. I'm still learning to code and this is my first open source project. I've always been passionate about YouTube and creating content that helps other creators like me.
+
+As a young content creator, I know how important it is to have the right tools to create engaging content. I've always been searching for tools online, but I never knew if they were safe to use or not. That's why I decided to create my own free, open-source alternatives that other creators can trust.
+
+I know the code quality is not great, but this is mainly an educational project for me to learn new tools like AI coding, latest LLMs, Gemini, and other technologies. This project uses AI to help content creators with various tasks like generating scripts, titles, descriptions, and hashtags. With the help of AI tools and guidance from my brother, I was able to deploy my first project. This journey has been both challenging and rewarding, and I'm excited to share these tools with the YouTube creator community.
+
+This project represents not just my technical growth, but also my dream of creating accessible tools that can help creators around the world, regardless of their background or experience level.
+
 ## Features
 
 - **Silence Remover**: Automatically detect and remove silent parts from your videos to keep your audience engaged
@@ -100,3 +110,5 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+The MIT License is a permissive open-source license that allows for free use, modification, and distribution of the software, with only a requirement to include the original copyright notice and disclaimer. This means you can use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software, and you can permit persons to whom the software is furnished to do so, subject to the conditions outlined in the LICENSE file.

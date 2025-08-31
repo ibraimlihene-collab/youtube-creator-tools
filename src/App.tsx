@@ -4,15 +4,18 @@ import {
   Scissors,
   Calculator,
   Download,
-  Eye,
+ Eye,
   Tags,
-  Github,
+ Github,
   Twitter,
   Sun,
   Moon,
   Languages,
   Image,
   Repeat,
+  AlignLeft,
+ Type,
+ Pen,
 } from 'lucide-react';
 import ColorPaletteGenerator from './features/color-palette-generator/ColorPaletteGenerator';
 import CpmCalculator from './features/cpm-calculator/CpmCalculator';
@@ -22,6 +25,9 @@ import ThumbnailDownloader from './features/thumbnail-downloader/ThumbnailDownlo
 import ThumbnailPreviewer from './features/thumbnail-previewer/ThumbnailPreviewer';
 import ThumbnailGenerator from './features/thumbnail-generator/ThumbnailGenerator';
 import VideoRephraser from './features/video-rephraser/VideoRephraser';
+import ScriptWriter from './features/script-writer/ScriptWriter';
+import DescriptionGenerator from './features/description-generator/DescriptionGenerator';
+import TitleGenerator from './features/title-generator/TitleGenerator';
 import ar from './locales/ar.json';
 import en from './locales/en.json';
 import ToolCard from './components/ToolCard';
@@ -36,17 +42,23 @@ type Tool =
   | 'hashtagGenerator'
   | 'colorPaletteGenerator'
   | 'thumbnailGenerator'
-  | 'videoRephraser';
+  | 'videoRephraser'
+  | 'scriptWriter'
+  | 'descriptionGenerator'
+  | 'titleGenerator';
 
 const tools: { id: Tool; icon: React.ElementType }[] = [
   { id: 'silenceRemover', icon: Scissors },
   { id: 'cpmCalculator', icon: Calculator },
-  { id: 'thumbnailDownloader', icon: Download },
+ { id: 'thumbnailDownloader', icon: Download },
   { id: 'thumbnailPreviewer', icon: Eye },
-  { id: 'hashtagGenerator', icon: Tags },
+ { id: 'hashtagGenerator', icon: Tags },
   { id: 'colorPaletteGenerator', icon: Palette },
-  { id: 'thumbnailGenerator', icon: Image },
+ { id: 'thumbnailGenerator', icon: Image },
   { id: 'videoRephraser', icon: Repeat },
+  { id: 'scriptWriter', icon: Pen },
+  { id: 'descriptionGenerator', icon: AlignLeft },
+  { id: 'titleGenerator', icon: Type },
 ];
 
 function App() {
@@ -85,25 +97,34 @@ function App() {
         toolComponent = <SilenceRemover />;
         break;
       case 'cpmCalculator':
-        toolComponent = <CpmCalculator />;
+        toolComponent = <CpmCalculator t={t} />;
         break;
       case 'thumbnailDownloader':
-        toolComponent = <ThumbnailDownloader />;
+        toolComponent = <ThumbnailDownloader t={t} />;
         break;
       case 'thumbnailPreviewer':
-        toolComponent = <ThumbnailPreviewer />;
+        toolComponent = <ThumbnailPreviewer t={t} />;
         break;
       case 'hashtagGenerator':
-        toolComponent = <HashtagGenerator lang={lang} />;
+        toolComponent = <HashtagGenerator lang={lang} t={t} />;
         break;
       case 'colorPaletteGenerator':
-        toolComponent = <ColorPaletteGenerator />;
+        toolComponent = <ColorPaletteGenerator t={t} />;
         break;
       case 'thumbnailGenerator':
-        toolComponent = <ThumbnailGenerator />;
+        toolComponent = <ThumbnailGenerator t={t} />;
         break;
       case 'videoRephraser':
-        toolComponent = <VideoRephraser />;
+        toolComponent = <VideoRephraser t={t} />;
+        break;
+      case 'scriptWriter':
+        toolComponent = <ScriptWriter t={t} />;
+        break;
+      case 'descriptionGenerator':
+        toolComponent = <DescriptionGenerator t={t} />;
+        break;
+      case 'titleGenerator':
+        toolComponent = <TitleGenerator t={t} />;
         break;
       default:
         return null;

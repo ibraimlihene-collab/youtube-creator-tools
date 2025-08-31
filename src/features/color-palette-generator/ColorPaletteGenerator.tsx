@@ -34,7 +34,7 @@ const hslToHex = (h: number, s: number, l: number): string => {
 };
 
 
-const ColorPaletteGenerator = () => {
+const ColorPaletteGenerator = ({ t }: { t: any }) => {
   const [baseColor, setBaseColor] = useState('#FF6347');
   const [paletteType, setPaletteType] = useState('analogous');
   const [colors, setColors] = useState<string[]>([]);
@@ -116,7 +116,7 @@ const ColorPaletteGenerator = () => {
     <div className="space-y-6">
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="form-control">
-          <label className="label label-text font-medium mb-2">Base Color</label>
+          <label className="label label-text font-medium mb-2">{t.colorPaletteGenerator.baseColor}</label>
           <div className="relative">
             <input
               type="color"
@@ -132,7 +132,7 @@ const ColorPaletteGenerator = () => {
         </div>
         
         <div className="form-control">
-          <label className="label label-text font-medium mb-2">Palette Type</label>
+          <label className="label label-text font-medium mb-2">{t.colorPaletteGenerator.paletteType}</label>
           <select
             value={paletteType}
             onChange={(e) => {
@@ -141,78 +141,53 @@ const ColorPaletteGenerator = () => {
             }}
             className="select select-bordered select-sm"
           >
-            <option value="analogous">Analogous</option>
-            <option value="complementary">Complementary</option>
-            <option value="triadic">Triadic</option>
+            <option value="analogous">{t.colorPaletteGenerator.analogous}</option>
+            <option value="complementary">{t.colorPaletteGenerator.complementary}</option>
+            <option value="triadic">{t.colorPaletteGenerator.triadic}</option>
           </select>
         </div>
         
         <div className="form-control">
-          <label className="label label-text font-medium mb-2">Actions</label>
-          <div className="flex gap-2">
-            <button
-              className="btn btn-primary btn-sm flex-1"
-              onClick={() => generatePalette(generateRandomColor())}
-            >
-              Random
-            </button>
-            <button
-              className="btn btn-secondary btn-sm flex-1"
-              onClick={downloadPalette}
-            >
-              Download
-            </button>
-          </div>
+          <button
+            onClick={() => generatePalette(generateRandomColor())}
+            className="btn btn-primary btn-sm"
+          >
+            {t.colorPaletteGenerator.generate}
+          </button>
         </div>
         
         <div className="form-control">
-          <label className="label label-text font-medium mb-2">Quick Copy</label>
-          {colors.length > 0 && (
-            <button
-              className="btn btn-outline btn-sm w-full"
-              onClick={() => navigator.clipboard.writeText(colors.join(', '))}
-            >
-              Copy All Colors
-            </button>
-          )}
+          <button
+            onClick={downloadPalette}
+            className="btn btn-outline btn-sm"
+          >
+            {t.colorPaletteGenerator.download}
+          </button>
         </div>
       </div>
 
-      {colors.length > 0 && (
-        <div className="mt-8">
-          <h3 className="text-lg font-semibold mb-4">Generated Palette</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {colors.map((color, index) => (
-              <div
-                key={index}
-                className="group relative cursor-pointer transform transition-all duration-200 hover:scale-105"
-                onClick={() => handleCopy(color)}
-              >
-                <div
-                  className="w-full h-32 rounded-xl shadow-lg border-2 border-base-300 overflow-hidden"
-                  style={{ backgroundColor: color }}
-                >
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
-                </div>
-                <div className="mt-3 text-center">
-                  <div className="font-mono text-sm font-medium bg-base-200 rounded-lg px-2 py-1">
-                    {color}
-                  </div>
-                  <div className="text-xs opacity-70 mt-1">
-                    HSL({hexToHsl(color).map(Math.round).join(', ')})
-                  </div>
-                </div>
-                {copiedColor === color && (
-                  <div className="absolute top-2 right-2 px-2 py-1 bg-success text-success-content rounded-md text-xs font-medium shadow-lg">
-                    Copied!
-                  </div>
-                )}
-              </div>
-            ))}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+        {colors.map((color, index) => (
+          <div key={index} className="flex flex-col items-center">
+            <div
+              className="w-full h-24 rounded-lg shadow-md cursor-pointer mb-2 border-2 border-base-300 hover:border-primary transition-colors"
+              style={{ backgroundColor: color }}
+              onClick={() => handleCopy(color)}
+            ></div>
+            <span 
+              className="text-sm font-mono cursor-pointer hover:text-primary"
+              onClick={() => handleCopy(color)}
+            >
+              {color}
+            </span>
+            {copiedColor === color && (
+              <span className="text-xs text-success mt-1">{t.colorPaletteGenerator.copied}</span>
+            )}
           </div>
-        </div>
-      )}
-      <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
+        ))}
+      </div>
+      
+      <canvas ref={canvasRef} className="hidden"></canvas>
     </div>
   );
 };

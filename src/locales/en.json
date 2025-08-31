@@ -34,8 +34,83 @@
       },
       "videoRephraser": {
         "title": "Video Rephraser"
+      },
+      "scriptWriter": {
+        "title": "Script Writer"
+      },
+      "descriptionGenerator": {
+        "title": "Description Generator"
+      },
+      "titleGenerator": {
+        "title": "Title Generator"
       }
     }
+  },
+  "apiKeyInput": {
+    "label": "Google AI Studio API Key",
+    "placeholder": "Enter your Google AI Studio API Key",
+    "hintTitle": "Get Your Free API Key",
+    "hintText": "Visit {link} to get your free Google AI Studio API key. It's completely free and safe from Google. They only train on publicly available data and do not use your API requests for training.",
+    "hintLink": "ai.dev/apikey",
+    "invalidKey": "Please enter a valid API key"
+  },
+  "hashtagGenerator": {
+    "label": "Enter your text here",
+    "placeholder": "Paste your content here to generate relevant hashtags...",
+    "characters": "{count} characters",
+    "generate": "Generate Hashtags",
+    "clear": "Clear",
+    "generatedTitle": "Generated Hashtags",
+    "found": "Found {count} relevant hashtags",
+    "copyAll": "Copy All",
+    "copyTop10": "Copy Top 10"
+  },
+  "cpmCalculator": {
+    "title": "YouTube CPM Calculator",
+    "description": "Estimate your YouTube earnings based on your niche and target audience",
+    "selectNiche": "Select Your Niche",
+    "chooseNiche": "Choose a niche...",
+    "countryCategory": "Country Category",
+    "selectCategory": "Select category...",
+    "wealthyCountries": "🇺🇸🇬🇧🇨🇦🇦🇺 Wealthy Countries",
+    "middleIncome": "🌍 Middle Income Countries",
+    "lowIncome": "🌏 Low Income Countries",
+    "globalAverage": "🌐 Global Average",
+    "result": "Estimated CPM",
+    "resultDescription": "Your estimated CPM (Cost Per Mille) is",
+    "disclaimer": "Note: These are estimates based on industry data. Actual earnings may vary significantly based on content quality, audience engagement, and ad performance."
+  },
+  "colorPaletteGenerator": {
+    "baseColor": "Base Color",
+    "paletteType": "Palette Type",
+    "analogous": "Analogous",
+    "complementary": "Complementary",
+    "triadic": "Triadic",
+    "generate": "Generate Random Palette",
+    "download": "Download Palette",
+    "copied": "Copied!"
+  },
+  "thumbnailDownloader": {
+    "title": "YouTube Thumbnail Downloader",
+    "description": "Enter a YouTube video URL to view and download available thumbnails.",
+    "placeholder": "Enter video URL here...",
+    "availableThumbnails": "Available Thumbnails:",
+    "download": "Download",
+    "downloadError": "Failed to download image."
+  },
+  "thumbnailPreviewer": {
+    "title": "YouTube Thumbnail Previewer",
+    "description": "Preview your thumbnails on different devices and themes",
+    "uploadThumbnail": "Upload Thumbnail",
+    "uploadDescription": "Upload an image to see it in the preview",
+    "viewMode": "View Mode",
+    "desktop": "Desktop",
+    "mobile": "Mobile",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "controls": "Controls",
+    "mockThumbnails": "Mock Thumbnails"
   },
   "silenceRemover": {
     "title": "Silence Remover",

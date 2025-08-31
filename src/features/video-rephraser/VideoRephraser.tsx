@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GoogleGenAI } from '@google/genai';
+import ApiKeyInput from '../../components/ApiKeyInput';
 
 type FileDataPart = {
   fileData: {
@@ -13,7 +14,7 @@ type ContentPart = FileDataPart | TextPart;
 const isYouTubeUrl = (url: string) =>
   /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//i.test(url);
 
-const VideoRephraser = () => {
+const VideoRephraser = ({ t }: { t?: any }) => {
   const [apiKey, setApiKey] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
   const [originalScript, setOriginalScript] = useState('');
@@ -149,13 +150,7 @@ const VideoRephraser = () => {
     <div className="p-4">
       <h2 className="text-2xl font-bold mb-4">Video Rephraser</h2>
       <div className="flex flex-col gap-4">
-        <input
-          type="password"
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-          placeholder="Enter your Google AI Studio API Key"
-          className="p-2 border rounded"
-        />
+        <ApiKeyInput apiKey={apiKey} onApiKeyChange={setApiKey} t={t} />
         <input
           type="text"
           value={videoUrl}
@@ -166,11 +161,11 @@ const VideoRephraser = () => {
         <button
           onClick={handleProcessVideo}
           disabled={isLoading}
-          className="bg-blue-500 text-white p-2 rounded disabled:bg-gray-400"
+          className="bg-blue-50 text-white p-2 rounded disabled:bg-gray-400"
         >
           {isLoading ? 'Processing...' : 'Process Video'}
         </button>
-        {error && <div className="text-red-500 mt-2">{error}</div>}
+        {error && <div className="text-red-50 mt-2">{error}</div>}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div>
             <h3 className="font-bold mb-2">Original Script</h3>

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GoogleGenAI, Modality } from '@google/genai';
+import ApiKeyInput from '../../components/ApiKeyInput';
 
 // Helper function to get video ID from YouTube URL
 const getYouTubeVideoId = (url: string): string | null => {
@@ -33,7 +34,7 @@ type InlineImagePart = {
 type TextPart = { text: string };
 type ContentPart = InlineImagePart | TextPart;
 
-const ThumbnailGenerator = () => {
+const ThumbnailGenerator = ({ t }: { t?: any }) => {
   const [apiKey, setApiKey] = useState('');
   const [prompt, setPrompt] = useState('');
   const [referenceUrl, setReferenceUrl] = useState('');
@@ -69,11 +70,11 @@ const ThumbnailGenerator = () => {
           try {
             const base64ImageData = await fetchImageAsBase64(thumbnailUrl);
             const imagePart: InlineImagePart = {
-              inlineData: {
-                mimeType: 'image/jpeg',
-                data: base64ImageData, // already base64 without prefix
-              },
-            };
+                  inlineData: {
+                    mimeType: 'image/jpeg',
+                    data: base64ImageData, // already base64 without prefix
+                  },
+                };
             contentParts.push(imagePart);
           } catch (imgError) {
             console.error("Could not fetch reference thumbnail:", imgError);
@@ -126,13 +127,7 @@ const ThumbnailGenerator = () => {
     <div className="p-4">
       <h2 className="text-2xl font-bold mb-4">Thumbnail Generator</h2>
       <div className="flex flex-col gap-4">
-        <input
-          type="password"
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-          placeholder="Enter your Google AI Studio API Key"
-          className="p-2 border rounded"
-        />
+        <ApiKeyInput apiKey={apiKey} onApiKeyChange={setApiKey} t={t} />
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
@@ -149,7 +144,7 @@ const ThumbnailGenerator = () => {
         <button
           onClick={handleGenerate}
           disabled={isLoading}
-          className="bg-blue-500 text-white p-2 rounded disabled:bg-gray-400"
+          className="bg-blue-50 text-white p-2 rounded disabled:bg-gray-400"
         >
           {isLoading ? 'Generating...' : 'Generate Thumbnails'}
         </button>

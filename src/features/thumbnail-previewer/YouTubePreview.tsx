@@ -15,7 +15,6 @@ const YouTubePreview: React.FC<YouTubePreviewProps> = ({
   mockThumbnails,
   isFullView,
 }) => {
-  const themeClasses = themeMode === 'light' ? 'bg-white text-black' : 'bg-[#0f0f0f] text-white';
   const gridClasses = isFullView ? 'grid-cols-5' : viewMode === 'desktop' ? 'grid-cols-4' : 'grid-cols-1';
 
   // We'll show more thumbnails in full view

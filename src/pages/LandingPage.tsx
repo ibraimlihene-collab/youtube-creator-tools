@@ -525,13 +525,11 @@ const LandingPage = () => {
             </div>
             
             <div>
-              <h3 className="text-lg font-bold mb-4">{t.landingPage?.about || 'Company'}</h3>
+              <h3 className="text-lg font-bold mb-4">{t.landingPage?.about || 'About YouCreator Tools'}</h3>
+              <p className="text-base-content/80 mb-4">
+                {t.landingPage?.aboutDesc || 'A comprehensive suite of free tools designed to help YouTube content creators enhance their videos, optimize their content, and grow their channels.'}
+              </p>
               <ul className="space-y-2">
-                <li>
-                  <a href="#" className="text-base-content/80 hover:text-primary transition-colors">
-                    {t.landingPage?.about || 'About Us'}
-                  </a>
-                </li>
                 <li>
                   <a href="#" className="text-base-content/80 hover:text-primary transition-colors">
                     {t.landingPage?.contact || 'Contact'}
@@ -552,7 +550,7 @@ const LandingPage = () => {
           </div>
           
           <div className="border-t border-base-300/50 mt-12 pt-8 text-center text-base-content/60">
-            <p>{t.landingPage?.copyright || '© 2023 YouCreator Tools. All rights reserved.'}</p>
+            <p>{t.landingPage?.copyright || '© 2025 YouCreator Tools. All rights reserved.'}</p>
           </div>
         </div>
       </footer>

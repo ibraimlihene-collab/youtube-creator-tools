@@ -355,7 +355,7 @@ const LandingPage = () => {
               return (
                 <div 
                   key={tool.id}
-                  className="glass-effect rounded-2xl p-6 hover-lift transition-all duration-300 cursor-pointer animate-fade-in-up"
+                  className="glass-effect rounded-2xl p-6 hover-lift transition-all duration-300 cursor-pointer animate-fade-in-up w-full"
                   onClick={() => navigate(tool.path)}
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
@@ -363,7 +363,7 @@ const LandingPage = () => {
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0">
                       <Icon className="w-6 h-6 text-primary" />
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <h3 className="text-lg font-bold mb-1">
                         {t.app.tools[tool.id as keyof typeof t.app.tools]?.title || tool.id}
                       </h3>

@@ -101,6 +101,8 @@ const LandingPage = () => {
     return (savedTheme as Theme) || 'customDark';
   });
   
+  const [activeEmbeddedTool, setActiveEmbeddedTool] = useState<'hashtagGenerator' | 'cpmCalculator'>('hashtagGenerator');
+  
   const t = useMemo(() => (lang === 'ar' ? ar : en), [lang]);
 
   // Update document attributes when theme or language changes
@@ -394,31 +396,29 @@ const LandingPage = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 gap-8">
-            {/* Hashtag Generator Preview */}
-            <div className="glass-effect rounded-2xl p-6 hover-lift transition-all duration-300">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
-                  <Tags className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="text-2xl font-bold">
-                  {t.app.tools.hashtagGenerator?.title || 'Hashtag Generator'}
-                </h3>
-              </div>
-              <HashtagGenerator lang={lang} t={t} />
+          <div className="glass-effect rounded-2xl p-6 hover-lift transition-all duration-300">
+            <div className="flex flex-wrap gap-2 mb-6">
+              <button
+                className={`btn ${activeEmbeddedTool === 'hashtagGenerator' ? 'btn-primary' : 'btn-outline'}`}
+                onClick={() => setActiveEmbeddedTool('hashtagGenerator')}
+              >
+                {t.app.tools.hashtagGenerator?.title || 'Hashtag Generator'}
+              </button>
+              <button
+                className={`btn ${activeEmbeddedTool === 'cpmCalculator' ? 'btn-primary' : 'btn-outline'}`}
+                onClick={() => setActiveEmbeddedTool('cpmCalculator')}
+              >
+                {t.app.tools.cpmCalculator?.title || 'CPM Calculator'}
+              </button>
             </div>
             
-            {/* CPM Calculator Preview */}
-            <div className="glass-effect rounded-2xl p-6 hover-lift transition-all duration-300">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
-                  <Calculator className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="text-2xl font-bold">
-                  {t.app.tools.cpmCalculator?.title || 'CPM Calculator'}
-                </h3>
-              </div>
-              <CpmCalculator t={t} />
+            <div className="mt-6">
+              {activeEmbeddedTool === 'hashtagGenerator' && (
+                <HashtagGenerator lang={lang} t={t} />
+              )}
+              {activeEmbeddedTool === 'cpmCalculator' && (
+                <CpmCalculator t={t} />
+              )}
             </div>
           </div>
         </div>

@@ -1,4 +1,8 @@
 import { useState } from 'react';
+import ToolNavigation from '../../components/shared/ToolNavigation';
+import OtherTools from '../../components/shared/OtherTools';
+import ToolFAQ from '../../components/shared/ToolFAQ';
+import ToolFooter from '../../components/shared/ToolFooter';
 
 const HashtagGenerator = ({ lang, t }: { lang: 'ar' | 'en'; t: any }) => {
   const [text, setText] = useState('');
@@ -25,6 +29,9 @@ const HashtagGenerator = ({ lang, t }: { lang: 'ar' | 'en'; t: any }) => {
 
   return (
     <div className="space-y-6">
+      {/* Navigation at the top */}
+      <ToolNavigation currentTool="hashtagGenerator" t={t} />
+      
       <div className="form-control">
         <label className="label label-text font-medium mb-2">
           {t.hashtagGenerator.label}
@@ -101,6 +108,15 @@ const HashtagGenerator = ({ lang, t }: { lang: 'ar' | 'en'; t: any }) => {
           </div>
         </div>
       )}
+      
+      {/* Other tools section */}
+      <OtherTools currentTool="hashtagGenerator" t={t} />
+      
+      {/* FAQ section */}
+      <ToolFAQ toolId="hashtagGenerator" t={t} />
+      
+      {/* Footer */}
+      <ToolFooter t={t} />
     </div>
   );
 };

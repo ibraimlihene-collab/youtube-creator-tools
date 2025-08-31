@@ -1,75 +1,75 @@
 import React, { useState, useMemo } from 'react';
 
 const cpmData = [
-  { id: 1, field: 'المال والاستثمار', global: '15–50', rich: '25–40', medium: '3–6', poor: '0.5–2' },
-  { id: 2, field: 'البرمجة', global: '5–30', rich: '15–25', medium: '1–3', poor: '0.1–0.5' },
- { id: 3, field: 'التجارة الإلكترونية', global: '10–35', rich: '20–30', medium: '2–5', poor: '0.5–1.5' },
-  { id: 4, field: 'التسويق الرقمي', global: '12–40', rich: '25–35', medium: '3–6', poor: '0.8–2' },
-  { id: 5, field: 'العملات الرقمية', global: '10–30', rich: '18–25', medium: '2–4', poor: '0.4–1' },
-  { id: 6, field: 'العقارات', global: '15–45', rich: '30–40', medium: '3–7', poor: '0.6–2' },
-  { id: 7, field: 'مراجعات المنتجات', global: '5–12', rich: '8–10', medium: '1–2', poor: '0.2–0.6' },
- { id: 8, field: 'التقنية والأجهزة', global: '5–15', rich: '8–12', medium: '1–3', poor: '0.2–0.5' },
-  { id: 9, field: 'التعليم والتدريب', global: '6–20', rich: '12–18', medium: '2–4', poor: '0.4–1' },
-  { id: 10, field: 'الألعاب', global: '4–15', rich: '8–12', medium: '1–2.5', poor: '0.1–0.4' },
- { id: 11, field: 'الصحة والتغذية', global: '7–20', rich: '12–18', medium: '1.5–3', poor: '0.2–0.7' },
- { id: 12, field: 'اللياقة البدنية', global: '7–18', rich: '12–16', medium: '1.3–3', poor: '0.2–0.6' },
-  { id: 13, field: 'الجمال والعناية', global: '5–18', rich: '9–15', medium: '0.9–3.3', poor: '0.2–0.6' },
-  { id: 14, field: 'السفر والسياحة', global: '6–20', rich: '12–18', medium: '1.1–3.5', poor: '0.2–0.7' },
-  { id: 15, field: 'الطبيعة والحيوانات', global: '1.8–3.5', rich: '3–4', medium: '0.3–0.5', poor: '0.06–0.2' },
-  { id: 16, field: 'السيارات والمركبات', global: '5–15', rich: '8–12', medium: '1–2.5', poor: '0.2–0.6' },
- { id: 17, field: 'الفلوقات والترفيه', global: '2.7–6.4', rich: '5–9', medium: '0.5–1.2', poor: '0.1–0.3' },
-  { id: 18, field: 'الكوميديا', global: '3–8', rich: '6–8', medium: '0.8–1.5', poor: '0.1–0.3' },
-  { id: 19, field: 'التنمية الذاتية', global: '6–15', rich: '10–14', medium: '1–3', poor: '0.2–0.6' },
- { id: 20, field: 'الموسيقى', global: '1–3', rich: '2–3', medium: '0.5–1', poor: '0.1–0.2' },
-  { id: 21, field: 'التصوير والمونتاج', global: '5–12', rich: '10–12', medium: '1.2–2', poor: '0.2–0.5' },
-  { id: 22, field: 'الدروس التعليمية', global: '10–25', rich: '18–22', medium: '2–4', poor: '0.3–0.8' },
-  { id: 23, field: 'التاريخ والثقافة', global: '4–10', rich: '7–9', medium: '1–2', poor: '0.2–0.4' },
-  { id: 24, field: 'الكتب والقراءة', global: '3–6', rich: '5–6', medium: '0.8–1.2', poor: '0.2–0.3' },
-  { id: 25, field: 'الطبخ والمأكولات', global: '4–12', rich: '7–10', medium: '1–2', poor: '0.3–0.6' },
- { id: 26, field: 'الديكور والتصميم', global: '5–14', rich: '9–12', medium: '1.3–2.5', poor: '0.3–0.6' },
-  { id: 27, field: 'الحرف اليدوية', global: '3–10', rich: '6–9', medium: '1–2', poor: '0.3–0.5' },
-  { id: 28, field: 'الاستعراضات الكوميدية', global: '3–7', rich: '6–7', medium: '1–1.5', poor: '0.2–0.3' },
-  { id: 29, field: 'ريادة الأعمال', global: '12–30', rich: '20–28', medium: '3–5', poor: '0.5–1.5' },
-  { id: 30, field: 'قصص وتجارب شخصية', global: '2–8', rich: '5–7', medium: '1–1.5', poor: '0.2–0.4' },
-  { id: 31, field: 'نمط الحياة', global: '3–8', rich: '6–8', medium: '1–1.8', poor: '0.2–0.4' },
-  { id: 32, field: 'التكنولوجيا والعلوم', global: '5-25', rich: '10-20', medium: '1-4', poor: '0.2-0.8' },
-  { id: 33, field: 'الذكاء الاصطناعي والتعلّم الآلي', global: '8-30', rich: '15-28', medium: '2-5', poor: '0.5-1.5' },
-  { id: 34, field: 'الأمن السيبراني واختبار الاختراق', global: '10-35', rich: '18-30', medium: '3-6', poor: '0.6-2' },
-  { id: 35, field: 'تطوير الويب', global: '7-28', rich: '12-25', medium: '2-5', poor: '0.4-1.2' },
-  { id: 36, field: 'تطبيقات الهاتف المحمول', global: '6-25', rich: '10-22', medium: '1.5-4', poor: '0.3-1' },
-  { id: 37, field: 'الواقع الافتراضي والواقع المعزّز (VR/AR)', global: '5-20', rich: '10-18', medium: '1-3.5', poor: '0.2-0.8' },
-  { id: 38, field: 'إنترنت الأشياء (IoT)', global: '5-22', rich: '10-20', medium: '1-4', poor: '0.3-0.9' },
-  { id: 39, field: 'التمويل الشخصي', global: '10-40', rich: '20-35', medium: '3-7', poor: '0.8-2.5' },
-  { id: 40, field: 'تداول الأسهم والفوركس', global: '15-50', rich: '25-45', medium: '4-8', poor: '1-3' },
-  { id: 41, field: 'الرياضات الإلكترونية (eSports)', global: '5-18', rich: '10-15', medium: '1.5-3', poor: '0.2-0.7' },
-  { id: 42, field: 'التعليم والمعرفة', global: '6-25', rich: '12-22', medium: '2-5', poor: '0.4-1' },
-  { id: 43, field: 'الترفيه والفنون', global: '3-10', rich: '5-9', medium: '0.8-2', poor: '0.1-0.5' },
-  { id: 44, field: 'الصحة والجمال', global: '5-20', rich: '10-18', medium: '1-3.5', poor: '0.2-0.7' },
-  { id: 45, field: 'الدين والثقافة', global: '2-10', rich: '4-9', medium: '0.5-2', poor: '0.1-0.4' },
-  { id: 46, field: 'السينما والتلفزيون', global: '4-12', rich: '7-10', medium: '1-2', poor: '0.3-0.6' },
-  { id: 47, field: 'الرياضة والنشاط البدني', global: '5-18', rich: '8-15', medium: '1-3', poor: '0.2-0.5' },
-  { id: 48, field: 'الموضة والأزياء', global: '4-15', rich: '7-12', medium: '1-2.5', poor: '0.2-0.5' },
-  { id: 49, field: 'التسويق وريادة الأعمال', global: '12-35', rich: '20-30', medium: '3-6', poor: '0.5-1.8' },
-  { id: 50, field: 'المراجعات والمنتجات', global: '5-15', rich: '8-12', medium: '1-3', poor: '0.2-0.6' },
-  { id: 51, field: 'الحياة اليومية والأسرة', global: '3-10', rich: '5-9', medium: '0.8-2', poor: '0.1-0.4' },
-  { id: 52, field: 'التطوير الذاتي والنصائح المهنية', global: '6-20', rich: '10-18', medium: '2-4', poor: '0.3-0.8' }
+  { key: 'moneyAndInvestment', global: '15–50', rich: '25–40', medium: '3–6', poor: '0.5–2' },
+  { key: 'programming', global: '5–30', rich: '15–25', medium: '1–3', poor: '0.1–0.5' },
+  { key: 'ecommerce', global: '10–35', rich: '20–30', medium: '2–5', poor: '0.5–1.5' },
+  { key: 'digitalMarketing', global: '12–40', rich: '25–35', medium: '3–6', poor: '0.8–2' },
+  { key: 'cryptocurrency', global: '10–30', rich: '18–25', medium: '2–4', poor: '0.4–1' },
+  { key: 'realEstate', global: '15–45', rich: '30–40', medium: '3–7', poor: '0.6–2' },
+  { key: 'productReviews', global: '5–12', rich: '8–10', medium: '1–2', poor: '0.2–0.6' },
+  { key: 'technologyAndGadgets', global: '5–15', rich: '8–12', medium: '1–3', poor: '0.2–0.5' },
+  { key: 'educationAndTraining', global: '6–20', rich: '12–18', medium: '2–4', poor: '0.4–1' },
+  { key: 'gaming', global: '4–15', rich: '8–12', medium: '1–2.5', poor: '0.1–0.4' },
+  { key: 'healthAndNutrition', global: '7–20', rich: '12–18', medium: '1.5–3', poor: '0.2–0.7' },
+  { key: 'fitness', global: '7–18', rich: '12–16', medium: '1.3–3', poor: '0.2–0.6' },
+  { key: 'beautyAndCare', global: '5–18', rich: '9–15', medium: '0.9–3.3', poor: '0.2–0.6' },
+  { key: 'travelAndTourism', global: '6–20', rich: '12–18', medium: '1.1–3.5', poor: '0.2–0.7' },
+  { key: 'natureAndAnimals', global: '1.8–3.5', rich: '3–4', medium: '0.3–0.5', poor: '0.06–0.2' },
+  { key: 'carsAndVehicles', global: '5–15', rich: '8–12', medium: '1–2.5', poor: '0.2–0.6' },
+  { key: 'vlogsAndEntertainment', global: '2.7–6.4', rich: '5–9', medium: '0.5–1.2', poor: '0.1–0.3' },
+  { key: 'comedy', global: '3–8', rich: '6–8', medium: '0.8–1.5', poor: '0.1–0.3' },
+  { key: 'selfDevelopment', global: '6–15', rich: '10–14', medium: '1–3', poor: '0.2–0.6' },
+  { key: 'music', global: '1–3', rich: '2–3', medium: '0.5–1', poor: '0.1–0.2' },
+  { key: 'photographyAndEditing', global: '5–12', rich: '10–12', medium: '1.2–2', poor: '0.2–0.5' },
+  { key: 'educationalLessons', global: '10–25', rich: '18–22', medium: '2–4', poor: '0.3–0.8' },
+  { key: 'historyAndCulture', global: '4–10', rich: '7–9', medium: '1–2', poor: '0.2–0.4' },
+  { key: 'booksAndReading', global: '3–6', rich: '5–6', medium: '0.8–1.2', poor: '0.2–0.3' },
+  { key: 'cookingAndFood', global: '4–12', rich: '7–10', medium: '1–2', poor: '0.3–0.6' },
+  { key: 'decorationAndDesign', global: '5–14', rich: '9–12', medium: '1.3–2.5', poor: '0.3–0.6' },
+  { key: 'handicrafts', global: '3–10', rich: '6–9', medium: '1–2', poor: '0.3–0.5' },
+  { key: 'comedySkits', global: '3–7', rich: '6–7', medium: '1–1.5', poor: '0.2–0.3' },
+  { key: 'entrepreneurship', global: '12–30', rich: '20–28', medium: '3–5', poor: '0.5–1.5' },
+  { key: 'personalStoriesAndExperiences', global: '2–8', rich: '5–7', medium: '1–1.5', poor: '0.2–0.4' },
+  { key: 'lifestyle', global: '3–8', rich: '6–8', medium: '1–1.8', poor: '0.2–0.4' },
+  { key: 'technologyAndScience', global: '5-25', rich: '10-20', medium: '1-4', poor: '0.2-0.8' },
+  { key: 'artificialIntelligenceAndMachineLearning', global: '8-30', rich: '15-28', medium: '2-5', poor: '0.5-1.5' },
+  { key: 'cybersecurityAndPenetrationTesting', global: '10-35', rich: '18-30', medium: '3-6', poor: '0.6-2' },
+  { key: 'webDevelopment', global: '7-28', rich: '12-25', medium: '2-5', poor: '0.4-1.2' },
+  { key: 'mobileApplications', global: '6-25', rich: '10-22', medium: '1.5-4', poor: '0.3-1' },
+  { key: 'virtualAndAugmentedReality', global: '5-20', rich: '10-18', medium: '1-3.5', poor: '0.2-0.8' },
+  { key: 'internetOfThings', global: '5-22', rich: '10-20', medium: '1-4', poor: '0.3-0.9' },
+  { key: 'personalFinance', global: '10-40', rich: '20-35', medium: '3-7', poor: '0.8-2.5' },
+  { key: 'stockAndForexTrading', global: '15-50', rich: '25-45', medium: '4-8', poor: '1-3' },
+  { key: 'electronicSports', global: '5-18', rich: '10-15', medium: '1.5-3', poor: '0.2-0.7' },
+  { key: 'educationAndKnowledge', global: '6-25', rich: '12-22', medium: '2-5', poor: '0.4-1' },
+  { key: 'entertainmentAndArts', global: '3-10', rich: '5-9', medium: '0.8-2', poor: '0.1-0.5' },
+  { key: 'healthAndBeauty', global: '5-20', rich: '10-18', medium: '1-3.5', poor: '0.2-0.7' },
+  { key: 'religionAndCulture', global: '2-10', rich: '4-9', medium: '0.5-2', poor: '0.1-0.4' },
+  { key: 'cinemaAndTelevision', global: '4-12', rich: '7-10', medium: '1-2', poor: '0.3-0.6' },
+  { key: 'sportsAndPhysicalActivity', global: '5-18', rich: '8-15', medium: '1-3', poor: '0.2-0.5' },
+  { key: 'fashionAndClothing', global: '4-15', rich: '7-12', medium: '1-2.5', poor: '0.2-0.5' },
+  { key: 'marketingAndEntrepreneurship', global: '12-35', rich: '20-30', medium: '3-6', poor: '0.5-1.8' },
+  { key: 'reviewsAndProducts', global: '5-15', rich: '8-12', medium: '1-3', poor: '0.2-0.6' },
+  { key: 'dailyLifeAndFamily', global: '3-10', rich: '5-9', medium: '0.8-2', poor: '0.1-0.4' },
+  { key: 'selfDevelopmentAndProfessionalTips', global: '6-20', rich: '10-18', medium: '2-4', poor: '0.3-0.8' }
 ];
 
 const CpmCalculator: React.FC<{ t: any }> = ({ t }) => {
-  const [selectedFieldId, setSelectedFieldId] = useState<number | ''>('');
+  const [selectedFieldKey, setSelectedFieldKey] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<'global' | 'rich' | 'medium' | 'poor' | ''>('');
 
   const result = useMemo(() => {
-    if (selectedFieldId === '' || selectedCategory === '') {
+    if (selectedFieldKey === '' || selectedCategory === '') {
       return null;
     }
-    const fieldData = cpmData.find(item => item.id === selectedFieldId);
+    const fieldData = cpmData.find(item => item.key === selectedFieldKey);
     if (!fieldData) {
       return null;
     }
     // @ts-ignore
     return fieldData[selectedCategory];
-  }, [selectedFieldId, selectedCategory]);
+  }, [selectedFieldKey, selectedCategory]);
 
   return (
     <div className="space-y-6">
@@ -91,12 +91,12 @@ const CpmCalculator: React.FC<{ t: any }> = ({ t }) => {
           </label>
           <select
             className="select select-bordered select-lg"
-            value={selectedFieldId}
-            onChange={(e) => setSelectedFieldId(Number(e.target.value))}
+            value={selectedFieldKey}
+            onChange={(e) => setSelectedFieldKey(e.target.value)}
           >
             <option disabled value="">{t.cpmCalculator.chooseNiche}</option>
             {cpmData.map(item => (
-              <option key={item.id} value={item.id}>{item.field}</option>
+              <option key={item.key} value={item.key}>{t.cpmCalculator.niches[item.key]}</option>
             ))}
           </select>
         </div>

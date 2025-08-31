@@ -192,21 +192,6 @@
     "interactivePreview": "Interactive Preview",
     "autoModeNote": "Auto mode is enabled. Settings are adjusted automatically."
   },
-  "titleGenerator": {
-    "topicLabel": "Video Topic",
-    "topicPlaceholder": "Enter your video topic",
-    "keywordsLabel": "Keywords (comma separated)",
-    "keywordsPlaceholder": "Enter keywords (e.g., tutorial, how-to, tips)",
-    "styleLabel": "Style",
-    "clickbaitStyle": "Clickbait",
-    "informativeStyle": "Informative",
-    "curiosityStyle": "Curiosity",
-    "howtoStyle": "How-to",
-    "listStyle": "List-based",
-    "generate": "Generate Titles",
-    "generating": "Generating...",
-    "generatedTitles": "Generated Titles"
-  },
   "landingPage": {
     "metaTitle": "Free YouTube Creator Tools",
     "metaDescription": "Boost your YouTube channel with our free tools. Generate hashtags, calculate CPM, remove silence, create thumbnails, and more!",
@@ -265,19 +250,7 @@
       "toolQuestion3": "Is my data safe when using these tools?",
       "toolAnswer3": "Absolutely. All processing happens locally in your browser. We never upload your videos, images, or text to any server.",
       "toolQuestion4": "How often are new tools added?",
-      "toolAnswer4": "We're constantly developing new tools based on creator feedback. Subscribe to our newsletter to stay updated on new releases.",
-      "titleGeneratorQuestion1": "How does the Title Generator create effective titles?",
-      "titleGeneratorAnswer1": "Our Title Generator uses AI trained on successful YouTube titles to create attention-grabbing headlines. It considers factors like keyword optimization, emotional triggers, and searchability.",
-      "titleGeneratorQuestion2": "What title styles are available?",
-      "titleGeneratorAnswer2": "We offer several title styles including clickbait, informative, curiosity-driven, how-to, and list-based formats. Each is optimized for different content types and audience preferences.",
-      "titleGeneratorQuestion3": "Can I customize the generated titles?",
-      "titleGeneratorAnswer3": "Absolutely! The generated titles are meant as starting points. Feel free to modify them to better match your content and personal style.",
-      "hashtagGeneratorQuestion1": "How does the Hashtag Generator create relevant hashtags?",
-      "hashtagGeneratorAnswer1": "Our Hashtag Generator analyzes your content using natural language processing to identify key topics and themes. It then matches these with popular, relevant hashtags in your niche.",
-      "hashtagGeneratorQuestion2": "Should I use all the suggested hashtags?",
-      "hashtagGeneratorAnswer2": "We recommend using 5-10 of the most relevant hashtags rather than all suggestions. Quality and relevance matter more than quantity for hashtag performance.",
-      "hashtagGeneratorQuestion3": "Can I save my favorite hashtags?",
-      "hashtagGeneratorAnswer3": "Yes, you can copy and save your favorite hashtags for future use. We're also working on a feature to save hashtag sets for different content types."
+      "toolAnswer4": "We're constantly developing new tools based on creator feedback. Subscribe to our newsletter to stay updated on new releases."
     },
     "readyToStart": "Ready to Transform Your YouTube Channel?",
     "readyToStartDesc": "Join thousands of creators who are already using our tools to grow their channels.",

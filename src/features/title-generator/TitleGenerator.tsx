@@ -1,8 +1,14 @@
 import { useState } from 'react';
 import { GoogleGenAI } from '@google/genai';
+import { useNavigate } from 'react-router-dom';
 import ApiKeyInput from '../../components/ApiKeyInput';
+import ToolNavigation from '../../components/shared/ToolNavigation';
+import OtherTools from '../../components/shared/OtherTools';
+import ToolFAQ from '../../components/shared/ToolFAQ';
+import ToolFooter from '../../components/shared/ToolFooter';
 
 const TitleGenerator = ({ t }: { t?: any }) => {
+  const navigate = useNavigate();
   const [apiKey, setApiKey] = useState('');
   const [topic, setTopic] = useState('');
   const [keywords, setKeywords] = useState('');
@@ -63,50 +69,53 @@ const TitleGenerator = ({ t }: { t?: any }) => {
 
  return (
     <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Title Generator</h2>
+      {/* Navigation at the top */}
+      <ToolNavigation currentTool="titleGenerator" t={t} />
+      
+      <h2 className="text-2xl font-bold mb-4">{t?.app?.tools?.titleGenerator?.title || 'Title Generator'}</h2>
       <div className="flex flex-col gap-4">
         <ApiKeyInput apiKey={apiKey} onApiKeyChange={setApiKey} t={t} />
         
         <div className="form-control">
           <label className="label">
-            <span className="label-text font-medium">Video Topic</span>
+            <span className="label-text font-medium">{t?.titleGenerator?.topicLabel || 'Video Topic'}</span>
           </label>
           <input
             type="text"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            placeholder="Enter your video topic"
+            placeholder={t?.titleGenerator?.topicPlaceholder || "Enter your video topic"}
             className="input input-bordered"
           />
         </div>
         
         <div className="form-control">
           <label className="label">
-            <span className="label-text font-medium">Keywords (comma separated)</span>
+            <span className="label-text font-medium">{t?.titleGenerator?.keywordsLabel || 'Keywords (comma separated)'}</span>
           </label>
           <input
             type="text"
             value={keywords}
             onChange={(e) => setKeywords(e.target.value)}
-            placeholder="Enter keywords (e.g., tutorial, how-to, tips)"
+            placeholder={t?.titleGenerator?.keywordsPlaceholder || "Enter keywords (e.g., tutorial, how-to, tips)"}
             className="input input-bordered"
           />
         </div>
         
         <div className="form-control">
           <label className="label">
-            <span className="label-text font-medium">Style</span>
+            <span className="label-text font-medium">{t?.titleGenerator?.styleLabel || 'Style'}</span>
           </label>
           <select 
             value={tone} 
             onChange={(e) => setTone(e.target.value)}
             className="select select-bordered"
           >
-            <option value="clickbait">Clickbait</option>
-            <option value="informative">Informative</option>
-            <option value="curiosity">Curiosity</option>
-            <option value="howto">How-to</option>
-            <option value="list">List-based</option>
+            <option value="clickbait">{t?.titleGenerator?.clickbaitStyle || 'Clickbait'}</option>
+            <option value="informative">{t?.titleGenerator?.informativeStyle || 'Informative'}</option>
+            <option value="curiosity">{t?.titleGenerator?.curiosityStyle || 'Curiosity'}</option>
+            <option value="howto">{t?.titleGenerator?.howtoStyle || 'How-to'}</option>
+            <option value="list">{t?.titleGenerator?.listStyle || 'List-based'}</option>
           </select>
         </div>
         
@@ -115,14 +124,14 @@ const TitleGenerator = ({ t }: { t?: any }) => {
           disabled={isLoading}
           className="btn btn-red-600"
         >
-          {isLoading ? 'Generating...' : 'Generate Titles'}
+          {isLoading ? (t?.titleGenerator?.generating || 'Generating...') : (t?.titleGenerator?.generate || 'Generate Titles')}
         </button>
         
         {error && <div className="text-red-500 mt-2">{error}</div>}
         
         {generatedTitles.length > 0 && (
           <div className="mt-4">
-            <h3 className="font-bold mb-2">Generated Titles</h3>
+            <h3 className="font-bold mb-2">{t?.titleGenerator?.generatedTitles || 'Generated Titles'}</h3>
             <div className="space-y-3">
               {generatedTitles.map((title, index) => (
                 <div key={index} className="p-3 bg-base-10 rounded-lg border border-base-300">
@@ -133,6 +142,15 @@ const TitleGenerator = ({ t }: { t?: any }) => {
           </div>
         )}
       </div>
+      
+      {/* Other tools section */}
+      <OtherTools currentTool="titleGenerator" t={t} />
+      
+      {/* FAQ section */}
+      <ToolFAQ toolId="titleGenerator" t={t} />
+      
+      {/* Footer */}
+      <ToolFooter t={t} />
     </div>
   );
 };

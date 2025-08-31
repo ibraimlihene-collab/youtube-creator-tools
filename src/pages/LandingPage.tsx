@@ -23,6 +23,8 @@ import {
   Moon,
   Languages
 } from 'lucide-react';
+import HashtagGenerator from '../features/hashtag-generator/HashtagGenerator';
+import CpmCalculator from '../features/cpm-calculator/CpmCalculator';
 import ar from '../locales/ar.json';
 import en from '../locales/en.json';
 
@@ -199,8 +201,12 @@ const LandingPage = () => {
       <nav className="navbar bg-base-100/80 backdrop-blur-sm border-b border-base-300 sticky top-0 z-50">
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-lg">YC</span>
+            <div className="w-10 h-10 rounded-lg shadow-lg">
+              <img 
+                src="/assets/youtube-creator-icon.png" 
+                alt="YouTube Creator Tools Logo" 
+                className="w-full h-full object-contain"
+              />
             </div>
             <a href="/" className="text-xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
               {t.app.title}
@@ -282,92 +288,6 @@ const LandingPage = () => {
             alt="Creator Profiles" 
             className="w-16 h-16 rounded-full border-4 border-white shadow-xl"
           />
-        </div>
-      </section>
-
-      {/* Embedded Tools Preview */}
-      <section className="section-padding py-16 bg-base-100/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              {t.landingPage?.tryOurTools || 'Try Our Tools'}
-            </h2>
-            <p className="text-xl text-base-content/70 max-w-3xl mx-auto">
-              {t.landingPage?.tryOurToolsDesc || 'Experience some of our most popular tools right here.'}
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Hashtag Generator Preview */}
-            <div className="glass-effect rounded-2xl p-6 hover-lift transition-all duration-300">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
-                  <Tags className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="text-2xl font-bold">
-                  {t.app.tools.hashtagGenerator?.title || 'Hashtag Generator'}
-                </h3>
-              </div>
-              <div className="space-y-4">
-                <textarea 
-                  placeholder={t.hashtagGenerator?.placeholder || "Paste your content here to generate relevant hashtags..."}
-                  className="textarea textarea-bordered w-full h-32"
-                ></textarea>
-                <div className="flex flex-wrap gap-2">
-                  {['#youtube', '#creator', '#content', '#video'].map((tag, index) => (
-                    <span key={index} className="badge badge-primary badge-outline">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                <button className="btn btn-red-600 w-full">
-                  {t.hashtagGenerator?.generate || 'Generate Hashtags'}
-                </button>
-              </div>
-            </div>
-            
-            {/* CPM Calculator Preview */}
-            <div className="glass-effect rounded-2xl p-6 hover-lift transition-all duration-300">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
-                  <Calculator className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="text-2xl font-bold">
-                  {t.app.tools.cpmCalculator?.title || 'CPM Calculator'}
-                </h3>
-              </div>
-              <div className="space-y-4">
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">{t.cpmCalculator?.selectNiche || 'Select Your Niche'}</span>
-                  </label>
-                  <select className="select select-bordered">
-                    <option>{t.cpmCalculator?.chooseNiche || 'Choose a niche...'}</option>
-                    <option>Gaming</option>
-                    <option>Education</option>
-                    <option>Entertainment</option>
-                  </select>
-                </div>
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">{t.cpmCalculator?.countryCategory || 'Country Category'}</span>
-                  </label>
-                  <select className="select select-bordered">
-                    <option>{t.cpmCalculator?.selectCategory || 'Select category...'}</option>
-                    <option>{t.cpmCalculator?.wealthyCountries || '🇺🇸🇬🇧🇨🇦🇺 Wealthy Countries'}</option>
-                    <option>{t.cpmCalculator?.middleIncome || '🌍 Middle Income Countries'}</option>
-                  </select>
-                </div>
-                <div className="bg-red-600/10 rounded-xl p-4 text-center">
-                  <p className="text-sm text-base-content/70">{t.cpmCalculator?.result || 'Estimated CPM'}</p>
-                  <p className="text-2xl font-bold text-primary">$8.50</p>
-                </div>
-                <button className="btn btn-red-600 w-full">
-                  {t.landingPage?.calculate || 'Calculate'}
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -462,6 +382,48 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Embedded Tools Preview */}
+      <section className="section-padding py-16 bg-base-100/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              {t.landingPage?.tryOurTools || 'Try Our Tools'}
+            </h2>
+            <p className="text-xl text-base-content/70 max-w-3xl mx-auto">
+              {t.landingPage?.tryOurToolsDesc || 'Experience some of our most popular tools right here.'}
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Hashtag Generator Preview */}
+            <div className="glass-effect rounded-2xl p-6 hover-lift transition-all duration-300">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
+                  <Tags className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="text-2xl font-bold">
+                  {t.app.tools.hashtagGenerator?.title || 'Hashtag Generator'}
+                </h3>
+              </div>
+              <HashtagGenerator lang={lang} t={t} />
+            </div>
+            
+            {/* CPM Calculator Preview */}
+            <div className="glass-effect rounded-2xl p-6 hover-lift transition-all duration-300">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
+                  <Calculator className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="text-2xl font-bold">
+                  {t.app.tools.cpmCalculator?.title || 'CPM Calculator'}
+                </h3>
+              </div>
+              <CpmCalculator t={t} />
+            </div>
+          </div>
+        </div>
+      </section>
+
    
       {/* FAQ Section */}
       <section className="section-padding py-16 bg-base-100/50">
@@ -522,8 +484,12 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold text-lg">YC</span>
+                <div className="w-10 h-10 rounded-lg shadow-lg">
+                  <img 
+                    src="/assets/youtube-creator-icon.png" 
+                    alt="YouTube Creator Tools Logo" 
+                    className="w-full h-full object-contain"
+                  />
                 </div>
                 <a href="/" className="text-xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
                   {t.app.title}

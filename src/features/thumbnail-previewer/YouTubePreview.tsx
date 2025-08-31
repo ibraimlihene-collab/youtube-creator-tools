@@ -27,7 +27,7 @@ const YouTubePreview: React.FC<YouTubePreviewProps> = ({
   }
 
   return (
-    <div className={`transition-colors duration-300 ${themeClasses} ${isFullView ? 'p-8' : 'p-4'}`}>
+    <div className={`transition-colors duration-300  ${isFullView ? 'p-8' : 'p-4'}`}>
       <div className={`grid gap-x-4 gap-y-8 ${gridClasses}`}>
         {displayThumbnails.map((thumbUrl, index) => (
           <div key={index}>

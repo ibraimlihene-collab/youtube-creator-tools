@@ -236,7 +236,7 @@ const LandingPage = () => {
         {/* Background image */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="/src/assets/hero-background.png" 
+            src="/assets/hero-background.png" 
             alt="YouTube Creator Tools Background" 
             className="w-full h-full object-cover"
           />
@@ -271,14 +271,14 @@ const LandingPage = () => {
         {/* Floating creator profile images */}
         <div className="absolute bottom-10 left-10 hidden lg:block">
           <img 
-            src="/src/assets/creator-profiles.png" 
+            src="/assets/creator-profiles.png" 
             alt="Creator Profiles" 
             className="w-20 h-20 rounded-full border-4 border-white shadow-xl"
           />
         </div>
         <div className="absolute top-20 right-20 hidden lg:block">
           <img 
-            src="/src/assets/creator-profiles.png" 
+            src="/assets/creator-profiles.png" 
             alt="Creator Profiles" 
             className="w-16 h-16 rounded-full border-4 border-white shadow-xl"
           />
@@ -413,7 +413,7 @@ const LandingPage = () => {
         {/* Background pattern */}
         <div className="absolute inset-0 z-0 opacity-10">
           <img 
-            src="/src/assets/tools-background.png" 
+            src="/assets/tools-background.png" 
             alt="Tools Background" 
             className="w-full h-full object-cover"
           />

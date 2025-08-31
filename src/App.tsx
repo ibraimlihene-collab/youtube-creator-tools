@@ -149,7 +149,7 @@ function App() {
             <aside className="w-72 bg-base-100/95 backdrop-blur-sm border-r border-base-300 flex flex-col shadow-xl">
               <div className="flex items-center gap-3 p-6 border-b border-base-300">
                 <div className="w-12 h-12 rounded-xl shadow-lg">
-                  <img src="/src/assets/youtube-creator-full.png" alt="YouTube Creator Tools Logo" className="w-full h-full object-contain" />
+                  <img src="/assets/youtube-creator-full.png" alt="YouTube Creator Tools Logo" className="w-full h-full object-contain" />
                 </div>
                 <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
                   {t.app.title}

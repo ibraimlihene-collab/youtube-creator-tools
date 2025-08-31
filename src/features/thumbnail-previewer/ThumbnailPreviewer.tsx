@@ -68,14 +68,14 @@ const ThumbnailPreviewer: React.FC<{ t: any }> = ({ t }) => {
                 </label>
                 <div className="join w-full">
                   <button
-                    className={`join-item btn flex-1 ${viewMode === 'desktop' ? 'btn-primary' : 'btn-ghost'}`}
+                    className={`join-item btn flex-1 ${viewMode === 'desktop' ? 'btn-red-600' : 'btn-ghost'}`}
                     onClick={() => setViewMode('desktop')}
                   >
                     <FaDesktop className="w-4 h-4" />
                     <span className="ml-2 hidden sm:inline">{t.thumbnailPreviewer.desktop}</span>
                   </button>
                   <button
-                    className={`join-item btn flex-1 ${viewMode === 'mobile' ? 'btn-primary' : 'btn-ghost'}`}
+                    className={`join-item btn flex-1 ${viewMode === 'mobile' ? 'btn-red-600' : 'btn-ghost'}`}
                     onClick={() => setViewMode('mobile')}
                   >
                     <FaMobileAlt className="w-4 h-4" />
@@ -90,13 +90,13 @@ const ThumbnailPreviewer: React.FC<{ t: any }> = ({ t }) => {
                 </label>
                 <div className="join w-full">
                   <button
-                    className={`join-item btn flex-1 ${themeMode === 'light' ? 'btn-primary' : 'btn-ghost'}`}
+                    className={`join-item btn flex-1 ${themeMode === 'light' ? 'btn-red-600' : 'btn-ghost'}`}
                     onClick={() => setThemeMode('light')}
                   >
                     {t.thumbnailPreviewer.light}
                   </button>
                   <button
-                    className={`join-item btn flex-1 ${themeMode === 'dark' ? 'btn-primary' : 'btn-ghost'}`}
+                    className={`join-item btn flex-1 ${themeMode === 'dark' ? 'btn-red-600' : 'btn-ghost'}`}
                     onClick={() => setThemeMode('dark')}
                   >
                     {t.thumbnailPreviewer.dark}

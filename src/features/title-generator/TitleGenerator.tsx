@@ -113,7 +113,7 @@ const TitleGenerator = ({ t }: { t?: any }) => {
         <button
           onClick={handleGenerateTitles}
           disabled={isLoading}
-          className="btn btn-primary"
+          className="btn btn-red-600"
         >
           {isLoading ? 'Generating...' : 'Generate Titles'}
         </button>

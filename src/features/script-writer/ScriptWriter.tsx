@@ -115,7 +115,7 @@ const ScriptWriter = ({ t }: { t?: any }) => {
         <button
           onClick={handleGenerateScript}
           disabled={isLoading}
-          className="btn btn-primary"
+          className="btn btn-red-600"
         >
           {isLoading ? 'Generating...' : 'Generate Script'}
         </button>

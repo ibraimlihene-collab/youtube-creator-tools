@@ -150,7 +150,7 @@ const ColorPaletteGenerator = ({ t }: { t: any }) => {
         <div className="form-control">
           <button
             onClick={() => generatePalette(generateRandomColor())}
-            className="btn btn-primary btn-sm"
+            className="btn btn-red-600 btn-sm"
           >
             {t.colorPaletteGenerator.generate}
           </button>

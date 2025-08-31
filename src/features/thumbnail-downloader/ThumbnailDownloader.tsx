@@ -64,7 +64,7 @@ const ThumbnailDownloader: React.FC<{ t: any }> = ({ t }) => {
               <div className="card-body p-4">
                 <h4 className="card-title text-sm">{quality}</h4>
                 <button 
-                  className="btn btn-primary btn-sm mt-2"
+                  className="btn btn-red-600 btn-sm mt-2"
                   onClick={() => handleDownload(url)}
                 >
                   {t.thumbnailDownloader.download}

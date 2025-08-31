@@ -109,7 +109,7 @@ const DescriptionGenerator = ({ t }: { t?: any }) => {
         <button
           onClick={handleGenerateDescription}
           disabled={isLoading}
-          className="btn btn-primary"
+          className="btn btn-red-600"
         >
           {isLoading ? 'Generating...' : 'Generate Description'}
         </button>

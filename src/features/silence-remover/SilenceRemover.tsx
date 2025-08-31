@@ -266,7 +266,7 @@ const SilenceRemover: React.FC = () => {
                 onChange={onFileChange}
               />
               <button
-                className="btn btn-outline btn-primary btn-lg flex-1 gap-2"
+                className="btn btn-outline btn-red-600 btn-lg flex-1 gap-2"
                 onClick={onPickFile}
                 disabled={analyzing || processing}
               >

@@ -45,7 +45,7 @@ const HashtagGenerator = ({ lang, t }: { lang: 'ar' | 'en'; t: any }) => {
       
       <div className="flex flex-wrap gap-3">
         <button
-          className="btn btn-primary btn-lg"
+          className="btn btn-red-600 btn-lg"
           onClick={generateHashtags}
           disabled={!text.trim()}
         >
@@ -74,7 +74,7 @@ const HashtagGenerator = ({ lang, t }: { lang: 'ar' | 'en'; t: any }) => {
             </div>
             <div className="flex gap-2">
               <button
-                className="btn btn-primary btn-sm"
+                className="btn btn-red-600 btn-sm"
                 onClick={() => navigator.clipboard.writeText(hashtags.join(' '))}
               >
                 {t.hashtagGenerator.copyAll}

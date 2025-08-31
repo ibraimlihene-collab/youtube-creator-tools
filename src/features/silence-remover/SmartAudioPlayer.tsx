@@ -162,7 +162,7 @@ const SmartAudioPlayer: React.FC<SmartAudioPlayerProps> = ({
       
       <div className="w-full flex justify-center gap-4">
         <button 
-          className="btn btn-circle btn-primary"
+          className="btn btn-circle btn-red-600"
           onClick={isPlaying ? pause : play}
         >
           {isPlaying ? '⏸' : '▶'}

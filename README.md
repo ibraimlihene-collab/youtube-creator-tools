@@ -1,69 +1,102 @@
-# React + TypeScript + Vite
+# YouTube Creator Tools
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A comprehensive suite of free tools designed to help YouTube content creators enhance their videos, optimize their content, and grow their channels.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Silence Remover**: Automatically detect and remove silent parts from your videos to keep your audience engaged
+- **CPM Calculator**: Estimate your YouTube earnings based on your niche and target audience
+- **Thumbnail Downloader**: Download YouTube thumbnails in all available resolutions
+- **Thumbnail Previewer**: Preview your thumbnails on different devices and themes
+- **Hashtag Generator**: Generate relevant hashtags to increase your video's discoverability
+- **Color Palette Generator**: Create beautiful color palettes for your video thumbnails and branding
+- **Thumbnail Generator**: Create professional thumbnails with our easy-to-use generator
+- **Video Rephraser**: Rephrase your video scripts to improve clarity and engagement
+- **Script Writer**: Write compelling scripts for your videos with AI assistance
+- **Description Generator**: Generate engaging descriptions for your videos to improve SEO
+- **Title Generator**: Create catchy titles that increase click-through rates
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **React** with TypeScript for building the user interface
+- **Tailwind CSS** and **DaisyUI** for styling
+- **React Router** for navigation
+- **Lucide React** for icons
+- **Vite** for fast development and building
+- **FFmpeg** for audio/video processing
+- **Google AI** for content generation
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Getting Started
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/youtube-creator-tools.git
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Build for production:
+   ```bash
+   npm run build
+   ```
+
+## Project Structure
+
+```
+src/
+├── App.tsx          # Main application component with routing
+├── main.tsx         # Application entry point
+├── index.css        # Global styles and custom utilities
+├── components/      # Reusable UI components
+├── features/        # Individual tool components
+├── locales/         # Localization files (English and Arabic)
+├── pages/           # Page components (including LandingPage)
+└── lib/             # Utility functions and API integrations
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Routing
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+The application uses React Router for navigation between the landing page and individual tools:
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- `/` - Landing page showcasing all tools
+- `/app` - Main application with sidebar navigation
+- `/silence-remover` - Silence Remover tool
+- `/cpm-calculator` - CPM Calculator tool
+- `/thumbnail-downloader` - Thumbnail Downloader tool
+- `/thumbnail-previewer` - Thumbnail Previewer tool
+- `/hashtag-generator` - Hashtag Generator tool
+- `/color-palette-generator` - Color Palette Generator tool
+- `/thumbnail-generator` - Thumbnail Generator tool
+- `/video-rephraser` - Video Rephraser tool
+- `/script-writer` - Script Writer tool
+- `/description-generator` - Description Generator tool
+- `/title-generator` - Title Generator tool
+
+## Localization
+
+The application supports both English and Arabic languages. The language can be toggled in the application interface.
+
+## SEO Optimization
+
+The landing page includes comprehensive SEO optimizations:
+- Dynamic meta tags for each page
+- Open Graph tags for social sharing
+- Canonical URLs
+- Semantic HTML structure
+- Responsive design for all devices
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

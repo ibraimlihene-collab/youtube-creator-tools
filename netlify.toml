@@ -10,21 +10,6 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
-[[headers]]
-  for = "/*.js"
-  [headers.values]
-    Content-Type = "application/javascript"
-    
-[[headers]]
-  for = "/*.mjs"
-  [headers.values]
-    Content-Type = "application/javascript"
-
-[[headers]]
-  for = "/*.ts"
-  [headers.values]
-    Content-Type = "application/javascript"
-
 [[redirects]]
   from = "/*"
   to = "/index.html"

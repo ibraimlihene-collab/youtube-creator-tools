@@ -179,7 +179,7 @@ function App() {
               <div className="p-4 border-t border-base-300">
                 <div className="flex justify-around mb-4">
                   <a
-                    href="https://github.com"
+                    href="https://github.com/ibraimlihene-collab/youtube-creator-tools"
                     target="_blank"
                     rel="noreferrer"
                     className="btn btn-ghost btn-circle hover:bg-red-600/10 hover:text-primary transition-colors"

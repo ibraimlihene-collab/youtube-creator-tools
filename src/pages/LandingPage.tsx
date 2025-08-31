@@ -21,7 +21,8 @@ import {
   ArrowRight,
   Sun,
   Moon,
-  Languages
+  Languages,
+  Github
 } from 'lucide-react';
 import HashtagGenerator from '../features/hashtag-generator/HashtagGenerator';
 import CpmCalculator from '../features/cpm-calculator/CpmCalculator';
@@ -499,8 +500,8 @@ const LandingPage = () => {
                 {t.landingPage?.heroSubtitle || 'Free tools to help you create better content, grow your audience, and increase your revenue.'}
               </p>
               <div className="flex gap-4">
-                <a href="#" className="text-base-content/80 hover:text-primary transition-colors">
-                  <Globe className="w-5 h-5" />
+                <a href="https://github.com/ibraimlihene-collab/youtube-creator-tools" target="_blank" rel="noopener noreferrer" className="text-base-content/80 hover:text-primary transition-colors" title="GitHub">
+                  <Github className="w-5 h-5" />
                 </a>
                 <a href="#" className="text-base-content/80 hover:text-primary transition-colors">
                   <Users className="w-5 h-5" />

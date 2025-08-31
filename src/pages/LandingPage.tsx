@@ -394,7 +394,7 @@ const LandingPage = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 gap-8">
             {/* Hashtag Generator Preview */}
             <div className="glass-effect rounded-2xl p-6 hover-lift transition-all duration-300">
               <div className="flex items-center gap-4 mb-6">

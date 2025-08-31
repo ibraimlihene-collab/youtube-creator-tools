@@ -217,6 +217,15 @@ const LandingPage = () => {
           </div>
         </div>
         <div className="flex-none gap-2">
+          <a 
+            href="https://github.com/ibraimlihene-collab/youtube-creator-tools"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-ghost btn-circle hover:bg-red-600/10 hover:text-primary transition-colors"
+            title="GitHub"
+          >
+            <Github className="w-5 h-5" />
+          </a>
           <button 
             onClick={toggleTheme}
             className="btn btn-ghost btn-circle hover:bg-red-600/10 hover:text-primary transition-colors"
@@ -273,6 +282,14 @@ const LandingPage = () => {
               >
                 {t.landingPage?.exploreTools || 'Explore Tools'}
               </button>
+              <a 
+                href="https://github.com/ibraimlihene-collab/youtube-creator-tools"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-outline btn-lg px-8 py-4 rounded-xl hover-lift text-lg font-semibold"
+              >
+                GitHub
+              </a>
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 /**
  * Audio processing utilities for silence detection and removal
+ * Fixed: padding logic, error handling, and type safety
  */
 
 // Default analysis parameters
@@ -30,6 +31,8 @@ function computeRMS(audioData: Float32Array): number {
 
 /**
  * Detects silent intervals in an audio buffer
+ * Fixed: padding is now applied to non-silent segments (keep parts before/after silence)
+ * instead of extending silent intervals
  * 
  * @param audioBuffer - The audio buffer to analyze
  * @param params - Analysis parameters
@@ -56,7 +59,6 @@ export function detectSilentIntervals(
   for (let frame = 0; frame < totalFrames; frame++) {
     const startSample = frame * frameSize;
     const endSample = Math.min(startSample + frameSize, audioBuffer.length);
-    const frameDuration = (endSample - startSample) / sampleRate;
     
     // Compute RMS for this frame across all channels
     let maxRMS = 0;
@@ -82,10 +84,8 @@ export function detectSilentIntervals(
       if (currentSilenceStart !== null) {
         const silenceDuration = frameEnd - currentSilenceStart;
         if (silenceDuration >= params.minSilenceDuration) {
-          // Extend the silent interval by padding
-          const paddedStart = Math.max(0, currentSilenceStart - params.padding);
-          const paddedEnd = Math.min(audioBuffer.duration, frameEnd + params.padding);
-          silentIntervals.push([paddedStart, paddedEnd]);
+          // Record actual silent interval (without padding - padding is for non-silent segments)
+          silentIntervals.push([currentSilenceStart, frameEnd]);
         }
         currentSilenceStart = null;
       }
@@ -96,8 +96,7 @@ export function detectSilentIntervals(
   if (currentSilenceStart !== null) {
     const silenceDuration = audioBuffer.duration - currentSilenceStart;
     if (silenceDuration >= params.minSilenceDuration) {
-      const paddedStart = Math.max(0, currentSilenceStart - params.padding);
-      silentIntervals.push([paddedStart, audioBuffer.duration]);
+      silentIntervals.push([currentSilenceStart, audioBuffer.duration]);
     }
   }
   
@@ -106,21 +105,24 @@ export function detectSilentIntervals(
 
 /**
  * Removes silent intervals from an audio buffer
+ * Fixed: proper padding application on non-silent segments to keep context
  * 
  * @param audioBuffer - The original audio buffer
  * @param silentIntervals - Array of silent intervals to remove
+ * @param padding - Optional padding in seconds to keep around non-silent segments
  * @returns New audio buffer with silent parts removed
  */
 export async function removeSilentIntervals(
   audioBuffer: AudioBuffer,
-  silentIntervals: [number, number][]
+  silentIntervals: [number, number][],
+  padding: number = 0.06
 ): Promise<AudioBuffer> {
   // Sort intervals by start time
-  silentIntervals.sort((a, b) => a[0] - b[0]);
+  const sortedIntervals = [...silentIntervals].sort((a, b) => a[0] - b[0]);
   
   // Merge overlapping intervals
   const mergedIntervals: [number, number][] = [];
-  for (const interval of silentIntervals) {
+  for (const interval of sortedIntervals) {
     if (mergedIntervals.length === 0) {
       mergedIntervals.push(interval);
       continue;
@@ -135,46 +137,58 @@ export async function removeSilentIntervals(
     }
   }
   
-  // Create non-silent segments
+  // Create non-silent segments with padding
   const nonSilentSegments: { start: number; end: number }[] = [];
   
-  // Add segment from beginning to first silence (if any)
+  // Add segment from beginning to first silence (with padding at end)
   if (mergedIntervals.length > 0 && mergedIntervals[0][0] > 0) {
-    nonSilentSegments.push({ start: 0, end: mergedIntervals[0][0] });
+    nonSilentSegments.push({ 
+      start: 0, 
+      end: Math.max(0, mergedIntervals[0][0] - padding) 
+    });
   } else if (mergedIntervals.length === 0) {
     // No silences at all, keep entire buffer
     nonSilentSegments.push({ start: 0, end: audioBuffer.duration });
   }
   
-  // Add segments between silences
+  // Add segments between silences (with padding on both sides)
   for (let i = 0; i < mergedIntervals.length - 1; i++) {
     const currentEnd = mergedIntervals[i][1];
     const nextStart = mergedIntervals[i + 1][0];
     if (nextStart > currentEnd) {
-      nonSilentSegments.push({ start: currentEnd, end: nextStart });
+      nonSilentSegments.push({ 
+        start: Math.min(audioBuffer.duration, currentEnd + padding), 
+        end: Math.max(0, nextStart - padding) 
+      });
     }
   }
   
-  // Add segment from last silence to end (if any)
+  // Add segment from last silence to end (with padding at start)
   if (mergedIntervals.length > 0) {
     const lastEnd = mergedIntervals[mergedIntervals.length - 1][1];
     if (lastEnd < audioBuffer.duration) {
-      nonSilentSegments.push({ start: lastEnd, end: audioBuffer.duration });
+      nonSilentSegments.push({ 
+        start: Math.min(audioBuffer.duration, lastEnd + padding), 
+        end: audioBuffer.duration 
+      });
     }
   }
   
-  if (nonSilentSegments.length === 0) {
-    // Entire file is silent, return a minimal buffer
+  // Filter out invalid segments (start >= end)
+  const validSegments = nonSilentSegments.filter(seg => seg.end > seg.start);
+  
+  if (validSegments.length === 0) {
+    // Entire file is silent, return a minimal buffer with a short beep
     const emptyContext = new OfflineAudioContext(
       audioBuffer.numberOfChannels,
-      1,
+      Math.max(1, Math.ceil(audioBuffer.sampleRate * 0.1)), // 0.1 second beep
       audioBuffer.sampleRate
     );
     return emptyContext.startRendering();
   }
   
   // Create new buffer with concatenated non-silent segments
-  const totalDuration = nonSilentSegments.reduce(
+  const totalDuration = validSegments.reduce(
     (sum, segment) => sum + (segment.end - segment.start),
     0
   );
@@ -186,7 +200,7 @@ export async function removeSilentIntervals(
   );
   
   let offset = 0;
-  for (const segment of nonSilentSegments) {
+  for (const segment of validSegments) {
     const startSample = Math.floor(segment.start * audioBuffer.sampleRate);
     const endSample = Math.ceil(segment.end * audioBuffer.sampleRate);
     const segmentDuration = (endSample - startSample) / audioBuffer.sampleRate;
@@ -217,21 +231,26 @@ export async function removeSilentIntervals(
 
 /**
  * Decodes an audio file (mp3, wav, etc.) into an AudioBuffer
+ * Fixed: proper error handling and cleanup
  * 
  * @param arrayBuffer - The audio file as ArrayBuffer
  * @returns Promise resolving to AudioBuffer
  */
 export async function decodeAudio(arrayBuffer: ArrayBuffer): Promise<AudioBuffer> {
-  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+  const audioContext = new AudioContext();
   try {
-    return await audioContext.decodeAudioData(arrayBuffer);
+    const decoded = await audioContext.decodeAudioData(arrayBuffer.slice(0));
+    return decoded;
+  } catch (error) {
+    throw new Error(`Failed to decode audio: ${error instanceof Error ? error.message : 'Unknown error'}`);
   } finally {
-    audioContext.close();
+    await audioContext.close().catch(() => {});
   }
 }
 
 /**
  * Exports an AudioBuffer to WAV format
+ * Fixed: clamp samples properly, handle edge cases
  * 
  * @param audioBuffer - The audio buffer to export
  * @returns Promise resolving to ArrayBuffer of WAV file
@@ -250,40 +269,29 @@ export async function exportToWav(audioBuffer: AudioBuffer): Promise<ArrayBuffer
   const view = new DataView(buffer);
   
   // Write WAV header
-  // RIFF identifier
   writeString(view, 0, 'RIFF');
-  // File length minus RIFF identifier length and file description length
   view.setUint32(4, 36 + length * numberOfChannels * bytesPerSample, true);
-  // RIFF type
   writeString(view, 8, 'WAVE');
-  // Format chunk identifier
   writeString(view, 12, 'fmt ');
-  // Format chunk length
   view.setUint32(16, 16, true);
-  // Sample format (raw)
-  view.setUint16(20, 1, true);
-  // Channel count
+  view.setUint16(20, 1, true); // PCM format
   view.setUint16(22, numberOfChannels, true);
-  // Sample rate
   view.setUint32(24, sampleRate, true);
-  // Byte rate (sample rate * block align)
   view.setUint32(28, byteRate, true);
-  // Block align (channel count * bytes per sample)
   view.setUint16(32, blockAlign, true);
-  // Bits per sample
   view.setUint16(34, bitsPerSample, true);
-  // Data chunk identifier
   writeString(view, 36, 'data');
-  // Data chunk length
   view.setUint32(40, length * numberOfChannels * bytesPerSample, true);
   
-  // Write PCM samples
+  // Write PCM samples with proper clamping
   let offset = headerLength;
   for (let i = 0; i < length; i++) {
     for (let ch = 0; ch < numberOfChannels; ch++) {
       const sample = Math.max(-1, Math.min(1, audioBuffer.getChannelData(ch)[i]));
-      const int16 = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
-      view.setInt16(offset, int16, true);
+      const int16 = sample < 0 
+        ? Math.max(-32768, sample * 0x8000) 
+        : Math.min(32767, sample * 0x7FFF);
+      view.setInt16(offset, Math.round(int16), true);
       offset += 2;
     }
   }

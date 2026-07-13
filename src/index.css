@@ -1,109 +1,312 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: light --default, dark, youtube --prefersdark;
+}
 
-/* Custom utilities for consistent spacing */
+/* ─── YouTube-inspired brand theme ─── */
+@plugin "daisyui/theme" {
+  name: "youtube";
+  default: false;
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-100: #0f0f0f;
+  --color-base-200: #181818;
+  --color-base-300: #272727;
+  --color-base-content: #f1f1f1;
+
+  --color-primary: #ff0033;
+  --color-primary-content: #ffffff;
+
+  --color-secondary: #3ea6ff;
+  --color-secondary-content: #0f0f0f;
+
+  --color-accent: #30a46c;
+  --color-accent-content: #ffffff;
+
+  --color-neutral: #212121;
+  --color-neutral-content: #f1f1f1;
+
+  --color-info: #3ea6ff;
+  --color-info-content: #0f0f0f;
+  --color-success: #2ba640;
+  --color-success-content: #ffffff;
+  --color-warning: #f9ab00;
+  --color-warning-content: #0f0f0f;
+  --color-error: #ff4e45;
+  --color-error-content: #ffffff;
+
+  --radius-selector: 0.75rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1rem;
+}
+
+/* ─── Fonts (loaded from index.html) ─── */
+html {
+  font-family: 'Inter', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif;
+  scroll-behavior: smooth;
+}
+
+html[dir='rtl'] {
+  font-family: 'Noto Sans Arabic', 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--color-base-100);
+  color: var(--color-base-content);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Utilities (plain CSS — avoid @apply of daisyUI component classes) ─── */
 @layer utilities {
   .section-padding {
-    @apply py-8 px-4 sm:px-6 lg:px-8;
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
-  
-  .card-spacing {
-    @apply space-y-6;
+
+  @media (min-width: 640px) {
+    .section-padding {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
   }
-  
-  .control-spacing {
-    @apply space-y-4;
+
+  @media (min-width: 1024px) {
+    .section-padding {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
   }
-  
-  .btn-spacing {
-    @apply space-x-2;
-  }
-  
+
   .text-gradient {
-    @apply bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent;
+    background-image: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
-  
+
   .glass-effect {
-    @apply bg-base-100/80 backdrop-blur-sm border border-base-300;
+    background: color-mix(in oklab, var(--color-base-200) 70%, transparent);
+    backdrop-filter: blur(12px);
+    border: 1px solid color-mix(in oklab, var(--color-base-300) 80%, transparent);
   }
-  
+
   .hover-lift {
-    @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-1;
+    transition: all 0.2s ease;
   }
-  
+
+  .hover-lift:hover {
+    box-shadow: 0 20px 25px -5px color-mix(in oklab, black 25%, transparent);
+    transform: translateY(-2px);
+  }
+
   .animate-fade-in-up {
-    animation: fade-in-up 0.6s ease-out forwards;
+    animation: fade-in-up 0.55s ease-out forwards;
   }
-  
-  @keyframes fade-in-up {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
+
+  .animate-fade-in {
+    animation: fade-in 0.35s ease-out forwards;
+  }
+
+  .surface-card {
+    background: color-mix(in oklab, var(--color-base-200) 80%, transparent);
+    border: 1px solid var(--color-base-300);
+    border-radius: 1rem;
+    box-shadow: 0 10px 15px -3px color-mix(in oklab, black 20%, transparent);
+  }
+
+  .tool-panel {
+    background: var(--color-base-100);
+    border: 1px solid var(--color-base-300);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    box-shadow: 0 20px 25px -5px color-mix(in oklab, black 25%, transparent);
+  }
+
+  @media (min-width: 640px) {
+    .tool-panel {
+      padding: 1.5rem;
     }
-    to {
-      opacity: 1;
-      transform: translateY(0);
+  }
+
+  @media (min-width: 768px) {
+    .tool-panel {
+      padding: 2rem;
     }
   }
-  
-  .custom-shadow {
-    @apply shadow-lg shadow-base-200/50;
+
+  .btn-brand {
+    background: var(--color-primary) !important;
+    color: var(--color-primary-content) !important;
+    border: 0 !important;
+    box-shadow: 0 10px 15px -3px color-mix(in oklab, var(--color-primary) 25%, transparent);
   }
-  
-  .border-gradient {
-    @apply border border-base-300;
+
+  .btn-brand:hover {
+    background: color-mix(in oklab, var(--color-primary) 90%, black) !important;
+  }
+
+  .btn-soft {
+    background: var(--color-base-300) !important;
+    color: var(--color-base-content) !important;
+    border: 1px solid var(--color-base-300) !important;
+  }
+
+  .btn-soft:hover {
+    background: color-mix(in oklab, var(--color-base-300) 80%, white) !important;
+  }
+
+  .input-modern,
+  .select-modern,
+  .textarea-modern {
+    width: 100%;
+    background: var(--color-base-200);
+    border: 1px solid var(--color-base-300);
+    border-radius: var(--radius-field, 0.75rem);
+    color: var(--color-base-content);
+  }
+
+  .input-modern:focus,
+  .select-modern:focus,
+  .textarea-modern:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-primary) 25%, transparent);
+  }
+
+  .sidebar-link {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .sidebar-link-active {
+    background: var(--color-primary);
+    color: var(--color-primary-content);
+    box-shadow: 0 4px 12px color-mix(in oklab, var(--color-primary) 30%, transparent);
+  }
+
+  .sidebar-link-idle {
+    color: color-mix(in oklab, var(--color-base-content) 80%, transparent);
+  }
+
+  .sidebar-link-idle:hover {
+    background: color-mix(in oklab, var(--color-base-300) 70%, transparent);
+    color: var(--color-base-content);
+  }
+
+  .badge-ai {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: color-mix(in oklab, var(--color-secondary) 15%, transparent);
+    color: var(--color-secondary);
+  }
+
+  .badge-local {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: color-mix(in oklab, var(--color-accent) 15%, transparent);
+    color: var(--color-accent);
+  }
+
+  .mesh-bg {
+    background-image:
+      radial-gradient(at 20% 20%, color-mix(in oklab, var(--color-primary) 18%, transparent) 0px, transparent 45%),
+      radial-gradient(at 80% 10%, color-mix(in oklab, var(--color-secondary) 14%, transparent) 0px, transparent 40%),
+      radial-gradient(at 50% 80%, color-mix(in oklab, var(--color-primary) 10%, transparent) 0px, transparent 45%);
+  }
+
+  .grid-bg {
+    background-size: 40px 40px;
+    background-image:
+      linear-gradient(to right, color-mix(in oklab, var(--color-base-content) 4%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklab, var(--color-base-content) 4%, transparent) 1px, transparent 1px);
   }
 }
 
-/* Custom scrollbar styling */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ─── Scrollbar ─── */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-base-200;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-base-300 rounded-full;
+  background: color-mix(in oklab, var(--color-base-content) 18%, transparent);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
 
-
-
-/* Focus styles for better accessibility */
-.btn:focus,
-.input:focus,
-.select:focus,
-.textarea:focus {
-  @apply outline-none ring-2 ring-primary/50 ring-offset-2 ring-offset-base-200;
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklab, var(--color-base-content) 30%, transparent);
+  background-clip: content-box;
 }
 
-/* Animation utilities */
-@keyframes slide-in {
-  from {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+/* ─── Focus rings ─── */
+.btn:focus-visible,
+.input:focus-visible,
+.select:focus-visible,
+.textarea:focus-visible,
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--color-primary) 70%, white);
+  outline-offset: 2px;
 }
 
-@keyframes pulse-scale {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
+/* ─── Mobile safe area ─── */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
-.animate-slide-in {
-  animation: slide-in 0.3s ease-out;
+/* ─── Line clamp helper ─── */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.animate-pulse-scale {
-  animation: pulse-scale 2s infinite;
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

@@ -10,7 +10,9 @@
       "light": "Light Mode",
       "dark": "Dark Mode",
       "ar": "Arabic",
-      "en": "English"
+      "en": "English",
+      "toggle": "Toggle theme",
+      "youtube": "YouTube Dark"
     },
     "tools": {
       "silenceRemover": {
@@ -46,15 +48,29 @@
       "titleGenerator": {
         "title": "Title Generator"
       }
+    },
+    "subtitle": "Creator studio",
+    "home": "Home",
+    "searchTools": "Search tools…",
+    "allTools": "All tools",
+    "hubTitle": "Creator studio",
+    "hubSubtitle": "Pick a tool from the sidebar, or jump in below. Everything runs in your browser.",
+    "privacyNote": "Private by default · Runs in your browser",
+    "categories": {
+      "editing": "Editing",
+      "thumbnails": "Thumbnails",
+      "ai": "AI writing",
+      "growth": "Growth"
     }
   },
   "apiKeyInput": {
     "label": "Google AI Studio API Key",
     "placeholder": "Enter your Google AI Studio API Key",
     "hintTitle": "Get Your Free API Key",
-    "hintText": "Visit {link} to get your free Google AI Studio API key. It's completely free and safe from Google. They only train on publicly available data and do not use your API requests for training.",
+    "hintText": "Visit {link} to get your free Google AI Studio API key. Stored only in your browser — never sent to our servers.",
     "hintLink": "ai.dev/apikey",
-    "invalidKey": "Please enter a valid API key"
+    "invalidKey": "Please enter a valid API key",
+    "storedLocally": "Saved locally in your browser"
   },
   "hashtagGenerator": {
     "label": "Enter your text here",
@@ -65,7 +81,10 @@
     "generatedTitle": "Generated Hashtags",
     "found": "Found {count} relevant hashtags",
     "copyAll": "Copy All",
-    "copyTop10": "Copy Top 10"
+    "copyTop10": "Copy Top 10",
+    "quickMode": "Quick (offline)",
+    "aiMode": "AI powered",
+    "generating": "Generating…"
   },
   "cpmCalculator": {
     "title": "YouTube CPM Calculator",
@@ -205,16 +224,18 @@
     "listStyle": "List-based",
     "generate": "Generate Titles",
     "generating": "Generating...",
-    "generatedTitles": "Generated Titles"
+    "generatedTitles": "Generated Titles",
+    "toneLabel": "Tone",
+    "copyAll": "Copy all"
   },
   "landingPage": {
     "metaTitle": "Free YouTube Creator Tools",
     "metaDescription": "Boost your YouTube channel with our free tools. Generate hashtags, calculate CPM, remove silence, create thumbnails, and more!",
     "metaKeywords": "YouTube tools, content creation, video editing, hashtag generator, CPM calculator, thumbnail creator",
-    "heroTitle": "Supercharge Your YouTube Channel",
-    "heroSubtitle": "Free tools to help you create better content, grow your audience, and increase your revenue.",
-    "getStarted": "Get Started",
-    "exploreTools": "Explore Tools",
+    "heroTitle": "Free YouTube tools that feel pro",
+    "heroSubtitle": "Silence removal, AI titles & scripts, thumbnails, hashtags, CPM estimates — private, open source, and free.",
+    "getStarted": "Open studio",
+    "exploreTools": "Browse tools",
     "whyChooseUs": "Why Choose YouCreator Tools?",
     "whyChooseUsDesc": "Everything you need to create professional YouTube content, all in one place.",
     "features": {
@@ -290,6 +311,60 @@
     "contact": "Contact",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
-    "copyright": "Copyright © 2025 - All rights reserved by YouCreator Tools"
+    "copyright": "© 2026 YouCreator Tools. MIT License. Built for creators.",
+    "aboutDesc": "A free, open-source suite of tools for YouTube creators. Privacy-first and browser-based — your media never leaves your device for local tools."
+  },
+  "common": {
+    "copy": "Copy",
+    "copied": "Copied!",
+    "words": "words",
+    "characters": "characters",
+    "minRead": "min spoken",
+    "clear": "Clear",
+    "generate": "Generate",
+    "download": "Download"
+  },
+  "scriptWriter": {
+    "topicLabel": "Video Topic",
+    "topicPlaceholder": "Enter your video topic (e.g., 'How to bake a cake')",
+    "toneLabel": "Tone",
+    "lengthLabel": "Length",
+    "short": "Short (1–2 min)",
+    "medium": "Medium (3–5 min)",
+    "long": "Long (10+ min)",
+    "generate": "Generate Script",
+    "generating": "Writing script…",
+    "generated": "Generated Script",
+    "missingFields": "Please provide an API key and a topic."
+  },
+  "descriptionGenerator": {
+    "titleLabel": "Video Title",
+    "titlePlaceholder": "Enter your video title",
+    "keywordsLabel": "Keywords (comma separated)",
+    "keywordsPlaceholder": "Enter keywords",
+    "toneLabel": "Tone",
+    "generate": "Generate Description",
+    "generating": "Generating…",
+    "generated": "Generated Description",
+    "missingFields": "Please provide an API key and a video title."
+  },
+  "videoRephraser": {
+    "urlLabel": "YouTube Video URL",
+    "urlPlaceholder": "Enter YouTube Video URL (public/unlisted)",
+    "urlHint": "Works best with public videos. If transcription fails, switch to Paste script.",
+    "scriptLabel": "Original script",
+    "scriptPlaceholder": "Paste your video script or transcript here…",
+    "textMode": "Paste script",
+    "urlMode": "YouTube URL",
+    "process": "Rephrase",
+    "processing": "Processing…",
+    "transcribing": "Transcribing video…",
+    "rephrasing": "Rephrasing…",
+    "original": "Original",
+    "rephrased": "Rephrased",
+    "missingFields": "Please provide an API key.",
+    "missingScript": "Paste a script to rephrase.",
+    "invalidUrl": "Please provide a valid YouTube URL.",
+    "transcribeFailed": "Failed to transcribe video. The video may not be publicly accessible."
   }
 }

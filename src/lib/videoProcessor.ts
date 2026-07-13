@@ -6,6 +6,15 @@
 
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 
+function toArrayBuffer(data: Uint8Array | string): ArrayBuffer {
+  if (typeof data === 'string') {
+    const enc = new TextEncoder().encode(data);
+    return enc.buffer.slice(enc.byteOffset, enc.byteOffset + enc.byteLength) as ArrayBuffer;
+  }
+  return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) as ArrayBuffer;
+}
+
+
 // Simple fetchFile helper to avoid needing @ffmpeg/util package
 async function fetchFile(file: Blob): Promise<Uint8Array> {
   const arrayBuffer = await file.arrayBuffer();
@@ -73,15 +82,10 @@ export async function extractAudioFromVideo(videoBuffer: ArrayBuffer): Promise<A
     // Read the output file
     const wavData = await ff.readFile(outputName);
     
-    // Convert to ArrayBuffer
-    const wavArrayBuffer = wavData instanceof Uint8Array 
-      ? wavData.buffer.slice(wavData.byteOffset, wavData.byteOffset + wavData.byteLength)
-      : wavData;
-    
     // Decode the WAV audio
     const audioContext = new AudioContext();
     try {
-      return await audioContext.decodeAudioData(wavArrayBuffer);
+      return await audioContext.decodeAudioData(toArrayBuffer(wavData as Uint8Array | string));
     } finally {
       await audioContext.close().catch(() => {});
     }
@@ -133,9 +137,7 @@ export async function replaceAudioInVideo(
     // Read output
     const outputData = await ff.readFile(outputName);
     
-    return outputData instanceof Uint8Array
-      ? outputData.buffer.slice(outputData.byteOffset, outputData.byteOffset + outputData.byteLength)
-      : outputData;
+    return toArrayBuffer(outputData as Uint8Array | string);
   } finally {
     // Clean up
     try { await ff.deleteFile(videoInput); } catch (e) { /* ignore */ }
@@ -176,9 +178,7 @@ export async function convertVideoFormat(
     
     const outputData = await ff.readFile(outputName);
     
-    return outputData instanceof Uint8Array
-      ? outputData.buffer.slice(outputData.byteOffset, outputData.byteOffset + outputData.byteLength)
-      : outputData;
+    return toArrayBuffer(outputData as Uint8Array | string);
   } finally {
     try { await ff.deleteFile(inputName); } catch (e) { /* ignore */ }
     try { await ff.deleteFile(outputName); } catch (e) { /* ignore */ }

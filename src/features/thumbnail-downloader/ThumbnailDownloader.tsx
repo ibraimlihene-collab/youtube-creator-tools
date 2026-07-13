@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import { AlertCircle, Download, Link2 } from 'lucide-react';
 
 const ThumbnailDownloader: React.FC<{ t: any }> = ({ t }) => {
   const [videoUrl, setVideoUrl] = useState('');
@@ -7,103 +8,121 @@ const ThumbnailDownloader: React.FC<{ t: any }> = ({ t }) => {
   const videoId = useMemo(() => {
     if (!videoUrl) return null;
     try {
-      const url = new URL(videoUrl);
+      const cleaned = videoUrl.trim();
+      // bare id
+      if (/^[\w-]{11}$/.test(cleaned)) return cleaned;
+      const url = new URL(cleaned.startsWith('http') ? cleaned : `https://${cleaned}`);
       if (url.hostname === 'youtu.be') {
-        return url.pathname.slice(1);
+        return url.pathname.slice(1).split('/')[0] || null;
       }
       if (url.hostname.includes('youtube.com')) {
-        const videoIdParam = url.searchParams.get('v');
-        if (videoIdParam) {
-          return videoIdParam;
-        }
+        const v = url.searchParams.get('v');
+        if (v) return v;
+        const parts = url.pathname.split('/').filter(Boolean);
+        const embedIdx = parts.indexOf('embed');
+        if (embedIdx >= 0 && parts[embedIdx + 1]) return parts[embedIdx + 1];
+        const shortsIdx = parts.indexOf('shorts');
+        if (shortsIdx >= 0 && parts[shortsIdx + 1]) return parts[shortsIdx + 1];
       }
-    } catch (e) {
-      // Invalid URL, do nothing
+    } catch {
+      // invalid
     }
     return null;
   }, [videoUrl]);
 
-  const handleDownload = async (imageUrl: string) => {
+  const handleDownload = async (imageUrl: string, quality: string) => {
     try {
+      setError('');
       const response = await fetch(imageUrl);
+      if (!response.ok) throw new Error('fetch failed');
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${videoId || 'thumbnail'}.jpg`;
+      a.download = `${videoId || 'thumbnail'}-${quality.toLowerCase()}.jpg`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-    } catch (err) {
-      setError(t.thumbnailDownloader.downloadError);
+    } catch {
+      setError(t.thumbnailDownloader.downloadError || 'Failed to download image.');
     }
   };
 
-  const renderThumbnails = () => {
-    if (!videoId) return null;
-
-    const qualities = {
-      'Max-Res': `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
-      'High': `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
-      'Medium': `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
-      'Standard': `https://img.youtube.com/vi/${videoId}/sddefault.jpg`,
-    };
-
-    return (
-      <div className="mt-6">
-        <h3 className="text-lg font-bold mb-4">{t.thumbnailDownloader.availableThumbnails}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {Object.entries(qualities).map(([quality, url]) => (
-            <div key={quality} className="card bg-base-200">
-              <figure>
-                <img src={url} alt={`${quality} thumbnail`} className="w-full" 
-                     onError={(e) => (e.currentTarget.style.display = 'none')}
-                />
-              </figure>
-              <div className="card-body p-4">
-                <h4 className="card-title text-sm">{quality}</h4>
-                <button 
-                  className="btn btn-red-600 btn-sm mt-2"
-                  onClick={() => handleDownload(url)}
-                >
-                  {t.thumbnailDownloader.download}
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
+  const qualities = videoId
+    ? [
+        { key: 'Max-Res', url: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` },
+        { key: 'High', url: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` },
+        { key: 'Medium', url: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` },
+        { key: 'Standard', url: `https://img.youtube.com/vi/${videoId}/sddefault.jpg` },
+      ]
+    : [];
 
   return (
-    <div className="card bg-base-100 shadow-xl">
-      <div className="card-body">
-        <h2 className="card-title">{t.thumbnailDownloader.title}</h2>
-        <p className="mb-4">{t.thumbnailDownloader.description}</p>
-        
-        <div className="form-control">
-          <input
-            type="text"
-            placeholder={t.thumbnailDownloader.placeholder}
-            className="input input-bordered w-full"
-            value={videoUrl}
-            onChange={(e) => setVideoUrl(e.target.value)}
-          />
-        </div>
-        
-        {error && (
-          <div className="alert alert-error mt-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>{error}</span>
-          </div>
+    <div className="space-y-5">
+      <p className="text-sm text-base-content/65">{t.thumbnailDownloader.description}</p>
+
+      <div className="form-control">
+        <label className="label py-1">
+          <span className="label-text font-medium flex items-center gap-1.5">
+            <Link2 className="w-4 h-4 text-primary" />
+            YouTube URL
+          </span>
+        </label>
+        <input
+          type="text"
+          placeholder={t.thumbnailDownloader.placeholder}
+          className="input-modern w-full"
+          value={videoUrl}
+          onChange={(e) => {
+            setVideoUrl(e.target.value);
+            setError('');
+          }}
+        />
+        {videoUrl && !videoId && (
+          <p className="text-xs text-warning mt-1.5">Could not parse a video ID from that URL.</p>
         )}
-        
-        {renderThumbnails()}
       </div>
+
+      {error && (
+        <div className="alert alert-error text-sm">
+          <AlertCircle className="w-5 h-5 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {qualities.length > 0 && (
+        <div>
+          <h3 className="text-lg font-bold mb-3">{t.thumbnailDownloader.availableThumbnails}</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {qualities.map(({ key, url }) => (
+              <div key={key} className="surface-card overflow-hidden">
+                <div className="aspect-video bg-base-300">
+                  <img
+                    src={url}
+                    alt={`${key} thumbnail`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.currentTarget.parentElement as HTMLElement).style.display = 'none';
+                    }}
+                  />
+                </div>
+                <div className="p-3 flex items-center justify-between gap-2">
+                  <span className="text-sm font-semibold">{key}</span>
+                  <button
+                    type="button"
+                    className="btn-brand btn-sm gap-1.5"
+                    onClick={() => handleDownload(url, key)}
+                  >
+                    <Download className="w-4 h-4" />
+                    {t.thumbnailDownloader.download}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

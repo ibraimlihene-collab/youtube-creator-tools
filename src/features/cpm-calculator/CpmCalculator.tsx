@@ -73,9 +73,8 @@ const CpmCalculator: React.FC<{ t: any }> = ({ t }) => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl p-6 border border-primary/20">
-        <h2 className="text-2xl font-bold mb-2">{t.cpmCalculator.title}</h2>
-        <p className="opacity-80">{t.cpmCalculator.description}</p>
+      <div className="rounded-2xl p-5 border border-primary/20 bg-primary/5">
+        <p className="text-sm text-base-content/70">{t.cpmCalculator.description}</p>
       </div>
       
       <div className="grid md:grid-cols-2 gap-6">
@@ -90,7 +89,7 @@ const CpmCalculator: React.FC<{ t: any }> = ({ t }) => {
             </span>
           </label>
           <select
-            className="select select-bordered select-lg"
+            className="select-modern select-lg"
             value={selectedFieldKey}
             onChange={(e) => setSelectedFieldKey(e.target.value)}
           >
@@ -112,7 +111,7 @@ const CpmCalculator: React.FC<{ t: any }> = ({ t }) => {
             </span>
           </label>
           <select
-            className="select select-bordered select-lg"
+            className="select-modern select-lg"
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value as any)}
           >
@@ -127,10 +126,10 @@ const CpmCalculator: React.FC<{ t: any }> = ({ t }) => {
 
       {/* Result Display */}
       {result && (
-        <div className="bg-gradient-to-r from-success/10 to-success/5 rounded-2xl p-6 border border-success/20 text-center">
-          <h3 className="text-xl font-bold mb-2">{t.cpmCalculator.result}</h3>
-          <p className="text-3xl font-bold text-success mb-2">${result}</p>
-          <p className="opacity-80">{t.cpmCalculator.resultDescription}</p>
+        <div className="rounded-2xl p-6 border border-success/25 bg-success/10 text-center animate-fade-in">
+          <h3 className="text-sm uppercase tracking-wide text-base-content/50 mb-2">{t.cpmCalculator.result}</h3>
+          <p className="text-4xl font-extrabold text-success mb-2">${result}</p>
+          <p className="text-sm opacity-80">{t.cpmCalculator.resultDescription}</p>
         </div>
       )}
 

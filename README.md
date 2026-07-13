@@ -1,114 +1,94 @@
-# YouTube Creator Tools
+# YouCreator Tools
 
-A comprehensive suite of free tools designed to help YouTube content creators enhance their videos, optimize their content, and grow their channels.
+A free, open-source suite of tools for YouTube creators — silence removal, AI titles & scripts, thumbnails, hashtags, CPM estimates, and more.
 
-## About the Developer
+**Live:** [youtube-creator-tools.netlify.app](https://youtube-creator-tools.netlify.app/)
 
-Hi there! My name is Ibrahim, and I just turned 14 and I'm from a small village in Morocco. I'm still learning to code and this is my first open source project. I've always been passionate about YouTube and creating content that helps other creators like me.
+## Highlights (v1.1)
 
-I've always been searching for tools online, but I never knew if they were safe to use or not. That's why I decided to create my own free, open-source alternatives that other creators can trust.
+- **New UI/UX** — YouTube-inspired dark theme, responsive app shell with searchable sidebar, mobile drawer, and polished landing page
+- **Unified studio** — every tool lives under a shared layout with categories (Editing, Thumbnails, AI writing, Growth)
+- **Stronger tools**
+  - Hashtag Generator: offline quick mode + optional Gemini AI mode
+  - Video Rephraser: paste-script mode (reliable) + YouTube URL mode
+  - Title / Script / Description generators: better prompts, copy UX, loading & error states
+  - Thumbnail Downloader: shorts/embed URL parsing, cleaner grid
+  - Shared API key storage with clearer privacy messaging
+- **EN + AR** with RTL support
+- **Privacy-first** — local tools (e.g. Silence Remover) run in your browser
 
-I know the code quality is not great, but this is mainly an educational project for me to learn new tools like AI coding, latest LLMs, Gemini, and other technologies. This project uses AI to help content creators with various tasks like generating scripts, titles, descriptions, and hashtags. With the help of AI tools and guidance from my brother, I was able to deploy my first project. This journey has been both challenging and rewarding, and I'm excited to share these tools with the YouTube creator community.
+## Tools
 
+| Tool | Category | Notes |
+|------|----------|--------|
+| Silence Remover | Editing | Local FFmpeg in-browser |
+| CPM Calculator | Growth | Niche + region estimates |
+| Thumbnail Downloader | Thumbnails | Max-res → standard |
+| Thumbnail Previewer | Thumbnails | Device / theme mock |
+| Hashtag Generator | Growth | Offline + AI |
+| Color Palette Generator | Thumbnails | Brand palettes |
+| Thumbnail Generator | Thumbnails | Gemini image |
+| Video Rephraser | AI | Script or URL |
+| Script Writer | AI | Gemini |
+| Description Generator | AI | SEO-friendly |
+| Title Generator | AI | Multiple tones |
 
-## Features
+## Tech stack
 
-- **Silence Remover**: Automatically detect and remove silent parts from your videos to keep your audience engaged
-- **CPM Calculator**: Estimate your YouTube earnings based on your niche and target audience
-- **Thumbnail Downloader**: Download YouTube thumbnails in all available resolutions
-- **Thumbnail Previewer**: Preview your thumbnails on different devices and themes
-- **Hashtag Generator**: Generate relevant hashtags to increase your video's discoverability
-- **Color Palette Generator**: Create beautiful color palettes for your video thumbnails and branding
-- **Thumbnail Generator**: Create professional thumbnails with our easy-to-use generator
-- **Video Rephraser**: Rephrase your video scripts to improve clarity and engagement
-- **Script Writer**: Write compelling scripts for your videos with AI assistance
-- **Description Generator**: Generate engaging descriptions for your videos to improve SEO
-- **Title Generator**: Create catchy titles that increase click-through rates
+- React 19 + TypeScript
+- Vite 7
+- Tailwind CSS 4 + DaisyUI 5
+- React Router 7
+- Lucide icons
+- FFmpeg.wasm (silence remover)
+- Google Gemini (`@google/genai`)
 
-## Tech Stack
+## Getting started
 
-- **React** with TypeScript for building the user interface
-- **Tailwind CSS** and **DaisyUI** for styling
-- **React Router** for navigation
-- **Lucide React** for icons
-- **Vite** for fast development and building
-- **FFmpeg** for audio/video processing
-- **Google AI** for content generation
+```bash
+git clone https://github.com/ibraimlihene-collab/youtube-creator-tools.git
+cd youtube-creator-tools
+npm install
+npm run dev
+```
 
-## Getting Started
+Build for production:
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/youtube-creator-tools.git
-   ```
+```bash
+npm run build
+npm run preview
+```
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-4. Build for production:
-   ```bash
-   npm run build
-   ```
-
-## Project Structure
+## Project structure
 
 ```
 src/
-├── App.tsx          # Main application component with routing
-├── main.tsx         # Application entry point
-├── index.css        # Global styles and custom utilities
-├── components/      # Reusable UI components
-├── features/        # Individual tool components
-├── locales/         # Localization files (English and Arabic)
-├── pages/           # Page components (including LandingPage)
-└── lib/             # Utility functions and API integrations
+├── App.tsx                 # Routes + tool pages
+├── main.tsx
+├── index.css               # Design system + YouTube theme
+├── context/AppContext.tsx  # Lang + theme
+├── components/
+│   ├── layout/AppLayout.tsx
+│   ├── ToolCard.tsx
+│   ├── ApiKeyInput.tsx
+│   ├── CopyButton.tsx
+│   └── shared/             # FAQ, footer, other tools
+├── features/               # One folder per tool
+├── lib/                    # AI hook, tools registry, media utils
+├── locales/                # en.json, ar.json
+└── pages/LandingPage.tsx
 ```
 
-## Routing
+## AI tools & API keys
 
-The application uses React Router for navigation between the landing page and individual tools:
+AI features use **your** Google AI Studio key, stored only in `localStorage` on your device.
 
-- `/` - Landing page showcasing all tools
-- `/app` - Main application with sidebar navigation
-- `/silence-remover` - Silence Remover tool
-- `/cpm-calculator` - CPM Calculator tool
-- `/thumbnail-downloader` - Thumbnail Downloader tool
-- `/thumbnail-previewer` - Thumbnail Previewer tool
-- `/hashtag-generator` - Hashtag Generator tool
-- `/color-palette-generator` - Color Palette Generator tool
-- `/thumbnail-generator` - Thumbnail Generator tool
-- `/video-rephraser` - Video Rephraser tool
-- `/script-writer` - Script Writer tool
-- `/description-generator` - Description Generator tool
-- `/title-generator` - Title Generator tool
+Get a free key: [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
 
-## Localization
+## About the developer
 
-The application supports both English and Arabic languages. The language can be toggled in the application interface.
-
-## SEO Optimization
-
-The landing page includes comprehensive SEO optimizations:
-- Dynamic meta tags for each page
-- Open Graph tags for social sharing
-- Canonical URLs
-- Semantic HTML structure
-- Responsive design for all devices
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+Hi! I'm Ibrahim — this started as my first open-source project to learn modern web + AI tooling and to give creators free tools they can trust.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-The MIT License is a permissive open-source license that allows for free use, modification, and distribution of the software, with only a requirement to include the original copyright notice and disclaimer. This means you can use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software, and you can permit persons to whom the software is furnished to do so, subject to the conditions outlined in the LICENSE file.
-
+MIT — see [LICENSE](./LICENSE).

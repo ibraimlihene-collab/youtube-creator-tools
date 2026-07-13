@@ -10,7 +10,9 @@
       "light": "وضع النهار",
       "dark": "وضع الليل",
       "ar": "العربية",
-      "en": "الإنجليزية"
+      "en": "الإنجليزية",
+      "toggle": "تبديل المظهر",
+      "youtube": "داكن يوتيوب"
     },
     "tools": {
       "silenceRemover": {
@@ -46,6 +48,19 @@
       "titleGenerator": {
         "title": "مولد العناوين"
       }
+    },
+    "subtitle": "استوديو المبدعين",
+    "home": "الرئيسية",
+    "searchTools": "ابحث عن الأدوات…",
+    "allTools": "كل الأدوات",
+    "hubTitle": "استوديو المبدعين",
+    "hubSubtitle": "اختر أداة من الشريط الجانبي أو ابدأ من الأسفل. كل شيء يعمل في متصفحك.",
+    "privacyNote": "خصوصية افتراضية · يعمل في متصفحك",
+    "categories": {
+      "editing": "تحرير",
+      "thumbnails": "الصور المصغرة",
+      "ai": "كتابة بالذكاء",
+      "growth": "نمو"
     }
   },
   "apiKeyInput": {
@@ -54,7 +69,8 @@
     "hintTitle": "احصل على مفتاح API مجاني",
     "hintText": "قم بزيارة {link} للحصول على مفتاح API مجاني لـ Google AI Studio. إنه مجاني تماماً وآمن من Google. إنهم يتدربون فقط على البيانات المتاحة للعامة ولا يستخدمون طلبات API الخاصة بك في التدريب.",
     "hintLink": "ai.dev/apikey",
-    "invalidKey": "الرجاء إدخال مفتاح API صالح"
+    "invalidKey": "الرجاء إدخال مفتاح API صالح",
+    "storedLocally": "محفوظ محليًا في متصفحك"
   },
   "hashtagGenerator": {
     "label": "أدخل النص هنا",
@@ -65,7 +81,10 @@
     "generatedTitle": "الهاشتاجات المولدة",
     "found": "تم العثور على {count} هاشتاجات ذات صلة",
     "copyAll": "نسخ الكل",
-    "copyTop10": "نسخ أفضل 10"
+    "copyTop10": "نسخ أفضل 10",
+    "quickMode": "سريع (بدون إنترنت)",
+    "aiMode": "بالذكاء الاصطناعي",
+    "generating": "جاري الإنشاء…"
   },
   "cpmCalculator": {
     "title": "حاسبة CPM لليوتيوب",
@@ -205,7 +224,9 @@
     "listStyle": "قائمي",
     "generate": "توليد العناوين",
     "generating": "جاري التوليد...",
-    "generatedTitles": "العناوين المولدة"
+    "generatedTitles": "العناوين المولدة",
+    "toneLabel": "النبرة",
+    "copyAll": "نسخ الكل"
   },
   "landingPage": {
     "metaTitle": "أدوات خالية لصانعي المحتوى على يوتيوب",
@@ -290,6 +311,60 @@
     "contact": "اتصل بنا",
     "privacy": "سياسة الخصوصية",
     "terms": "شروط الخدمة",
-    "copyright": "حقوق النشر © 2025 - جميع الحقوق محفوظة لأدوات YouCreator"
+    "copyright": "© 2026 YouCreator Tools. رخصة MIT. صُنع للمبدعين.",
+    "aboutDesc": "مجموعة مجانية ومفتوحة المصدر من الأدوات لصناع محتوى يوتيوب. خصوصية أولاً وتعمل في المتصفح."
+  },
+  "common": {
+    "copy": "نسخ",
+    "copied": "تم النسخ!",
+    "words": "كلمة",
+    "characters": "حرف",
+    "minRead": "دقيقة تحدث",
+    "clear": "مسح",
+    "generate": "إنشاء",
+    "download": "تحميل"
+  },
+  "scriptWriter": {
+    "topicLabel": "موضوع الفيديو",
+    "topicPlaceholder": "أدخل موضوع الفيديو",
+    "toneLabel": "النبرة",
+    "lengthLabel": "الطول",
+    "short": "قصير (1–2 د)",
+    "medium": "متوسط (3–5 د)",
+    "long": "طويل (10+ د)",
+    "generate": "إنشاء سكربت",
+    "generating": "جاري الكتابة…",
+    "generated": "السكربت المُنشأ",
+    "missingFields": "يرجى إدخال مفتاح API والموضوع."
+  },
+  "descriptionGenerator": {
+    "titleLabel": "عنوان الفيديو",
+    "titlePlaceholder": "أدخل عنوان الفيديو",
+    "keywordsLabel": "كلمات مفتاحية (مفصولة بفواصل)",
+    "keywordsPlaceholder": "أدخل الكلمات المفتاحية",
+    "toneLabel": "النبرة",
+    "generate": "إنشاء الوصف",
+    "generating": "جاري الإنشاء…",
+    "generated": "الوصف المُنشأ",
+    "missingFields": "يرجى إدخال مفتاح API وعنوان الفيديو."
+  },
+  "videoRephraser": {
+    "urlLabel": "رابط فيديو يوتيوب",
+    "urlPlaceholder": "أدخل رابط فيديو يوتيوب",
+    "urlHint": "يعمل أفضل مع الفيديوهات العامة. إن فشل التفريغ، استخدم لصق السكربت.",
+    "scriptLabel": "السكربت الأصلي",
+    "scriptPlaceholder": "الصق سكربت الفيديو أو التفريغ هنا…",
+    "textMode": "لصق سكربت",
+    "urlMode": "رابط يوتيوب",
+    "process": "إعادة صياغة",
+    "processing": "جاري المعالجة…",
+    "transcribing": "جاري التفريغ…",
+    "rephrasing": "جاري إعادة الصياغة…",
+    "original": "الأصلي",
+    "rephrased": "المُعاد صياغته",
+    "missingFields": "يرجى إدخال مفتاح API.",
+    "missingScript": "الصق سكربتًا لإعادة صياغته.",
+    "invalidUrl": "يرجى إدخال رابط يوتيوب صالح.",
+    "transcribeFailed": "فشل تفريغ الفيديو. قد لا يكون الفيديو متاحًا للعامة."
   }
 }

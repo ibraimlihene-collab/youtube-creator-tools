@@ -1,32 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Scissors, 
-  Calculator, 
-  Download, 
-  Eye, 
-  Tags, 
-  Palette, 
-  Image, 
-  Repeat, 
-  Pen, 
-  AlignLeft, 
-  Type
-} from 'lucide-react';
-
-const tools = [
-  { id: 'silenceRemover', icon: Scissors, path: '/silence-remover' },
-  { id: 'cpmCalculator', icon: Calculator, path: '/cpm-calculator' },
-  { id: 'thumbnailDownloader', icon: Download, path: '/thumbnail-downloader' },
-  { id: 'thumbnailPreviewer', icon: Eye, path: '/thumbnail-previewer' },
-  { id: 'hashtagGenerator', icon: Tags, path: '/hashtag-generator' },
-  { id: 'colorPaletteGenerator', icon: Palette, path: '/color-palette-generator' },
-  { id: 'thumbnailGenerator', icon: Image, path: '/thumbnail-generator' },
-  { id: 'videoRephraser', icon: Repeat, path: '/video-rephraser' },
-  { id: 'scriptWriter', icon: Pen, path: '/script-writer' },
-  { id: 'descriptionGenerator', icon: AlignLeft, path: '/description-generator' },
-  { id: 'titleGenerator', icon: Type, path: '/title-generator' },
-];
+import { ChevronLeft, Home } from 'lucide-react';
+import { TOOLS } from '../../lib/tools';
 
 type ToolNavigationProps = {
   currentTool: string;
@@ -34,32 +9,43 @@ type ToolNavigationProps = {
 };
 
 const ToolNavigation = ({ currentTool, t }: ToolNavigationProps) => {
+  const current = TOOLS.find((tool) => tool.id === currentTool);
+  const title = current
+    ? t?.app?.tools?.[current.id]?.title || current.id
+    : '';
+
   return (
-    <nav className="mb-8">
-      <div className="flex flex-wrap gap-2">
-        {tools.map((tool) => {
-          const Icon = tool.icon;
-          const isActive = tool.id === currentTool;
-          
-          return (
-            <Link
-              key={tool.id}
-              to={tool.path}
-              className={`btn btn-sm flex items-center gap-2 ${
-                isActive 
-                  ? 'btn-primary' 
-                  : 'btn-ghost hover:bg-base-200'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span className="hidden sm:inline">
-                {t.app.tools[tool.id as keyof typeof t.app.tools]?.title || tool.id}
-              </span>
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
+    <div className="mb-4 flex flex-wrap items-center gap-2 text-sm">
+      <Link
+        to="/"
+        className="inline-flex items-center gap-1.5 text-base-content/60 hover:text-primary transition-colors"
+      >
+        <Home className="w-3.5 h-3.5" />
+        {t?.app?.home || 'Home'}
+      </Link>
+      <span className="text-base-content/30">/</span>
+      <Link
+        to="/app"
+        className="inline-flex items-center gap-1 text-base-content/60 hover:text-primary transition-colors"
+      >
+        {t?.landingPage?.openApp || 'App'}
+      </Link>
+      {title && (
+        <>
+          <span className="text-base-content/30">/</span>
+          <span className="font-medium text-base-content/90 truncate max-w-[12rem] sm:max-w-none">
+            {title}
+          </span>
+        </>
+      )}
+      <Link
+        to="/app"
+        className="ms-auto btn btn-ghost btn-xs gap-1 text-base-content/70"
+      >
+        <ChevronLeft className="w-3.5 h-3.5" />
+        {t?.app?.allTools || 'All tools'}
+      </Link>
+    </div>
   );
 };
 

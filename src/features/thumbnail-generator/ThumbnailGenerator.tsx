@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { GoogleGenAI, Modality } from '@google/genai';
 import ApiKeyInput from '../../components/ApiKeyInput';
-import ToolNavigation from '../../components/shared/ToolNavigation';
 
 interface ThumbnailGeneratorProps {
   t?: Record<string, any>;
@@ -109,12 +108,8 @@ const ThumbnailGenerator = ({ t }: ThumbnailGeneratorProps) => {
   }, [apiKey, prompt, referenceUrl, t]);
 
   return (
-    <div className="p-4">
-      <ToolNavigation currentTool="thumbnailGenerator" t={t} />
-      
-      <h2 className="text-2xl font-bold mb-4">{t?.app?.tools?.thumbnailGenerator?.title || 'Thumbnail Generator'}</h2>
-      
-      <div className="flex flex-col gap-4">
+    <div className="space-y-5">
+<div className="flex flex-col gap-4">
         <ApiKeyInput apiKey={apiKey} onApiKeyChange={setApiKey} t={t} />
         
         <div className="form-control">
@@ -125,7 +120,7 @@ const ThumbnailGenerator = ({ t }: ThumbnailGeneratorProps) => {
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder={t?.thumbnailGenerator?.promptPlaceholder || "Describe your thumbnail (e.g., 'a futuristic city at night')"}
-            className="textarea textarea-bordered min-h-[100px]"
+            className="textarea-modern min-h-[100px]"
           />
         </div>
         
@@ -138,12 +133,12 @@ const ThumbnailGenerator = ({ t }: ThumbnailGeneratorProps) => {
             value={referenceUrl}
             onChange={(e) => setReferenceUrl(e.target.value)}
             placeholder={t?.thumbnailGenerator?.referencePlaceholder || "Enter a YouTube URL for style reference"}
-            className="input input-bordered"
+            className="input-modern"
           />
         </div>
         
         <button
-          className="btn btn-primary"
+          className="btn-brand"
           onClick={handleGenerate}
           disabled={isLoading || !apiKey || !prompt}
         >

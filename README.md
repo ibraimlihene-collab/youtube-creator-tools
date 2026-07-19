@@ -1,94 +1,54 @@
 # YouCreator Tools
 
-A free, open-source suite of tools for YouTube creators — silence removal, AI titles & scripts, thumbnails, hashtags, CPM estimates, and more.
+Professional AI platform for YouTube creators — **50 tools**, bilingual (EN/AR), privacy-first.
 
 **Live:** [youtube-creator-tools.netlify.app](https://youtube-creator-tools.netlify.app/)
 
-## Highlights (v1.1)
+## Security (read this)
 
-- **New UI/UX** — YouTube-inspired dark theme, responsive app shell with searchable sidebar, mobile drawer, and polished landing page
-- **Unified studio** — every tool lives under a shared layout with categories (Editing, Thumbnails, AI writing, Growth)
-- **Stronger tools**
-  - Hashtag Generator: offline quick mode + optional Gemini AI mode
-  - Video Rephraser: paste-script mode (reliable) + YouTube URL mode
-  - Title / Script / Description generators: better prompts, copy UX, loading & error states
-  - Thumbnail Downloader: shorts/embed URL parsing, cleaner grid
-  - Shared API key storage with clearer privacy messaging
-- **EN + AR** with RTL support
-- **Privacy-first** — local tools (e.g. Silence Remover) run in your browser
+Provider API keys (**Gemini**, **Apify**, **Netlify**) are **server-only**:
 
-## Tools
+1. Copy `.env.example` → `.env` (never commit `.env`)
+2. In Netlify: **Site settings → Environment variables** add:
+   - `GEMINI_API_KEY`
+   - `APIFY_TOKEN`
+   - `ALLOWED_ORIGINS` (your production domain)
+   - `RATE_LIMIT_PER_MINUTE` (e.g. `20`)
+3. The browser calls `/api/ai` and `/api/apify` only. Keys never ship to the client.
 
-| Tool | Category | Notes |
-|------|----------|--------|
-| Silence Remover | Editing | Local FFmpeg in-browser |
-| CPM Calculator | Growth | Niche + region estimates |
-| Thumbnail Downloader | Thumbnails | Max-res → standard |
-| Thumbnail Previewer | Thumbnails | Device / theme mock |
-| Hashtag Generator | Growth | Offline + AI |
-| Color Palette Generator | Thumbnails | Brand palettes |
-| Thumbnail Generator | Thumbnails | Gemini image |
-| Video Rephraser | AI | Script or URL |
-| Script Writer | AI | Gemini |
-| Description Generator | AI | SEO-friendly |
-| Title Generator | AI | Multiple tones |
+See [SECURITY.md](./SECURITY.md).
 
-## Tech stack
+> If you ever pasted keys in a chat or commit: **rotate them now**.
 
-- React 19 + TypeScript
-- Vite 7
+## Stack
+
+- React 19 + TypeScript + Vite 7
 - Tailwind CSS 4 + DaisyUI 5
-- React Router 7
-- Lucide icons
-- FFmpeg.wasm (silence remover)
-- Google Gemini (`@google/genai`)
+- Netlify Functions (secure AI/Apify proxy)
+- FFmpeg.wasm (on-device silence remover)
+- Models: `gemini-3.1-flash-lite`, Gemma 4, Flash fallbacks
 
-## Getting started
+## Develop
 
 ```bash
-git clone https://github.com/ibraimlihene-collab/youtube-creator-tools.git
-cd youtube-creator-tools
 npm install
-npm run dev
+# optional: npm i -g netlify-cli
+cp .env.example .env   # fill secrets locally
+npm run dev            # netlify dev (functions + vite)
+# or frontend only:
+npm run dev:app
 ```
 
-Build for production:
+## Build
 
 ```bash
 npm run build
-npm run preview
 ```
 
-## Project structure
+## Thumbnail Generator
 
-```
-src/
-├── App.tsx                 # Routes + tool pages
-├── main.tsx
-├── index.css               # Design system + YouTube theme
-├── context/AppContext.tsx  # Lang + theme
-├── components/
-│   ├── layout/AppLayout.tsx
-│   ├── ToolCard.tsx
-│   ├── ApiKeyInput.tsx
-│   ├── CopyButton.tsx
-│   └── shared/             # FAQ, footer, other tools
-├── features/               # One folder per tool
-├── lib/                    # AI hook, tools registry, media utils
-├── locales/                # en.json, ar.json
-└── pages/LandingPage.tsx
-```
-
-## AI tools & API keys
-
-AI features use **your** Google AI Studio key, stored only in `localStorage` on your device.
-
-Get a free key: [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
-
-## About the developer
-
-Hi! I'm Ibrahim — this started as my first open-source project to learn modern web + AI tooling and to give creators free tools they can trust.
+The AI **Thumbnail Generator** was **removed** by product decision. Use Thumbnail Downloader, Previewer, Text Ideas, and Color tools instead.
 
 ## License
 
-MIT — see [LICENSE](./LICENSE).
+MIT

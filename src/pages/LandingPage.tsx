@@ -1,113 +1,110 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  ChevronRight,
+  ArrowRight,
+  BookOpen,
+  Github,
+  Languages,
+  Moon,
+  Play,
+  Shield,
+  Sparkles,
+  Sun,
   Zap,
   Globe,
-  Users,
-  Shield,
-  ArrowRight,
-  Sun,
-  Moon,
-  Languages,
-  Github,
-  Sparkles,
-  Play,
+  ChevronRight,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { TOOLS } from '../lib/tools';
-import HashtagGenerator from '../features/hashtag-generator/HashtagGenerator';
-import CpmCalculator from '../features/cpm-calculator/CpmCalculator';
-
-const features = [
-  { icon: Zap, titleKey: 'fastProcessing', descriptionKey: 'fastProcessingDesc' },
-  { icon: Globe, titleKey: 'multiLanguage', descriptionKey: 'multiLanguageDesc' },
-  { icon: Shield, titleKey: 'privacyFirst', descriptionKey: 'privacyFirstDesc' },
-  { icon: Users, titleKey: 'community', descriptionKey: 'communityDesc' },
-];
-
-const faqs = [
-  { q: 'toolQuestion1', a: 'toolAnswer1' },
-  { q: 'toolQuestion2', a: 'toolAnswer2' },
-  { q: 'toolQuestion3', a: 'toolAnswer3' },
-  { q: 'toolQuestion4', a: 'toolAnswer4' },
-];
+import { TOOLS, TOOL_COUNT } from '../lib/tools';
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const { t, lang, theme, toggleLang, toggleTheme } = useApp();
-  const [activeEmbeddedTool, setActiveEmbeddedTool] = useState<'hashtagGenerator' | 'cpmCalculator'>(
-    'hashtagGenerator'
-  );
+  const { lang, theme, toggleLang, toggleTheme } = useApp();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const rtl = lang === 'ar';
 
   useEffect(() => {
-    const title = `${t.app.title} — ${t.landingPage?.metaTitle || 'Free YouTube Creator Tools'}`;
-    const description =
-      t.landingPage?.metaDescription ||
-      'Boost your YouTube channel with free tools. Generate hashtags, calculate CPM, remove silence, create thumbnails, and more!';
-    document.title = title;
+    document.title =
+      lang === 'ar'
+        ? 'YouCreator Tools — أدوات يوتيوب احترافية وآمنة'
+        : 'YouCreator Tools — Pro YouTube creator tools';
+  }, [lang]);
 
-    const setMeta = (selector: string, attr: string, value: string, createAttr?: string) => {
-      let el = document.querySelector(selector) as HTMLMetaElement | null;
-      if (!el) {
-        el = document.createElement('meta');
-        if (createAttr === 'name') el.setAttribute('name', selector.match(/name="([^"]+)"/)?.[1] || '');
-        if (createAttr === 'property')
-          el.setAttribute('property', selector.match(/property="([^"]+)"/)?.[1] || '');
-        document.head.appendChild(el);
-      }
-      el.setAttribute(attr, value);
-    };
-
-    setMeta('meta[name="description"]', 'content', description, 'name');
-    setMeta('meta[property="og:title"]', 'content', title, 'property');
-    setMeta('meta[property="og:description"]', 'content', description, 'property');
-  }, [t, lang]);
+  const featured = TOOLS.slice(0, 9);
+  const faqs =
+    lang === 'ar'
+      ? [
+          {
+            q: 'هل الموقع مجاني؟',
+            a: 'نعم. الأدوات الأساسية مجانية. مفاتيح الذكاء الاصطناعي تُدار على الخادم ولا تُطلب منك.',
+          },
+          {
+            q: 'أين تُخزَّن مفاتيح API؟',
+            a: 'على خادم Netlify فقط كمتغيرات بيئة. المتصفح لا يراها ولا يمكن استخراجها من الواجهة.',
+          },
+          {
+            q: 'هل ترفعون ملفاتي؟',
+            a: 'لا. إزالة الصمت تعمل محلياً في متصفحك. طلبات AI ترسل النص فقط عبر وكيل آمن.',
+          },
+          {
+            q: 'كم عدد الأدوات؟',
+            a: `${TOOL_COUNT} أداة احترافية لصنّاع يوتيوب — بدون حشو أو تكرار.`,
+          },
+        ]
+      : [
+          {
+            q: 'Is it free?',
+            a: 'Yes. Core tools are free. AI provider keys are managed server-side — you are never asked to paste them.',
+          },
+          {
+            q: 'Where are API keys stored?',
+            a: 'Only in Netlify environment variables on the server. The browser never receives them.',
+          },
+          {
+            q: 'Do you upload my files?',
+            a: 'No. Silence removal runs locally in your browser. AI calls send text only through a secure proxy.',
+          },
+          {
+            q: 'How many tools?',
+            a: `${TOOL_COUNT} professional YouTube tools — no filler, no duplicates.`,
+          },
+        ];
 
   return (
     <div className="min-h-screen w-full bg-base-100 text-base-content">
-      {/* Navbar */}
       <nav className="navbar sticky top-0 z-50 bg-base-100/80 backdrop-blur-xl border-b border-base-300 px-3 sm:px-6">
         <div className="flex-1">
           <Link to="/" className="flex items-center gap-2.5">
-            <img
-              src="/assets/youtube-creator-icon.png"
-              alt=""
-              className="w-9 h-9 rounded-xl object-cover shadow"
-            />
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow">
+              <Play className="w-4 h-4 text-primary-content fill-current" />
+            </div>
             <span className="text-lg font-bold tracking-tight hidden sm:inline">
-              {t.app.title}
+              YouCreator <span className="text-primary">Tools</span>
             </span>
           </Link>
         </div>
-        <div className="flex-none gap-1 sm:gap-2">
+        <div className="flex-none gap-1 sm:gap-2 items-center">
+          <Link to="/articles" className="btn btn-ghost btn-sm hidden sm:inline-flex gap-1">
+            <BookOpen className="w-4 h-4" />
+            {lang === 'ar' ? 'مقالات' : 'Articles'}
+          </Link>
           <a
             href="https://github.com/ibraimlihene-collab/youtube-creator-tools"
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-ghost btn-sm btn-circle"
-            title="GitHub"
           >
             <Github className="w-4 h-4" />
           </a>
-          <button
-            onClick={toggleTheme}
-            className="btn btn-ghost btn-sm btn-circle"
-            title={t.app.theme?.toggle || 'Theme'}
-          >
+          <button onClick={toggleTheme} className="btn btn-ghost btn-sm btn-circle" type="button">
             {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
           </button>
-          <button
-            onClick={toggleLang}
-            className="btn btn-ghost btn-sm btn-circle"
-            title={lang === 'ar' ? 'English' : 'العربية'}
-          >
+          <button onClick={toggleLang} className="btn btn-ghost btn-sm btn-circle" type="button">
             <Languages className="w-4 h-4" />
           </button>
-          <button onClick={() => navigate('/app')} className="btn-brand btn-sm sm:btn-md gap-1.5">
+          <button onClick={() => navigate('/app')} className="btn-brand btn-sm sm:btn-md gap-1.5" type="button">
             <Play className="w-4 h-4" />
-            <span className="hidden sm:inline">{t.landingPage?.openApp || 'Open App'}</span>
+            <span className="hidden sm:inline">{lang === 'ar' ? 'افتح الاستوديو' : 'Open studio'}</span>
             <span className="sm:hidden">App</span>
           </button>
         </div>
@@ -118,43 +115,46 @@ const LandingPage = () => {
         <div className="absolute inset-0 mesh-bg opacity-90" />
         <div className="absolute inset-0 grid-bg opacity-40" />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-16 sm:pb-24 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-medium text-primary mb-6 animate-fade-in-up">
-            <Sparkles className="w-3.5 h-3.5" />
-            {t.landingPage?.metaTitle || 'Free YouTube Creator Tools'} · MIT
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-medium text-primary mb-6">
+            <Shield className="w-3.5 h-3.5" />
+            {lang === 'ar'
+              ? 'مفاتيح محمية على الخادم · مفتوح المصدر · MIT'
+              : 'Server-side keys · Open source · MIT'}
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-5 animate-fade-in-up">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-5 leading-[1.15]">
             <span className="text-gradient">
-              {t.landingPage?.heroTitle || 'Supercharge Your YouTube Channel'}
+              {lang === 'ar' ? 'من قرية صغيرة' : 'From a small village'}
+            </span>
+            <br />
+            <span>
+              {lang === 'ar' ? 'إلى منصة لصنّاع العالم' : 'to a platform for global creators'}
             </span>
           </h1>
-          <p className="text-base sm:text-lg md:text-xl text-base-content/70 max-w-2xl mx-auto mb-8 animate-fade-in-up">
-            {t.landingPage?.heroSubtitle ||
-              'Free tools to help you create better content, grow your audience, and increase your revenue.'}
+          <p className="text-base sm:text-lg md:text-xl text-base-content/70 max-w-2xl mx-auto mb-8">
+            {lang === 'ar'
+              ? `${TOOL_COUNT} أداة يوتيوب احترافية — سريعة، آمنة، ومجانية. صُنعت بشغف لت حل مشاكل حقيقية في البحث والكتابة والنشر والنمو.`
+              : `${TOOL_COUNT} professional YouTube tools — fast, secure, free. Built with passion to solve real research, writing, publishing, and growth problems.`}
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-3 animate-fade-in-up">
-            <button
-              onClick={() => navigate('/app')}
-              className="btn-brand btn-lg gap-2 px-8"
-            >
-              {t.landingPage?.getStarted || 'Get Started'}
-              <ArrowRight className="w-5 h-5" />
+          <div className="flex flex-col sm:flex-row justify-center gap-3">
+            <button onClick={() => navigate('/app')} className="btn-brand btn-lg gap-2 px-8" type="button">
+              {lang === 'ar' ? 'ابدأ مجاناً' : 'Start free'}
+              {rtl ? null : <ArrowRight className="w-5 h-5" />}
             </button>
             <button
-              onClick={() =>
-                document.getElementById('tools')?.scrollIntoView({ behavior: 'smooth' })
-              }
+              onClick={() => document.getElementById('story')?.scrollIntoView({ behavior: 'smooth' })}
               className="btn-soft btn-lg px-8"
+              type="button"
             >
-              {t.landingPage?.exploreTools || 'Explore Tools'}
+              {lang === 'ar' ? 'اقرأ القصة' : 'Read the story'}
             </button>
           </div>
 
           <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto">
             {[
-              { n: '11', l: t.landingPage?.ourTools || 'Tools' },
+              { n: String(TOOL_COUNT), l: lang === 'ar' ? 'أداة' : 'Tools' },
               { n: '2', l: lang === 'ar' ? 'لغات' : 'Languages' },
-              { n: '100%', l: lang === 'ar' ? 'مجاني' : 'Free' },
-              { n: '0', l: lang === 'ar' ? 'حساب مطلوب' : 'Account needed' },
+              { n: '0', l: lang === 'ar' ? 'مفتاح في المتصفح' : 'Browser keys' },
+              { n: '100%', l: lang === 'ar' ? 'مجاني للبدء' : 'Free to start' },
             ].map((stat) => (
               <div key={stat.l} className="surface-card py-4 px-3">
                 <div className="text-2xl font-extrabold text-primary">{stat.n}</div>
@@ -165,148 +165,158 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Features */}
-      <section className="section-padding py-14">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-2">
-              {t.landingPage?.whyChooseUs || 'Why Choose YouCreator Tools?'}
-            </h2>
-            <p className="text-base-content/60 max-w-2xl mx-auto">
-              {t.landingPage?.whyChooseUsDesc ||
-                'Everything you need to create professional YouTube content, all in one place.'}
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <div
-                  key={feature.titleKey}
-                  className="surface-card p-5 hover-lift animate-fade-in-up"
-                  style={{ animationDelay: `${index * 60}ms` }}
-                >
-                  <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center mb-4">
-                    <Icon className="w-5 h-5 text-primary" />
-                  </div>
-                  <h3 className="font-bold mb-1.5">
-                    {(t.landingPage?.features as any)?.[feature.titleKey] || feature.titleKey}
-                  </h3>
-                  <p className="text-sm text-base-content/60 leading-relaxed">
-                    {(t.landingPage?.features as any)?.[feature.descriptionKey] ||
-                      feature.descriptionKey}
+      {/* Story */}
+      <section id="story" className="section-padding py-16">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-10 items-center">
+          <div className="surface-card p-6 sm:p-8">
+            <div className="flex items-center gap-4 mb-5">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-content font-black text-xl">
+                I
+              </div>
+              <div>
+                <h3 className="font-bold text-lg">
+                  {lang === 'ar' ? 'إبراهيم' : 'Ibrahim'}
+                </h3>
+                <p className="text-sm text-base-content/55">
+                  {lang === 'ar'
+                    ? 'مطور علّم نفسه · المغرب'
+                    : 'Self-taught developer · Morocco'}
+                </p>
+              </div>
+            </div>
+            <div className="space-y-3 text-sm text-base-content/75 leading-relaxed">
+              {lang === 'ar' ? (
+                <>
+                  <p>
+                    بدأت من قرية صغيرة بشغف ليوتيوب والبرمجة. لاحظت أن كثيراً من أدوات الصنّاع إما
+                    مدفوعة أو تطلب لصق مفاتيح API في المتصفح — وهذا غير آمن.
                   </p>
+                  <p>
+                    بمساعدة عائلتي وأدوات الذكاء الاصطناعي للتعلّم، بنيت YouCreator Tools كأول مشروع
+                    مفتوح المصدر: أدوات تحترم الخصوصية، تعمل بسرعة، وتُدار مفاتيحها على الخادم.
+                  </p>
+                  <p className="text-primary font-semibold">
+                    الرؤية: أفضل منصة مساعدة لصنّاع يوتيوب — مجانية للبدء، آمنة بالتصميم، وجاهزة للنمو.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p>
+                    I started from a small village with a passion for YouTube and code. Too many
+                    creator tools were paid walls — or asked you to paste API keys in the browser.
+                    That is unsafe.
+                  </p>
+                  <p>
+                    With family support and AI-assisted learning, I built YouCreator Tools as my
+                    first open-source project: privacy-respecting tools with server-side secrets.
+                  </p>
+                  <p className="text-primary font-semibold">
+                    Vision: the best AI helper platform for YouTube creators — free to start, secure
+                    by design, ready to scale.
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+          <div className="space-y-4">
+            {[
+              {
+                icon: Shield,
+                t: lang === 'ar' ? 'أمان أولاً' : 'Security first',
+                d:
+                  lang === 'ar'
+                    ? 'لا مفاتيح في localStorage. وكيل Netlify + حد معدّل + رفض مفاتيح العميل.'
+                    : 'No keys in localStorage. Netlify proxy + rate limits + client key rejection.',
+              },
+              {
+                icon: Zap,
+                t: lang === 'ar' ? 'تكلفة منخفضة' : 'Low operating cost',
+                d:
+                  lang === 'ar'
+                    ? 'نماذج Gemini Flash-Lite / Gemma للمهام الخفيفة — جودة عالية بأقل توكنات.'
+                    : 'Gemini Flash-Lite / Gemma for light tasks — quality with minimal tokens.',
+              },
+              {
+                icon: Globe,
+                t: lang === 'ar' ? 'عربي + إنجليزي' : 'Arabic + English',
+                d:
+                  lang === 'ar'
+                    ? 'واجهة RTL كاملة ومخرجات تناسب صنّاع المحتوى العرب.'
+                    : 'Full RTL UI and outputs that work for Arabic creators too.',
+              },
+            ].map((f) => (
+              <div key={f.t} className="surface-card p-5 flex gap-4">
+                <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center shrink-0">
+                  <f.icon className="w-5 h-5 text-primary" />
                 </div>
-              );
-            })}
+                <div>
+                  <h3 className="font-bold mb-1">{f.t}</h3>
+                  <p className="text-sm text-base-content/60">{f.d}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Tools grid */}
+      {/* Tools preview */}
       <section id="tools" className="section-padding py-14 bg-base-200/40">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold mb-2">
-              {t.landingPage?.ourTools || 'Our Powerful Tools'}
+              {lang === 'ar' ? 'أدوات تُستخدم يومياً' : 'Tools you will use daily'}
             </h2>
-            <p className="text-base-content/60 max-w-2xl mx-auto">
-              {t.landingPage?.ourToolsDesc ||
-                'Everything you need to create, optimize, and grow your YouTube channel.'}
+            <p className="text-base-content/60">
+              {lang === 'ar'
+                ? `عيّنة من ${TOOL_COUNT} — الباقي داخل الاستوديو`
+                : `A sample of ${TOOL_COUNT} — the rest live in the studio`}
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {TOOLS.map((tool, index) => {
+            {featured.map((tool) => {
               const Icon = tool.icon;
               return (
                 <button
                   key={tool.id}
                   type="button"
                   onClick={() => navigate(tool.path)}
-                  className="text-start surface-card p-5 hover-lift animate-fade-in-up group"
-                  style={{ animationDelay: `${index * 40}ms` }}
+                  className="text-start surface-card p-5 hover-lift group"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+                    <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center shrink-0">
                       <Icon className="w-5 h-5 text-primary" />
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-bold truncate">
-                          {t.app.tools[tool.id as keyof typeof t.app.tools]?.title || tool.id}
-                        </h3>
-                        {tool.badge === 'ai' && <span className="badge-ai text-[10px]">AI</span>}
-                        {tool.badge === 'local' && (
-                          <span className="badge-local text-[10px]">Local</span>
-                        )}
-                      </div>
+                    <div className="min-w-0">
+                      <h3 className="font-bold mb-1 truncate">
+                        {lang === 'ar' ? tool.titleAr : tool.titleEn}
+                      </h3>
                       <p className="text-sm text-base-content/60 line-clamp-2 mb-2">
-                        {(t.landingPage as any)?.[`${tool.id}Desc`] || ''}
+                        {lang === 'ar' ? tool.descAr : tool.descEn}
                       </p>
-                      <div className="flex items-center text-primary font-medium text-xs">
-                        {t.landingPage?.tryIt || 'Try it now'}
-                        <ChevronRight className="ms-1 w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                      </div>
+                      <span className="text-primary text-xs font-medium inline-flex items-center">
+                        {lang === 'ar' ? 'جرّب' : 'Try'}
+                        <ChevronRight className="w-3.5 h-3.5 ms-1" />
+                      </span>
                     </div>
                   </div>
                 </button>
               );
             })}
           </div>
-        </div>
-      </section>
-
-      {/* Live try */}
-      <section className="section-padding py-14">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-2">
-              {t.landingPage?.tryOurTools || 'Try Our Tools'}
-            </h2>
-            <p className="text-base-content/60">
-              {t.landingPage?.tryOurToolsDesc ||
-                'Experience some of our most popular tools right here.'}
-            </p>
-          </div>
-          <div className="surface-card p-4 sm:p-6">
-            <div className="flex flex-wrap gap-2 mb-5">
-              <button
-                className={`btn btn-sm ${
-                  activeEmbeddedTool === 'hashtagGenerator' ? 'btn-brand' : 'btn-soft'
-                }`}
-                onClick={() => setActiveEmbeddedTool('hashtagGenerator')}
-              >
-                {t.app.tools.hashtagGenerator?.title || 'Hashtag Generator'}
-              </button>
-              <button
-                className={`btn btn-sm ${
-                  activeEmbeddedTool === 'cpmCalculator' ? 'btn-brand' : 'btn-soft'
-                }`}
-                onClick={() => setActiveEmbeddedTool('cpmCalculator')}
-              >
-                {t.app.tools.cpmCalculator?.title || 'CPM Calculator'}
-              </button>
-            </div>
-            {activeEmbeddedTool === 'hashtagGenerator' && (
-              <HashtagGenerator lang={lang} t={t} />
-            )}
-            {activeEmbeddedTool === 'cpmCalculator' && <CpmCalculator t={t} />}
+          <div className="text-center mt-8">
+            <button type="button" className="btn-brand" onClick={() => navigate('/app')}>
+              {lang === 'ar' ? `عرض كل الـ ${TOOL_COUNT} أداة` : `View all ${TOOL_COUNT} tools`}
+            </button>
           </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="section-padding py-14 bg-base-200/40">
+      <section className="section-padding py-14">
         <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-2">
-              {t.landingPage?.frequentlyAsked || 'Frequently Asked Questions'}
-            </h2>
-            <p className="text-base-content/60">
-              {t.landingPage?.frequentlyAskedDesc ||
-                'Everything you need to know about our tools and services.'}
-            </p>
-          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-8 text-center">
+            {lang === 'ar' ? 'أسئلة شائعة' : 'FAQ'}
+          </h2>
           <div className="space-y-2">
             {faqs.map((faq, index) => {
               const open = openFaq === index;
@@ -317,19 +327,11 @@ const LandingPage = () => {
                     className="w-full text-start px-5 py-4 flex items-center justify-between gap-3 font-semibold"
                     onClick={() => setOpenFaq(open ? null : index)}
                   >
-                    <span>
-                      {(t.landingPage?.faqs as any)?.[faq.q] || faq.q}
-                    </span>
-                    <ChevronRight
-                      className={`w-4 h-4 shrink-0 transition-transform ${
-                        open ? 'rotate-90' : ''
-                      }`}
-                    />
+                    <span>{faq.q}</span>
+                    <ChevronRight className={`w-4 h-4 shrink-0 transition-transform ${open ? 'rotate-90' : ''}`} />
                   </button>
                   {open && (
-                    <div className="px-5 pb-4 text-sm text-base-content/70 leading-relaxed">
-                      {(t.landingPage?.faqs as any)?.[faq.a] || faq.a}
-                    </div>
+                    <div className="px-5 pb-4 text-sm text-base-content/70 leading-relaxed">{faq.a}</div>
                   )}
                 </div>
               );
@@ -341,75 +343,56 @@ const LandingPage = () => {
       {/* CTA */}
       <section className="section-padding py-16">
         <div className="max-w-4xl mx-auto rounded-3xl bg-gradient-to-br from-primary to-primary/80 p-8 sm:p-12 text-center text-primary-content shadow-2xl shadow-primary/20">
+          <Sparkles className="w-10 h-10 mx-auto mb-4 opacity-90" />
           <h2 className="text-2xl sm:text-3xl font-extrabold mb-3">
-            {t.landingPage?.readyToStart || 'Ready to Transform Your YouTube Channel?'}
+            {lang === 'ar' ? 'جاهز لرفع مستوى قناتك؟' : 'Ready to level up your channel?'}
           </h2>
           <p className="text-primary-content/85 mb-7 max-w-xl mx-auto">
-            {t.landingPage?.readyToStartDesc ||
-              'Join thousands of creators who are already using our tools to grow their channels.'}
+            {lang === 'ar'
+              ? 'ادخل الاستوديو الآن — بدون حساب، بدون لصق مفاتيح.'
+              : 'Enter the studio now — no account, no key pasting.'}
           </p>
           <button
+            type="button"
             onClick={() => navigate('/app')}
             className="btn bg-white text-primary hover:bg-white/90 border-0 btn-lg gap-2"
           >
-            {t.landingPage?.startCreating || 'Start Creating Now'}
+            {lang === 'ar' ? 'ابدأ الإنشاء' : 'Start creating'}
             <ArrowRight className="w-5 h-5" />
           </button>
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="border-t border-base-300 py-12">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row justify-between gap-6">
           <div>
-            <div className="flex items-center gap-2.5 mb-3">
-              <img
-                src="/assets/youtube-creator-icon.png"
-                alt=""
-                className="w-9 h-9 rounded-lg object-cover"
-              />
-              <span className="font-bold">{t.app.title}</span>
+            <div className="font-bold mb-2">
+              YouCreator <span className="text-primary">Tools</span>
             </div>
-            <p className="text-sm text-base-content/60 mb-3 max-w-sm">
-              {t.landingPage?.heroSubtitle}
+            <p className="text-sm text-base-content/55 max-w-sm">
+              {lang === 'ar'
+                ? 'صُنع بـ ❤️ من المغرب · MIT License'
+                : 'Made with ❤️ from Morocco · MIT License'}
             </p>
+          </div>
+          <div className="flex flex-wrap gap-4 text-sm">
+            <Link to="/app" className="hover:text-primary">
+              Studio
+            </Link>
+            <Link to="/articles" className="hover:text-primary">
+              Articles
+            </Link>
+            <Link to="/dashboard" className="hover:text-primary">
+              Dashboard
+            </Link>
             <a
               href="https://github.com/ibraimlihene-collab/youtube-creator-tools"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm text-base-content/70 hover:text-primary"
+              className="hover:text-primary"
             >
-              <Github className="w-4 h-4" /> GitHub
+              GitHub
             </a>
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-base-content/45 mb-3">
-              {t.landingPage?.ourTools || 'Tools'}
-            </h3>
-            <ul className="space-y-1.5">
-              {TOOLS.slice(0, 6).map((tool) => (
-                <li key={tool.id}>
-                  <Link
-                    to={tool.path}
-                    className="text-sm text-base-content/70 hover:text-primary"
-                  >
-                    {t.app.tools[tool.id as keyof typeof t.app.tools]?.title || tool.id}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-base-content/45 mb-3">
-              {t.landingPage?.about || 'About'}
-            </h3>
-            <p className="text-sm text-base-content/60 mb-3">
-              {t.landingPage?.aboutDesc ||
-                'A free open-source suite of tools for YouTube creators.'}
-            </p>
-            <p className="text-xs text-base-content/40">
-              {t.landingPage?.copyright || '© 2026 YouCreator Tools. MIT License.'}
-            </p>
           </div>
         </div>
       </footer>

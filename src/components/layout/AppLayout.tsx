@@ -11,12 +11,14 @@ import {
   Sun,
   X,
   Home,
+  LayoutDashboard,
+  BookOpen,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { TOOLS, CATEGORY_META, type ToolCategory } from '../../lib/tools';
+import { TOOLS, CATEGORY_META, ALL_CATEGORIES, TOOL_COUNT } from '../../lib/tools';
 
 const AppLayout: React.FC = () => {
-  const { t, theme, toggleTheme, toggleLang, lang } = useApp();
+  const { theme, toggleTheme, toggleLang, lang } = useApp();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -28,38 +30,41 @@ const AppLayout: React.FC = () => {
 
   const grouped = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const categories: ToolCategory[] = ['editing', 'thumbnails', 'ai', 'growth'];
-    return categories
-      .map((cat) => {
-        const items = TOOLS.filter((tool) => {
-          if (tool.category !== cat) return false;
-          if (!q) return true;
-          const title = t.app.tools[tool.id]?.title?.toLowerCase() || tool.id;
-          return title.includes(q) || tool.id.toLowerCase().includes(q);
-        });
-        return { cat, items };
-      })
-      .filter((g) => g.items.length > 0);
-  }, [query, t]);
+    return ALL_CATEGORIES.map((cat) => {
+      const items = TOOLS.filter((tool) => {
+        if (tool.category !== cat) return false;
+        if (!q) return true;
+        const title = (lang === 'ar' ? tool.titleAr : tool.titleEn).toLowerCase();
+        return title.includes(q) || tool.id.toLowerCase().includes(q);
+      });
+      return { cat, items };
+    }).filter((g) => g.items.length > 0);
+  }, [query, lang]);
+
+  const catLabel = (cat: keyof typeof CATEGORY_META) =>
+    lang === 'ar' ? CATEGORY_META[cat].labelAr : CATEGORY_META[cat].labelEn;
 
   const SidebarContent = (
     <div className="flex flex-col h-full">
       <div className="flex items-center gap-3 px-4 py-5 border-b border-base-300">
         <Link to="/" className="flex items-center gap-3 min-w-0 group">
-          <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md ring-1 ring-base-300 shrink-0">
+          <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md ring-1 ring-base-300 shrink-0 bg-primary flex items-center justify-center">
             <img
               src="/assets/youtube-creator-icon.png"
               alt="YouCreator Tools"
               className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
             />
           </div>
           {!collapsed && (
             <div className="min-w-0">
               <div className="font-bold text-base truncate group-hover:text-primary transition-colors">
-                {t.app.title}
+                YouCreator
               </div>
               <div className="text-[11px] text-base-content/50 truncate">
-                {t.app.subtitle || 'Creator studio'}
+                {TOOL_COUNT} {lang === 'ar' ? 'أداة' : 'tools'}
               </div>
             </div>
           )}
@@ -89,7 +94,7 @@ const AppLayout: React.FC = () => {
             <input
               type="search"
               className="grow bg-transparent outline-none"
-              placeholder={t.app.searchTools || 'Search tools…'}
+              placeholder={lang === 'ar' ? 'ابحث عن أداة…' : 'Search tools…'}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
@@ -99,11 +104,25 @@ const AppLayout: React.FC = () => {
 
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
         <Link
-          to="/"
-          className={`sidebar-link ${location.pathname === '/' ? 'sidebar-link-active' : 'sidebar-link-idle'}`}
+          to="/app"
+          className={`sidebar-link ${location.pathname === '/app' ? 'sidebar-link-active' : 'sidebar-link-idle'}`}
         >
           <Home className="w-4 h-4 shrink-0" />
-          {!collapsed && <span>{t.app.home || 'Home'}</span>}
+          {!collapsed && <span>{lang === 'ar' ? 'الاستوديو' : 'Studio'}</span>}
+        </Link>
+        <Link
+          to="/dashboard"
+          className={`sidebar-link ${location.pathname === '/dashboard' ? 'sidebar-link-active' : 'sidebar-link-idle'}`}
+        >
+          <LayoutDashboard className="w-4 h-4 shrink-0" />
+          {!collapsed && <span>{lang === 'ar' ? 'لوحة التحكم' : 'Dashboard'}</span>}
+        </Link>
+        <Link
+          to="/articles"
+          className={`sidebar-link ${location.pathname.startsWith('/articles') ? 'sidebar-link-active' : 'sidebar-link-idle'}`}
+        >
+          <BookOpen className="w-4 h-4 shrink-0" />
+          {!collapsed && <span>{lang === 'ar' ? 'المقالات' : 'Articles'}</span>}
         </Link>
 
         {grouped.map(({ cat, items }) => {
@@ -113,12 +132,13 @@ const AppLayout: React.FC = () => {
               {!collapsed && (
                 <div className="flex items-center gap-2 px-2 mb-2 text-[11px] uppercase tracking-wider text-base-content/45 font-semibold">
                   <CatIcon className="w-3.5 h-3.5" />
-                  {t.app.categories?.[cat] || cat}
+                  {catLabel(cat)}
                 </div>
               )}
               <ul className="space-y-1">
                 {items.map((tool) => {
                   const Icon = tool.icon;
+                  const title = lang === 'ar' ? tool.titleAr : tool.titleEn;
                   return (
                     <li key={tool.id}>
                       <NavLink
@@ -126,18 +146,16 @@ const AppLayout: React.FC = () => {
                         className={({ isActive }) =>
                           `sidebar-link ${isActive ? 'sidebar-link-active' : 'sidebar-link-idle'}`
                         }
-                        title={t.app.tools[tool.id]?.title || tool.id}
+                        title={title}
                       >
                         <Icon className="w-4 h-4 shrink-0" />
                         {!collapsed && (
                           <>
-                            <span className="truncate flex-1 text-start">
-                              {t.app.tools[tool.id]?.title || tool.id}
-                            </span>
-                            {tool.badge === 'ai' && (
+                            <span className="truncate flex-1 text-start">{title}</span>
+                            {(tool.badge === 'ai' || tool.kind === 'ai') && (
                               <span className="badge-ai text-[10px]">AI</span>
                             )}
-                            {tool.badge === 'local' && (
+                            {(tool.badge === 'local' || tool.kind === 'local') && (
                               <span className="badge-local text-[10px]">Local</span>
                             )}
                           </>
@@ -167,7 +185,7 @@ const AppLayout: React.FC = () => {
             type="button"
             onClick={toggleTheme}
             className="btn btn-ghost btn-sm btn-circle"
-            title={t.app.theme?.toggle || 'Toggle theme'}
+            title="Theme"
           >
             {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
           </button>
@@ -182,7 +200,9 @@ const AppLayout: React.FC = () => {
         </div>
         {!collapsed && (
           <p className="text-[10px] text-center text-base-content/40 px-2">
-            {t.app.privacyNote || 'Private by default · Runs in your browser'}
+            {lang === 'ar'
+              ? '🔒 مفاتيح API على الخادم فقط'
+              : '🔒 API keys server-side only'}
           </p>
         )}
       </div>
@@ -191,7 +211,6 @@ const AppLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-base-100 text-base-content flex">
-      {/* Desktop sidebar */}
       <aside
         className={`hidden lg:flex flex-col border-e border-base-300 bg-base-200/60 backdrop-blur-xl sticky top-0 h-screen transition-all duration-200 ${
           collapsed ? 'w-[72px]' : 'w-72'
@@ -200,52 +219,29 @@ const AppLayout: React.FC = () => {
         {SidebarContent}
       </aside>
 
-      {/* Mobile drawer */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setMobileOpen(false)}
-          />
-          <aside className="absolute inset-y-0 start-0 w-[86%] max-w-xs bg-base-200 border-e border-base-300 shadow-2xl animate-fade-in">
+        <div className="lg:hidden fixed inset-0 z-50 flex">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
+          <aside className="relative w-80 max-w-[85vw] h-full bg-base-200 border-e border-base-300 flex flex-col z-10">
             {SidebarContent}
           </aside>
         </div>
       )}
 
-      {/* Main column */}
-      <div className="flex-1 min-w-0 flex flex-col">
-        <header className="lg:hidden sticky top-0 z-40 bg-base-100/90 backdrop-blur-md border-b border-base-300 px-3 py-2.5 flex items-center gap-3 safe-bottom">
+      <div className="flex-1 flex flex-col min-w-0">
+        <header className="lg:hidden sticky top-0 z-30 flex items-center gap-3 px-3 py-3 border-b border-base-300 bg-base-100/90 backdrop-blur-xl">
           <button
             type="button"
-            className="btn btn-ghost btn-sm btn-square"
+            className="btn btn-ghost btn-sm btn-circle"
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
           >
             <Menu className="w-5 h-5" />
           </button>
-          <Link to="/" className="flex items-center gap-2 min-w-0">
-            <img
-              src="/assets/youtube-creator-icon.png"
-              alt=""
-              className="w-8 h-8 rounded-lg object-cover"
-            />
-            <span className="font-semibold truncate">{t.app.title}</span>
-          </Link>
-          <div className="ms-auto flex items-center gap-1">
-            <button type="button" onClick={toggleTheme} className="btn btn-ghost btn-sm btn-circle">
-              {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-            </button>
-            <button type="button" onClick={toggleLang} className="btn btn-ghost btn-sm btn-circle">
-              <Languages className="w-4 h-4" />
-            </button>
-          </div>
+          <span className="font-bold truncate">YouCreator Tools</span>
         </header>
-
-        <main className="flex-1 overflow-y-auto">
-          <div className="max-w-6xl mx-auto p-4 sm:p-6 md:p-8">
-            <Outlet />
-          </div>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl w-full mx-auto">
+          <Outlet />
         </main>
       </div>
     </div>

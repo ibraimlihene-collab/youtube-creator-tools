@@ -1,21 +1,16 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { Hash, Sparkles, AlertCircle, Eraser } from 'lucide-react';
-import { useAI } from '../../lib/useAI';
-import ApiKeyInput from '../../components/ApiKeyInput';
+import { useSecureAI } from '../../lib/useSecureAI';
 import CopyButton from '../../components/CopyButton';
-import OtherTools from '../../components/shared/OtherTools';
-import ToolFAQ from '../../components/shared/ToolFAQ';
-import ToolFooter from '../../components/shared/ToolFooter';
-import { getApiKey } from '../../lib/apiKeyManager';
 
 const HashtagGenerator = ({ lang, t }: { lang: 'ar' | 'en'; t: any }) => {
   const [text, setText] = useState('');
   const [mode, setMode] = useState<'quick' | 'ai'>('quick');
-  const [apiKey, setApiKey] = useState(getApiKey());
   const [localTags, setLocalTags] = useState<string[]>([]);
-  const { data: aiTags, isLoading, error, generate, reset } = useAI<string[]>();
+  const { data, isLoading, error, generate, reset } = useSecureAI();
 
-  const hashtags = mode === 'ai' ? aiTags || [] : localTags;
+  const aiTags = data?.type === 'list' ? data.items : [];
+  const hashtags = mode === 'ai' ? aiTags : localTags;
 
   const generateLocal = () => {
     const commonWordsEn = new Set([
@@ -47,35 +42,12 @@ const HashtagGenerator = ({ lang, t }: { lang: 'ar' | 'en'; t: any }) => {
     setLocalTags(sortedWords.slice(0, 15).map(([w]) => `#${w}`));
   };
 
-  const generateAI = useCallback(async () => {
-    if (!apiKey || !text.trim()) return;
-    const prompt = `Generate 15 highly relevant YouTube hashtags for this content (language: ${lang === 'ar' ? 'Arabic' : 'English'}).
-
-Content:
-"""
-${text.slice(0, 2000)}
-"""
-
-Rules:
-- Mix broad + niche hashtags
-- No spaces inside hashtags
-- Prefer popular creator hashtags
-- Return ONLY hashtags, one per line, each starting with #`;
-
-    await generate(apiKey, prompt, 'gemini-2.5-flash', (raw) =>
-      raw
-        .split(/[\n,\s]+/)
-        .map((s) => s.trim())
-        .filter((s) => s.startsWith('#') || s.length > 1)
-        .map((s) => (s.startsWith('#') ? s : `#${s}`))
-        .filter((s, i, arr) => arr.indexOf(s) === i)
-        .slice(0, 15)
-    );
-  }, [apiKey, text, lang, generate]);
-
   const handleGenerate = () => {
-    if (mode === 'ai') generateAI();
-    else generateLocal();
+    if (mode === 'ai') {
+      generate('hashtagGenerator', { topic: text, count: 15 }, lang);
+    } else {
+      generateLocal();
+    }
   };
 
   const handleClear = () => {
@@ -86,6 +58,12 @@ Rules:
 
   return (
     <div className="space-y-5">
+      <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-base-content/80">
+        {lang === 'ar'
+          ? '🔒 وضع AI يستخدم الخادم الآمن — بدون لصق مفتاح API.'
+          : '🔒 AI mode uses the secure server proxy — no API key paste.'}
+      </div>
+
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
@@ -93,7 +71,7 @@ Rules:
           onClick={() => setMode('quick')}
         >
           <Hash className="w-4 h-4" />
-          {t?.hashtagGenerator?.quickMode || 'Quick (offline)'}
+          {t?.hashtagGenerator?.quickMode || (lang === 'ar' ? 'سريع (بدون نت)' : 'Quick (offline)')}
         </button>
         <button
           type="button"
@@ -101,87 +79,72 @@ Rules:
           onClick={() => setMode('ai')}
         >
           <Sparkles className="w-4 h-4" />
-          {t?.hashtagGenerator?.aiMode || 'AI powered'}
+          {t?.hashtagGenerator?.aiMode || (lang === 'ar' ? 'بالذكاء الاصطناعي' : 'AI powered')}
         </button>
       </div>
 
-      {mode === 'ai' && (
-        <ApiKeyInput apiKey={apiKey} onApiKeyChange={setApiKey} t={t} compact />
-      )}
-
       <div className="form-control">
         <label className="label py-1">
-          <span className="label-text font-medium">{t.hashtagGenerator.label}</span>
+          <span className="label-text font-medium">
+            {t?.hashtagGenerator?.label || (lang === 'ar' ? 'المحتوى' : 'Content')}
+          </span>
         </label>
         <textarea
           className="textarea-modern resize-y min-h-[140px]"
           rows={6}
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder={t.hashtagGenerator.placeholder}
+          placeholder={
+            t?.hashtagGenerator?.placeholder ||
+            (lang === 'ar' ? 'الصق موضوع أو وصف الفيديو…' : 'Paste topic or description…')
+          }
         />
-        <div className="label justify-start py-1">
-          <span className="label-text-alt text-sm opacity-70">
-            {t.hashtagGenerator.characters.replace('{count}', text.length.toString())}
-          </span>
-        </div>
       </div>
 
       <div className="flex flex-wrap gap-2">
         <button
           className="btn-brand gap-2"
           onClick={handleGenerate}
-          disabled={!text.trim() || isLoading || (mode === 'ai' && !apiKey)}
+          disabled={!text.trim() || isLoading}
         >
           {isLoading ? (
             <>
               <span className="loading loading-spinner loading-sm" />
-              {t?.hashtagGenerator?.generating || 'Generating...'}
+              {lang === 'ar' ? 'جاري التوليد…' : 'Generating…'}
             </>
           ) : (
             <>
               {mode === 'ai' ? <Sparkles className="w-4 h-4" /> : <Hash className="w-4 h-4" />}
-              {t.hashtagGenerator.generate}
+              {t?.hashtagGenerator?.generate || (lang === 'ar' ? 'توليد' : 'Generate')}
             </>
           )}
         </button>
-        <button className="btn-soft gap-2" onClick={handleClear} disabled={!text.trim() && hashtags.length === 0}>
+        <button className="btn-soft gap-2" onClick={handleClear}>
           <Eraser className="w-4 h-4" />
-          {t.hashtagGenerator.clear}
+          {t?.hashtagGenerator?.clear || (lang === 'ar' ? 'مسح' : 'Clear')}
         </button>
       </div>
 
       {error && (
         <div className="alert alert-error text-sm">
           <AlertCircle className="w-5 h-5 shrink-0" />
-          <span>{error.message}</span>
+          <span>{error}</span>
         </div>
       )}
 
       {hashtags.length > 0 && (
         <div className="surface-card p-4 sm:p-5 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div>
-              <h3 className="text-lg font-semibold">{t.hashtagGenerator.generatedTitle}</h3>
-              <p className="text-sm opacity-70">
-                {t.hashtagGenerator.found.replace('{count}', hashtags.length.toString())}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <CopyButton
-                text={hashtags.join(' ')}
-                label={t.hashtagGenerator.copyAll}
-                copiedLabel={t?.common?.copied || 'Copied!'}
-                variant="brand"
-              />
-              <CopyButton
-                text={hashtags.slice(0, 10).join(' ')}
-                label={t.hashtagGenerator.copyTop10}
-                copiedLabel={t?.common?.copied || 'Copied!'}
-              />
-            </div>
+            <h3 className="text-lg font-semibold">
+              {t?.hashtagGenerator?.generatedTitle || (lang === 'ar' ? 'الهاشتاغات' : 'Hashtags')}
+            </h3>
+            <CopyButton
+              text={hashtags.join(' ')}
+              label={t?.hashtagGenerator?.copyAll || (lang === 'ar' ? 'نسخ الكل' : 'Copy all')}
+              copiedLabel={t?.common?.copied || (lang === 'ar' ? 'تم!' : 'Copied!')}
+              variant="brand"
+            />
           </div>
-
           <div className="flex flex-wrap gap-2">
             {hashtags.map((tag, index) => (
               <button
@@ -189,7 +152,6 @@ Rules:
                 type="button"
                 className="badge badge-lg bg-base-300 border-0 hover:bg-primary hover:text-primary-content transition-colors cursor-pointer px-3 py-3"
                 onClick={() => navigator.clipboard.writeText(tag)}
-                title="Click to copy"
               >
                 {tag}
               </button>
@@ -197,10 +159,6 @@ Rules:
           </div>
         </div>
       )}
-
-      <OtherTools currentTool="hashtagGenerator" t={t} />
-      <ToolFAQ toolId="hashtagGenerator" t={t} />
-      <ToolFooter t={t} />
     </div>
   );
 };

@@ -1,43 +1,30 @@
 /**
- * API Key Manager for handling API key storage and retrieval
+ * DEPRECATED — API keys must NEVER be stored or read in the browser.
+ * Kept as no-ops so any leftover imports do not break the build.
  */
 
-/**
- * Saves API key to localStorage
- * @param apiKey - The API key to save
- */
-export function saveApiKey(apiKey: string): void {
-  if (typeof window !== 'undefined' && window.localStorage) {
+export function saveApiKey(_apiKey: string): void {
+  if (typeof window !== 'undefined') {
     try {
-      window.localStorage.setItem('gemini-api-key', apiKey);
-    } catch (error) {
-      console.error('Failed to save API key to localStorage:', error);
+      window.localStorage.removeItem('gemini-api-key');
+    } catch {
+      /* ignore */
     }
   }
 }
 
-/**
- * Retrieves API key from localStorage
- * @returns The saved API key or empty string if not found
- */
 export function getApiKey(): string {
-  if (typeof window !== 'undefined' && window.localStorage) {
+  // Always empty — secrets live only on the server
+  if (typeof window !== 'undefined') {
     try {
-      return window.localStorage.getItem('gemini-api-key') || '';
-    } catch (error) {
-      console.error('Failed to retrieve API key from localStorage:', error);
-      return '';
+      window.localStorage.removeItem('gemini-api-key');
+    } catch {
+      /* ignore */
     }
   }
   return '';
 }
 
-/**
- * Validates if an API key has the correct format
- * @param apiKey - The API key to validate
- * @returns True if the API key appears valid, false otherwise
- */
-export function isValidApiKey(apiKey: string): boolean {
-  // Basic validation - check if it's not empty and has reasonable length
-  return typeof apiKey === 'string' && apiKey.length > 10;
+export function isValidApiKey(_apiKey: string): boolean {
+  return false;
 }

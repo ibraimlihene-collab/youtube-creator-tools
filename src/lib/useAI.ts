@@ -1,10 +1,8 @@
 /**
- * Shared AI generation hook for all tools
- * Provides consistent error handling, loading states, and retry logic
+ * @deprecated Use useSecureAI — client-side Gemini keys are forbidden.
+ * This stub prevents accidental key usage at runtime.
  */
-
-import { useState, useCallback } from 'react';
-import { GoogleGenAI } from '@google/genai';
+import { useCallback, useState } from 'react';
 
 export interface AIError {
   message: string;
@@ -24,52 +22,17 @@ export function useAI<T>() {
     error: null,
   });
 
-  const generate = useCallback(async (
-    apiKey: string,
-    prompt: string,
-    model: string = 'gemini-2.5-flash',
-    parser: (text: string) => T
-  ): Promise<boolean> => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
-
-    try {
-      const ai = new GoogleGenAI({ apiKey });
-      
-      const response = await ai.models.generateContent({
-        model,
-        contents: [{
-          role: 'user',
-          parts: [{ text: prompt }]
-        }]
-      });
-
-      const text = response.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
-      
-      if (!text) {
-        throw new Error('No content generated. Please try again.');
-      }
-
-      const parsed = parser(text);
-      setState({ data: parsed, isLoading: false, error: null });
-      return true;
-    } catch (e: any) {
-      const error: AIError = {
-        message: e?.message || 'An unexpected error occurred.',
-        code: e?.code,
-      };
-      
-      // Handle common API errors
-      if (error.message.includes('API key')) {
-        error.message = 'Invalid API key. Please check your Google AI API key and try again.';
-      } else if (error.message.includes('quota')) {
-        error.message = 'API quota exceeded. Please try again later.';
-      } else if (error.message.includes('network')) {
-        error.message = 'Network error. Please check your internet connection.';
-      }
-      
-      setState({ data: null, isLoading: false, error });
-      return false;
-    }
+  const generate = useCallback(async (..._args: unknown[]): Promise<boolean> => {
+    setState({
+      data: null,
+      isLoading: false,
+      error: {
+        message:
+          'Client-side AI is disabled. Use the secure /api/ai proxy (useSecureAI).',
+        code: 'CLIENT_AI_DISABLED',
+      },
+    });
+    return false;
   }, []);
 
   const reset = useCallback(() => {

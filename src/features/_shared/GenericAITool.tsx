@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
-import { AlertCircle, Sparkles, Eraser } from 'lucide-react';
+import { AlertCircle, ClipboardPaste, Sparkles, Eraser, Link2 } from 'lucide-react';
 import { useSecureAI } from '../../lib/useSecureAI';
 import { useApp } from '../../context/AppContext';
 import CopyButton from '../../components/CopyButton';
+import { extractYouTubeVideoId, isLikelyYouTubeUrl } from '../../lib/youtubeUrl';
 import type { ToolDef, ToolField } from '../../data/toolsRegistry';
 
 function fieldLabel(f: ToolField, lang: 'ar' | 'en') {
@@ -27,13 +28,34 @@ export default function GenericAITool({ tool }: { tool: ToolDef }) {
   const [values, setValues] = useState<Record<string, string>>(initial);
   const { data, rawText, isLoading, error, model, generate, reset } = useSecureAI();
 
-  const missing = fields.filter((f) => f.required !== false && f.type !== 'select' && !String(values[f.name] || '').trim());
+  const missing = fields.filter(
+    (f) => f.required !== false && f.type !== 'select' && !String(values[f.name] || '').trim()
+  );
+
+  const detectedId = useMemo(() => {
+    for (const v of Object.values(values)) {
+      if (v && isLikelyYouTubeUrl(v)) {
+        const id = extractYouTubeVideoId(v);
+        if (id) return id;
+      }
+    }
+    return null;
+  }, [values]);
+
+  const pasteInto = async (name: string) => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) setValues((v) => ({ ...v, [name]: text.trim() }));
+    } catch {
+      /* user can Ctrl+V */
+    }
+  };
 
   const onGenerate = async () => {
     if (missing.length) return;
     const input: Record<string, unknown> = { ...values };
-    // map keywords field name used in prompts
     if (values.keywords) input.keywords = values.keywords;
+    if (detectedId) input.url = `https://www.youtube.com/watch?v=${detectedId}`;
     await generate(tool.aiToolId || tool.id, input, lang);
   };
 
@@ -44,22 +66,42 @@ export default function GenericAITool({ tool }: { tool: ToolDef }) {
       <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-base-content/80">
         {lang === 'ar' ? (
           <>
-            🔒 المفاتيح محمية على الخادم — لا تحتاج إدخال API Key. الاستخدام عبر وكيل آمن مع حد للمعدّل.
+            🔒 المفاتيح على الخادم فقط. يمكنك لصق <strong>رابط يوتيوب</strong> في الحقول — سنقرأ العنوان تلقائياً.
+            النماذج الأرخص تُستخدم افتراضياً لتقليل التكلفة.
           </>
         ) : (
           <>
-            🔒 API keys stay on the server — you never paste a key here. Requests go through a secured proxy with rate limits.
+            🔒 Keys stay server-side. Paste a <strong>YouTube URL</strong> in any field — we resolve the title automatically.
+            Cheapest models are used by default.
           </>
         )}
       </div>
 
+      {detectedId && (
+        <div className="flex items-center gap-2 text-xs text-success font-mono" dir="ltr">
+          <Link2 className="w-3.5 h-3.5" />
+          Detected video: {detectedId}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {fields.map((f) => {
           const span = f.type === 'textarea' || fields.length === 1 ? 'md:col-span-2' : '';
+          const showPaste = f.type === 'text' || f.type === 'textarea';
           return (
             <div key={f.name} className={`form-control ${span}`}>
-              <label className="label py-1">
+              <label className="label py-1 justify-between gap-2">
                 <span className="label-text font-medium">{fieldLabel(f, lang)}</span>
+                {showPaste && (
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-xs gap-1"
+                    onClick={() => pasteInto(f.name)}
+                  >
+                    <ClipboardPaste className="w-3 h-3" />
+                    {lang === 'ar' ? 'لصق' : 'Paste'}
+                  </button>
+                )}
               </label>
               {f.type === 'textarea' ? (
                 <textarea
@@ -141,9 +183,7 @@ export default function GenericAITool({ tool }: { tool: ToolDef }) {
         <div className="surface-card p-4 sm:p-5 space-y-3">
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <div>
-              <h3 className="text-lg font-bold">
-                {lang === 'ar' ? 'النتيجة' : 'Result'}
-              </h3>
+              <h3 className="text-lg font-bold">{lang === 'ar' ? 'النتيجة' : 'Result'}</h3>
               {model && (
                 <p className="text-xs text-base-content/50 mt-0.5">
                   {lang === 'ar' ? 'النموذج' : 'Model'}: {model}
@@ -165,12 +205,7 @@ export default function GenericAITool({ tool }: { tool: ToolDef }) {
                   className="flex items-start justify-between gap-3 rounded-xl border border-base-300 bg-base-100/60 px-3 py-2.5"
                 >
                   <span className="text-sm leading-relaxed">{item}</span>
-                  <CopyButton
-                    text={item}
-                    label=""
-                    copiedLabel="✓"
-                    className="btn btn-ghost btn-xs shrink-0"
-                  />
+                  <CopyButton text={item} label="" copiedLabel="✓" className="btn btn-ghost btn-xs shrink-0" />
                 </li>
               ))}
             </ul>

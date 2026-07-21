@@ -21,6 +21,7 @@ import SilenceRemover from './features/silence-remover/SilenceRemover';
 import ThumbnailDownloader from './features/thumbnail-downloader/ThumbnailDownloader';
 import ThumbnailPreviewer from './features/thumbnail-previewer/ThumbnailPreviewer';
 import GenericAITool from './features/_shared/GenericAITool';
+import SfxLibrary from './features/sfx-library/SfxLibrary';
 
 function toolTitle(tool: ToolDef, lang: 'ar' | 'en') {
   return lang === 'ar' ? tool.titleAr : tool.titleEn;
@@ -57,6 +58,9 @@ function ToolPage({ id }: { id: string }) {
       break;
     case 'colorPaletteGenerator':
       body = <ColorPaletteGenerator t={t} />;
+      break;
+    case 'sfxLibrary':
+      body = <SfxLibrary />;
       break;
     default:
       body = <GenericAITool tool={meta} />;

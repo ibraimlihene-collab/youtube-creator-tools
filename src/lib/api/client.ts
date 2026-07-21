@@ -24,8 +24,6 @@ export interface AIFailure {
 export type AIResponse = AISuccess | AIFailure;
 
 function apiBase() {
-  // In production Netlify: same origin /api/*
-  // Local vite: proxy or full netlify dev
   return '';
 }
 
@@ -47,20 +45,32 @@ export async function runAI(params: {
       signal: params.signal,
     });
 
-    const data = (await res.json()) as AIResponse;
-    if (!res.ok && !('error' in data)) {
+    let data: AIResponse;
+    try {
+      data = (await res.json()) as AIResponse;
+    } catch {
+      return {
+        ok: false,
+        error:
+          res.status === 404
+            ? 'AI server not found. Deploy with Netlify Functions or run `netlify dev`.'
+            : `Bad response (${res.status})`,
+        code: 'HTTP',
+      };
+    }
+    if (!res.ok && !('error' in data && data.error)) {
       return { ok: false, error: `Request failed (${res.status})`, code: 'HTTP' };
     }
     return data;
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'Network error';
-    if (msg.includes('abort')) {
+    if (msg.toLowerCase().includes('abort')) {
       return { ok: false, error: 'Cancelled', code: 'ABORTED' };
     }
     return {
       ok: false,
       error:
-        'Cannot reach secure AI server. Run with `netlify dev` or deploy to Netlify with env secrets.',
+        'Cannot reach secure AI server. Use `netlify dev` locally, or deploy to Netlify with GEMINI_API_KEY set in Environment variables.',
       code: 'NETWORK',
     };
   }
@@ -71,7 +81,7 @@ export async function runApify(params: {
   input?: Record<string, unknown>;
   url?: string;
   actorId?: string;
-}): Promise<{ ok: boolean; data?: unknown; error?: string; configured?: boolean }> {
+}): Promise<{ ok: boolean; data?: unknown; error?: string; configured?: boolean; source?: string }> {
   try {
     const res = await fetch(`${apiBase()}/api/apify`, {
       method: 'POST',
@@ -80,8 +90,12 @@ export async function runApify(params: {
     });
     return await res.json();
   } catch {
-    return { ok: false, error: 'Network error' };
+    return { ok: false, error: 'Network error talking to /api/apify' };
   }
+}
+
+export async function fetchYouTubeInfo(url: string) {
+  return runApify({ action: 'youtubeVideoInfo', url, input: { url } });
 }
 
 export async function healthCheck(): Promise<{

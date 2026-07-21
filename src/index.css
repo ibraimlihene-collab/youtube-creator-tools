@@ -18,8 +18,9 @@
   --color-primary: #ff0033;
   --color-primary-content: #ffffff;
 
-  --color-secondary: #3ea6ff;
-  --color-secondary-content: #0f0f0f;
+  /* Magenta accent (YouTube 2026 brand motion) for secondary actions */
+  --color-secondary: #e91e8c;
+  --color-secondary-content: #ffffff;
 
   --color-accent: #30a46c;
   --color-accent-content: #ffffff;

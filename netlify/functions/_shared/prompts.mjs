@@ -14,7 +14,10 @@ function limit(s, n = 4000) {
 
 export function buildPrompt(toolId, input = {}, lang = 'en') {
   const L = langLine(lang);
-  const topic = limit(input.topic || input.text || input.script || '', 3000);
+  let topic = limit(input.topic || input.text || input.script || '', 3000);
+  if (input.youtube?.title) {
+    topic = limit(`${topic}\n\n[YouTube: ${input.youtube.title}${input.youtube.author ? ' by ' + input.youtube.author : ''}]`, 3000);
+  }
   const extra = limit(input.extra || input.keywords || input.notes || '', 800);
   const tone = input.tone || 'professional';
   const niche = limit(input.niche || '', 200);
@@ -22,15 +25,24 @@ export function buildPrompt(toolId, input = {}, lang = 'en') {
   const count = Math.min(Number(input.count) || 8, 20);
 
   const base = {
-    hashtagGenerator: `${L}
+    hashtagGenerator: `OUTPUT RULES (strict):
+- Return ONLY hashtags
+- Exactly one hashtag per line
+- Each line MUST start with #
+- No bullets, no numbering, no commentary, no markdown
+Language: ${lang === 'ar' ? 'Arabic hashtags preferred' : 'English'}
 Generate ${count} YouTube hashtags for:
 """${topic}"""
-Mix broad + niche. One per line, each starts with #. No explanations.`,
+Mix broad + niche.`,
 
-    titleGenerator: `${L}
+    titleGenerator: `OUTPUT RULES (strict):
+- Return ONLY titles
+- One title per line
+- No numbering, bullets, or commentary
+Language: ${lang === 'ar' ? 'Arabic' : 'English'}
 Generate ${count} YouTube titles about "${topic}".
 Keywords: ${extra || 'n/a'}. Tone: ${tone}.
-Under ~70 chars when possible. One title per line. No numbering.`,
+Under ~70 characters when possible.`,
 
     descriptionGenerator: `${L}
 Write an SEO YouTube description for: "${topic}".
@@ -293,24 +305,40 @@ Explain CPM factors for niche "${topic}" in region ${extra || 'global'} in simpl
 
 export function parseByTool(toolId, text) {
   const clean = String(text || '').trim();
+  const strip = (l) =>
+    l
+      .replace(/^[\d\-\*\.\)\s•]+/, '')
+      .replace(/^#\*+\s*/, '')
+      .trim();
+
   const lines = () =>
     clean
       .split('\n')
-      .map((l) => l.replace(/^[\d\-\*\.\)\s]+/, '').trim())
-      .filter(Boolean);
+      .map(strip)
+      .filter((l) => l && !/^output rules/i.test(l) && !/^language:/i.test(l) && !/^constraint/i.test(l) && !/^topic:/i.test(l));
 
   switch (toolId) {
     case 'hashtagGenerator':
-    case 'tagsFromTitle':
-      return {
-        type: 'list',
-        items: clean
+    case 'tagsFromTitle': {
+      // Prefer explicit #tokens anywhere in the text
+      const hashTokens = clean.match(/#[\w\u0600-\u06FF]+/g) || [];
+      let items = [...new Set(hashTokens.map((t) => t.trim()))];
+      if (items.length < 3) {
+        items = clean
           .replace(/,/g, '\n')
           .split('\n')
-          .map((l) => l.trim())
+          .map(strip)
           .filter(Boolean)
-          .map((t) => (t.startsWith('#') || toolId === 'tagsFromTitle' ? t : `#${t.replace(/^#/, '')}`)),
-      };
+          .filter((t) => !/^(broad|niche|specific|output|rules|quantity)/i.test(t))
+          .map((t) => (t.startsWith('#') ? t : `#${t.replace(/^#/, '').replace(/\s+/g, '')}`))
+          .filter((t) => t.length > 2 && t.length < 60);
+        items = [...new Set(items)];
+      }
+      if (toolId === 'tagsFromTitle') {
+        items = items.map((t) => t.replace(/^#/, ''));
+      }
+      return { type: 'list', items: items.slice(0, 30) };
+    }
     case 'titleGenerator':
     case 'hookGenerator':
     case 'ctaGenerator':
@@ -320,7 +348,13 @@ export function parseByTool(toolId, text) {
     case 'retentionHooks':
     case 'commentReplyIdeas':
     case 'thumbnailEmotionWords':
-      return { type: 'list', items: lines().slice(0, 30) };
+      return {
+        type: 'list',
+        items: lines()
+          .filter((l) => l.length > 2 && l.length < 200)
+          .filter((l) => !l.startsWith('http') && !/^the user/i.test(l))
+          .slice(0, 30),
+      };
     default:
       return { type: 'markdown', content: clean };
   }

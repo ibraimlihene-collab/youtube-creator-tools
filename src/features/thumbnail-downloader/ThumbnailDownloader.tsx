@@ -1,86 +1,103 @@
 import React, { useMemo, useState } from 'react';
-import { AlertCircle, Download, Link2 } from 'lucide-react';
+import { AlertCircle, ClipboardPaste, Download, Link2 } from 'lucide-react';
+import { extractYouTubeVideoId, youtubeThumbnails } from '../../lib/youtubeUrl';
+import { useApp } from '../../context/AppContext';
 
-const ThumbnailDownloader: React.FC<{ t: any }> = ({ t }) => {
+const ThumbnailDownloader: React.FC<{ t?: any }> = ({ t }) => {
+  const { lang } = useApp();
   const [videoUrl, setVideoUrl] = useState('');
   const [error, setError] = useState('');
+  const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
 
-  const videoId = useMemo(() => {
-    if (!videoUrl) return null;
+  const videoId = useMemo(() => extractYouTubeVideoId(videoUrl), [videoUrl]);
+
+  const handlePaste = async () => {
     try {
-      const cleaned = videoUrl.trim();
-      // bare id
-      if (/^[\w-]{11}$/.test(cleaned)) return cleaned;
-      const url = new URL(cleaned.startsWith('http') ? cleaned : `https://${cleaned}`);
-      if (url.hostname === 'youtu.be') {
-        return url.pathname.slice(1).split('/')[0] || null;
-      }
-      if (url.hostname.includes('youtube.com')) {
-        const v = url.searchParams.get('v');
-        if (v) return v;
-        const parts = url.pathname.split('/').filter(Boolean);
-        const embedIdx = parts.indexOf('embed');
-        if (embedIdx >= 0 && parts[embedIdx + 1]) return parts[embedIdx + 1];
-        const shortsIdx = parts.indexOf('shorts');
-        if (shortsIdx >= 0 && parts[shortsIdx + 1]) return parts[shortsIdx + 1];
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        setVideoUrl(text.trim());
+        setError('');
+        setImgErrors({});
       }
     } catch {
-      // invalid
+      setError(
+        lang === 'ar'
+          ? 'تعذّر القراءة من الحافظة — الصق يدوياً (Ctrl/Cmd+V).'
+          : 'Clipboard blocked — paste manually (Ctrl/Cmd+V).'
+      );
     }
-    return null;
-  }, [videoUrl]);
+  };
 
   const handleDownload = async (imageUrl: string, quality: string) => {
     try {
       setError('');
-      const response = await fetch(imageUrl);
+      const response = await fetch(imageUrl, { mode: 'cors' });
       if (!response.ok) throw new Error('fetch failed');
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${videoId || 'thumbnail'}-${quality.toLowerCase()}.jpg`;
+      a.download = `${videoId || 'thumbnail'}-${quality}.jpg`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
     } catch {
-      setError(t.thumbnailDownloader.downloadError || 'Failed to download image.');
+      window.open(imageUrl, '_blank', 'noopener,noreferrer');
     }
   };
 
   const qualities = videoId
-    ? [
-        { key: 'Max-Res', url: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` },
-        { key: 'High', url: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` },
-        { key: 'Medium', url: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` },
-        { key: 'Standard', url: `https://img.youtube.com/vi/${videoId}/sddefault.jpg` },
-      ]
+    ? youtubeThumbnails(videoId).filter((q) => !q.key.includes('webp'))
     : [];
 
   return (
     <div className="space-y-5">
-      <p className="text-sm text-base-content/65">{t.thumbnailDownloader.description}</p>
+      <p className="text-sm text-base-content/65">
+        {t?.thumbnailDownloader?.description ||
+          (lang === 'ar'
+            ? 'الصق أي رابط يوتيوب (عادي، Shorts، embed، youtu.be) وحمّل الصورة المصغرة.'
+            : 'Paste any YouTube link (watch, Shorts, embed, youtu.be) and download the thumbnail.')}
+      </p>
 
       <div className="form-control">
         <label className="label py-1">
-          <span className="label-text font-medium flex items-center gap-1.5">
-            <Link2 className="w-4 h-4 text-primary" />
-            YouTube URL
+          <span className="label-text font-medium">
+            {lang === 'ar' ? 'رابط الفيديو أو المعرّف' : 'Video URL or ID'}
           </span>
         </label>
-        <input
-          type="text"
-          placeholder={t.thumbnailDownloader.placeholder}
-          className="input-modern w-full"
-          value={videoUrl}
-          onChange={(e) => {
-            setVideoUrl(e.target.value);
-            setError('');
-          }}
-        />
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className="relative flex-1">
+            <Link2 className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" />
+            <input
+              type="text"
+              value={videoUrl}
+              onChange={(e) => {
+                setVideoUrl(e.target.value);
+                setError('');
+                setImgErrors({});
+              }}
+              placeholder="https://youtu.be/… or https://www.youtube.com/watch?v=…"
+              className="input-modern ps-10"
+              dir="ltr"
+            />
+          </div>
+          <button type="button" className="btn-soft gap-2" onClick={handlePaste}>
+            <ClipboardPaste className="w-4 h-4" />
+            {lang === 'ar' ? 'لصق' : 'Paste'}
+          </button>
+        </div>
         {videoUrl && !videoId && (
-          <p className="text-xs text-warning mt-1.5">Could not parse a video ID from that URL.</p>
+          <p className="text-xs text-warning mt-2">
+            {lang === 'ar'
+              ? 'لم يُتعرَّف على رابط يوتيوب. جرّب نسخ الرابط كاملاً من شريط العنوان.'
+              : 'Could not parse a YouTube URL. Copy the full link from the address bar.'}
+          </p>
+        )}
+        {videoId && (
+          <p className="text-xs text-success mt-2 font-mono" dir="ltr">
+            ID: {videoId}
+          </p>
         )}
       </div>
 
@@ -91,36 +108,33 @@ const ThumbnailDownloader: React.FC<{ t: any }> = ({ t }) => {
         </div>
       )}
 
-      {qualities.length > 0 && (
-        <div>
-          <h3 className="text-lg font-bold mb-3">{t.thumbnailDownloader.availableThumbnails}</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {qualities.map(({ key, url }) => (
-              <div key={key} className="surface-card overflow-hidden">
-                <div className="aspect-video bg-base-300">
-                  <img
-                    src={url}
-                    alt={`${key} thumbnail`}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.currentTarget.parentElement as HTMLElement).style.display = 'none';
-                    }}
-                  />
-                </div>
+      {videoId && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {qualities.map((q) => {
+            if (imgErrors[q.key]) return null;
+            return (
+              <div key={q.key} className="surface-card overflow-hidden">
+                <img
+                  src={q.url}
+                  alt={q.label}
+                  className="w-full aspect-video object-cover bg-base-300"
+                  loading="lazy"
+                  onError={() => setImgErrors((e) => ({ ...e, [q.key]: true }))}
+                />
                 <div className="p-3 flex items-center justify-between gap-2">
-                  <span className="text-sm font-semibold">{key}</span>
+                  <span className="text-sm font-medium">{q.label}</span>
                   <button
                     type="button"
                     className="btn-brand btn-sm gap-1.5"
-                    onClick={() => handleDownload(url, key)}
+                    onClick={() => handleDownload(q.url, q.key)}
                   >
-                    <Download className="w-4 h-4" />
-                    {t.thumbnailDownloader.download}
+                    <Download className="w-3.5 h-3.5" />
+                    {lang === 'ar' ? 'تحميل' : 'Download'}
                   </button>
                 </div>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
       )}
     </div>

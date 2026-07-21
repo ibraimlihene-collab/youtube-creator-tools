@@ -1,6 +1,7 @@
 import type { ElementType } from 'react';
 import {
   Scissors,
+  Volume2,
   Calculator,
   Download,
   Eye,
@@ -87,7 +88,8 @@ export interface ToolDef {
     | 'thumbnailDownloader'
     | 'thumbnailPreviewer'
     | 'colorPaletteGenerator'
-    | 'hashtagGenerator';
+    | 'hashtagGenerator'
+    | 'sfxLibrary';
   titleEn: string;
   titleAr: string;
   descEn: string;
@@ -156,6 +158,19 @@ export const TOOLS: ToolDef[] = [
     titleAr: 'إزالة الصمت',
     descEn: 'Cut silent gaps in-browser with FFmpeg. Files never leave your device.',
     descAr: 'احذف فترات الصمت في المتصفح عبر FFmpeg. الملفات لا تغادر جهازك.',
+  },
+  {
+    id: 'sfxLibrary',
+    icon: Volume2,
+    path: '/tools/sfx-library',
+    category: 'editing',
+    kind: 'local',
+    badge: 'local',
+    custom: 'sfxLibrary',
+    titleEn: 'Sound Effects Library',
+    titleAr: 'مكتبة المؤثرات الصوتية',
+    descEn: 'Browse, preview, and download 90+ creator SFX — whoosh, click, impact, and more. Free, offline.',
+    descAr: 'تصفّح واستمع وحمّل أكثر من 90 مؤثراً — whoosh وclick وimpact وغيرها. مجاني وبدون نت.',
   },
   {
     id: 'cpmCalculator',

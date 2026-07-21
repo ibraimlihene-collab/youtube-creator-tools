@@ -3,13 +3,36 @@ import { Download, Pause, Play, Search, Volume2 } from 'lucide-react';
 import { SFX_CATALOG, SFX_CATEGORIES, SFX_COUNT } from '../../data/sfxCatalog';
 import { useApp } from '../../context/AppContext';
 
+/** Fetch audio as Blob, reject HTML/SPA fallbacks, cache object URLs */
+async function loadAudioBlob(path: string): Promise<Blob> {
+  const res = await fetch(path, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const type = (res.headers.get('content-type') || '').toLowerCase();
+  const buf = await res.arrayBuffer();
+  if (buf.byteLength < 100) throw new Error('File too small');
+  const head = new Uint8Array(buf.slice(0, 16));
+  const asText = new TextDecoder().decode(head);
+  if (asText.includes('<!') || asText.includes('<html') || asText.includes('<HTML')) {
+    throw new Error('Server returned HTML instead of audio');
+  }
+  // ID3 or MPEG frame sync
+  const isId3 = head[0] === 0x49 && head[1] === 0x44 && head[2] === 0x33;
+  const isMpeg = head[0] === 0xff && (head[1] & 0xe0) === 0xe0;
+  if (!isId3 && !isMpeg && type.includes('html')) {
+    throw new Error('Not an audio file');
+  }
+  return new Blob([buf], { type: type.includes('audio') ? type : 'audio/mpeg' });
+}
+
 export default function SfxLibrary() {
   const { lang } = useApp();
   const [query, setQuery] = useState('');
   const [cat, setCat] = useState('all');
   const [playing, setPlaying] = useState<string | null>(null);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const urlCache = useRef<Map<string, string>>(new Map());
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -27,14 +50,25 @@ export default function SfxLibrary() {
   useEffect(() => {
     return () => {
       audioRef.current?.pause();
-      audioRef.current = null;
+      urlCache.current.forEach((u) => URL.revokeObjectURL(u));
+      urlCache.current.clear();
     };
   }, []);
+
+  const getObjectUrl = async (path: string) => {
+    const cached = urlCache.current.get(path);
+    if (cached) return cached;
+    const blob = await loadAudioBlob(path);
+    const url = URL.createObjectURL(blob);
+    urlCache.current.set(path, url);
+    return url;
+  };
 
   const stop = () => {
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.currentTime = 0;
+      audioRef.current.removeAttribute('src');
+      audioRef.current.load();
       audioRef.current = null;
     }
     setPlaying(null);
@@ -47,39 +81,50 @@ export default function SfxLibrary() {
       return;
     }
     stop();
+    setLoadingId(id);
     try {
-      const audio = new Audio(path);
+      const url = await getObjectUrl(path);
+      const audio = new Audio();
       audio.preload = 'auto';
+      audio.src = url;
       audioRef.current = audio;
       audio.onended = () => setPlaying(null);
       audio.onerror = () => {
         setPlaying(null);
-        setError(
-          lang === 'ar'
-            ? 'تعذّر تشغيل الصوت. حدّث الصفحة أو أعد فتح الأداة.'
-            : 'Could not play audio. Refresh the page and try again.'
-        );
+        setError(lang === 'ar' ? 'فشل تشغيل الملف.' : 'Playback failed.');
       };
-      setPlaying(id);
       await audio.play();
-    } catch {
+      setPlaying(id);
+    } catch (e) {
       setPlaying(null);
+      const msg = e instanceof Error ? e.message : 'error';
       setError(
         lang === 'ar'
-          ? 'المتصفح منع التشغيل. اضغط مرة أخرى.'
-          : 'Browser blocked playback. Click again to play.'
+          ? `تعذّر التحميل/التشغيل (${msg}). حدّث الصفحة بقوة Ctrl+Shift+R`
+          : `Could not load/play (${msg}). Hard-refresh Ctrl+Shift+R`
       );
+    } finally {
+      setLoadingId(null);
     }
   };
 
-  const download = (path: string, file: string) => {
-    const a = document.createElement('a');
-    a.href = path;
-    a.download = file;
-    a.rel = 'noopener';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+  const download = async (path: string, file: string) => {
+    setError('');
+    setLoadingId(file);
+    try {
+      const url = await getObjectUrl(path);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.endsWith('.mp3') ? file : `${file}.mp3`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'error';
+      setError(lang === 'ar' ? `فشل التحميل (${msg})` : `Download failed (${msg})`);
+    } finally {
+      setLoadingId(null);
+    }
   };
 
   return (
@@ -95,9 +140,7 @@ export default function SfxLibrary() {
           />
         </label>
         <select className="select-modern sm:w-48" value={cat} onChange={(e) => setCat(e.target.value)}>
-          <option value="all">
-            {lang === 'ar' ? `الكل (${SFX_COUNT})` : `All (${SFX_COUNT})`}
-          </option>
+          <option value="all">{lang === 'ar' ? `الكل (${SFX_COUNT})` : `All (${SFX_COUNT})`}</option>
           {SFX_CATEGORIES.map((c) => (
             <option key={c} value={c}>
               {c} ({SFX_CATALOG.filter((s) => s.category === c).length})
@@ -114,12 +157,13 @@ export default function SfxLibrary() {
 
       <p className="text-xs text-base-content/50">
         {filtered.length} {lang === 'ar' ? 'مؤثر' : 'sounds'} ·{' '}
-        {lang === 'ar' ? 'اضغط ▶ للاستماع' : 'Tap ▶ to preview'}
+        {lang === 'ar' ? 'اضغط ▶ للاستماع · ⬇ للتحميل' : 'Tap ▶ preview · ⬇ download'}
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[32rem] overflow-y-auto pe-1">
         {filtered.map((s) => {
           const isOn = playing === s.id;
+          const busy = loadingId === s.id || loadingId === s.file;
           return (
             <div
               key={s.id}
@@ -133,20 +177,26 @@ export default function SfxLibrary() {
                 type="button"
                 className={`btn btn-sm btn-circle shrink-0 ${isOn ? 'btn-brand' : 'btn-soft'}`}
                 onClick={() => toggle(s.id, s.path)}
+                disabled={busy && !isOn}
                 aria-label={isOn ? 'Pause' : 'Play'}
               >
-                {isOn ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                {busy && !isOn ? (
+                  <span className="loading loading-spinner loading-xs" />
+                ) : isOn ? (
+                  <Pause className="w-3.5 h-3.5" />
+                ) : (
+                  <Play className="w-3.5 h-3.5" />
+                )}
               </button>
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-medium truncate">{s.name}</div>
-                <div className="text-[11px] text-base-content/45 uppercase tracking-wide">
-                  {s.category}
-                </div>
+                <div className="text-[11px] text-base-content/45 uppercase tracking-wide">{s.category}</div>
               </div>
               <button
                 type="button"
                 className="btn btn-ghost btn-sm btn-circle shrink-0"
                 onClick={() => download(s.path, s.file)}
+                disabled={busy}
                 title={lang === 'ar' ? 'تحميل' : 'Download'}
               >
                 <Download className="w-4 h-4" />

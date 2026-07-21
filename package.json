@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "netlify dev",
-    "build": "vite build",
+    "build": "vite build && node scripts/copy-sounds.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "deploy": "npm run build && echo 'To deploy to Netlify:' && echo '1. Go to https://app.netlify.com' && echo '2. Sign in or create an account' && echo '3. Click \"Add new site\" and select \"Deploy manually\"' && echo '4. Drag and drop the \"dist\" folder to the deployment area'",

@@ -58,13 +58,7 @@ const HashtagGenerator = ({ lang, t }: { lang: 'ar' | 'en'; t: any }) => {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-base-content/80">
-        {lang === 'ar'
-          ? '🔒 وضع AI يستخدم الخادم الآمن — بدون لصق مفتاح API.'
-          : '🔒 AI mode uses the secure server proxy — no API key paste.'}
-      </div>
-
-      <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2">
         <button
           type="button"
           className={`btn btn-sm ${mode === 'quick' ? 'btn-brand' : 'btn-soft'}`}

@@ -63,19 +63,11 @@ export default function GenericAITool({ tool }: { tool: ToolDef }) {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-base-content/80">
-        {lang === 'ar' ? (
-          <>
-            🔒 المفاتيح على الخادم فقط. يمكنك لصق <strong>رابط يوتيوب</strong> في الحقول — سنقرأ العنوان تلقائياً.
-            النماذج الأرخص تُستخدم افتراضياً لتقليل التكلفة.
-          </>
-        ) : (
-          <>
-            🔒 Keys stay server-side. Paste a <strong>YouTube URL</strong> in any field — we resolve the title automatically.
-            Cheapest models are used by default.
-          </>
-        )}
-      </div>
+            <p className="text-xs text-base-content/50">
+        {lang === 'ar'
+          ? 'اختياري: الصق رابط يوتيوب في أي حقل. التوليد على الخادم.'
+          : 'Optional: paste a YouTube link. Generation runs on the server.'}
+      </p>
 
       {detectedId && (
         <div className="flex items-center gap-2 text-xs text-success font-mono" dir="ltr">

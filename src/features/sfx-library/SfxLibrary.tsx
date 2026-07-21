@@ -3,19 +3,13 @@ import { Download, Pause, Play, Search, Volume2 } from 'lucide-react';
 import { SFX_CATALOG, SFX_CATEGORIES, SFX_COUNT } from '../../data/sfxCatalog';
 import { useApp } from '../../context/AppContext';
 
-/**
- * Plays SFX from /sfx/*.mp3 (static).
- * If a file 404s, falls back to extracting public/sfx-pack.zip once via JSZip (CDN).
- */
 export default function SfxLibrary() {
   const { lang } = useApp();
   const [query, setQuery] = useState('');
-  const [cat, setCat] = useState<string>('all');
+  const [cat, setCat] = useState('all');
   const [playing, setPlaying] = useState<string | null>(null);
-  const [status, setStatus] = useState<string>('');
+  const [error, setError] = useState('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const zipCache = useRef<Map<string, string>>(new Map());
-  const zipLoading = useRef<Promise<void> | null>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -33,103 +27,63 @@ export default function SfxLibrary() {
   useEffect(() => {
     return () => {
       audioRef.current?.pause();
-      zipCache.current.forEach((u) => URL.revokeObjectURL(u));
+      audioRef.current = null;
     };
   }, []);
 
-  async function ensureZip() {
-    if (zipCache.current.size > 0) return;
-    if (zipLoading.current) return zipLoading.current;
-    zipLoading.current = (async () => {
-      setStatus(lang === 'ar' ? 'تحميل حزمة المؤثرات…' : 'Loading SFX pack…');
-      // @ts-expect-error dynamic CDN
-      const JSZip = (await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm')).default;
-      const res = await fetch('/sfx-pack.zip');
-      if (!res.ok) throw new Error('sfx-pack.zip missing');
-      const zip = await JSZip.loadAsync(await res.arrayBuffer());
-      const entries = Object.keys(zip.files).filter((n) => n.toLowerCase().endsWith('.mp3'));
-      for (const name of entries) {
-        const file = zip.files[name];
-        if (file.dir) continue;
-        const blob = await file.async('blob');
-        const base = name.split('/').pop() || name;
-        zipCache.current.set(base, URL.createObjectURL(blob));
-        // also map without path
-        zipCache.current.set(name, URL.createObjectURL(blob));
-      }
-      setStatus('');
-    })();
-    try {
-      await zipLoading.current;
-    } finally {
-      zipLoading.current = null;
-    }
-  }
-
-  async function resolveUrl(file: string, path: string): Promise<string> {
-    // try static first
-    try {
-      const head = await fetch(encodeURI(path), { method: 'HEAD' });
-      if (head.ok) return encodeURI(path);
-    } catch {
-      /* fall through */
-    }
-    await ensureZip();
-    const fromZip =
-      zipCache.current.get(file) ||
-      [...zipCache.current.entries()].find(([k]) => k.endsWith(file))?.[1];
-    if (!fromZip) throw new Error('SFX not found');
-    return fromZip;
-  }
-
-  const toggle = async (file: string, path: string, id: string) => {
-    if (playing === id && audioRef.current) {
+  const stop = () => {
+    if (audioRef.current) {
       audioRef.current.pause();
-      setPlaying(null);
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+    }
+    setPlaying(null);
+  };
+
+  const toggle = async (id: string, path: string) => {
+    setError('');
+    if (playing === id) {
+      stop();
       return;
     }
-    if (audioRef.current) audioRef.current.pause();
+    stop();
     try {
-      const url = await resolveUrl(file, path);
-      const a = new Audio(url);
-      audioRef.current = a;
-      a.onended = () => setPlaying(null);
-      a.onerror = () => setPlaying(null);
+      const audio = new Audio(path);
+      audio.preload = 'auto';
+      audioRef.current = audio;
+      audio.onended = () => setPlaying(null);
+      audio.onerror = () => {
+        setPlaying(null);
+        setError(
+          lang === 'ar'
+            ? 'تعذّر تشغيل الصوت. حدّث الصفحة أو أعد فتح الأداة.'
+            : 'Could not play audio. Refresh the page and try again.'
+        );
+      };
       setPlaying(id);
-      await a.play();
-    } catch (e) {
+      await audio.play();
+    } catch {
       setPlaying(null);
-      setStatus(
+      setError(
         lang === 'ar'
-          ? 'تعذّر تشغيل الملف. تأكد من وجود public/sfx أو sfx-pack.zip'
-          : 'Could not play file. Ensure public/sfx or sfx-pack.zip is deployed.'
+          ? 'المتصفح منع التشغيل. اضغط مرة أخرى.'
+          : 'Browser blocked playback. Click again to play.'
       );
     }
   };
 
-  const download = async (file: string, path: string) => {
-    try {
-      const url = await resolveUrl(file, path);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = file;
-      a.rel = 'noopener';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    } catch {
-      setStatus(lang === 'ar' ? 'فشل التحميل' : 'Download failed');
-    }
+  const download = (path: string, file: string) => {
+    const a = document.createElement('a');
+    a.href = path;
+    a.download = file;
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   };
 
   return (
     <div className="space-y-5">
-      <div className="rounded-xl border border-accent/25 bg-accent/5 px-4 py-3 text-sm text-base-content/80">
-        {lang === 'ar'
-          ? `🎵 ${SFX_COUNT} مؤثر صوتي — محلي 100%، بدون API وبدون تكلفة. ابحث / استمع / حمّل.`
-          : `🎵 ${SFX_COUNT} sound effects — 100% local, zero API cost. Search, preview, download.`}
-      </div>
-
       <div className="flex flex-col sm:flex-row gap-3">
         <label className="input input-bordered bg-base-200 border-base-300 flex items-center gap-2 flex-1">
           <Search className="w-4 h-4 opacity-50" />
@@ -141,7 +95,9 @@ export default function SfxLibrary() {
           />
         </label>
         <select className="select-modern sm:w-48" value={cat} onChange={(e) => setCat(e.target.value)}>
-          <option value="all">{lang === 'ar' ? 'كل الفئات' : 'All categories'}</option>
+          <option value="all">
+            {lang === 'ar' ? `الكل (${SFX_COUNT})` : `All (${SFX_COUNT})`}
+          </option>
           {SFX_CATEGORIES.map((c) => (
             <option key={c} value={c}>
               {c} ({SFX_CATALOG.filter((s) => s.category === c).length})
@@ -150,36 +106,48 @@ export default function SfxLibrary() {
         </select>
       </div>
 
-      {status && <p className="text-xs text-primary">{status}</p>}
+      {error && (
+        <div className="alert alert-warning text-sm py-2">
+          <span>{error}</span>
+        </div>
+      )}
+
       <p className="text-xs text-base-content/50">
-        {filtered.length} {lang === 'ar' ? 'نتيجة' : 'results'}
+        {filtered.length} {lang === 'ar' ? 'مؤثر' : 'sounds'} ·{' '}
+        {lang === 'ar' ? 'اضغط ▶ للاستماع' : 'Tap ▶ to preview'}
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[28rem] overflow-y-auto pe-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[32rem] overflow-y-auto pe-1">
         {filtered.map((s) => {
           const isOn = playing === s.id;
           return (
             <div
               key={s.id}
-              className="flex items-center gap-2 rounded-xl border border-base-300 bg-base-100/70 px-3 py-2.5 hover:border-primary/30 transition-colors"
+              className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 transition-colors ${
+                isOn
+                  ? 'border-primary/40 bg-primary/10'
+                  : 'border-base-300 bg-base-100/70 hover:border-primary/25'
+              }`}
             >
               <button
                 type="button"
-                className={`btn btn-sm btn-circle ${isOn ? 'btn-brand' : 'btn-soft'}`}
-                onClick={() => toggle(s.file, s.path, s.id)}
+                className={`btn btn-sm btn-circle shrink-0 ${isOn ? 'btn-brand' : 'btn-soft'}`}
+                onClick={() => toggle(s.id, s.path)}
                 aria-label={isOn ? 'Pause' : 'Play'}
               >
                 {isOn ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
               </button>
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-medium truncate">{s.name}</div>
-                <div className="text-[11px] text-base-content/45 uppercase tracking-wide">{s.category}</div>
+                <div className="text-[11px] text-base-content/45 uppercase tracking-wide">
+                  {s.category}
+                </div>
               </div>
               <button
                 type="button"
-                className="btn btn-ghost btn-sm btn-circle"
-                onClick={() => download(s.file, s.path)}
-                title="Download"
+                className="btn btn-ghost btn-sm btn-circle shrink-0"
+                onClick={() => download(s.path, s.file)}
+                title={lang === 'ar' ? 'تحميل' : 'Download'}
               >
                 <Download className="w-4 h-4" />
               </button>

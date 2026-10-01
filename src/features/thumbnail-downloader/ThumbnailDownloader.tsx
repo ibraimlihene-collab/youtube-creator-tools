@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { AlertCircle, ClipboardPaste, Download, Link2 } from 'lucide-react';
 import { extractYouTubeVideoId, youtubeThumbnails } from '../../lib/youtubeUrl';
+import type en from '../../locales/en.json';
 import { useApp } from '../../context/AppContext';
 
-const ThumbnailDownloader: React.FC<{ t?: any }> = ({ t }) => {
+const ThumbnailDownloader: React.FC<{ t?: typeof en }> = ({ t }) => {
   const { lang } = useApp();
   const [videoUrl, setVideoUrl] = useState('');
   const [error, setError] = useState('');
@@ -61,7 +62,7 @@ const ThumbnailDownloader: React.FC<{ t?: any }> = ({ t }) => {
       </p>
 
       <div className="form-control">
-        <label className="label py-1">
+        <label htmlFor="thumbnail-url" className="label py-1">
           <span className="label-text font-medium">
             {lang === 'ar' ? 'رابط الفيديو أو المعرّف' : 'Video URL or ID'}
           </span>
@@ -70,7 +71,9 @@ const ThumbnailDownloader: React.FC<{ t?: any }> = ({ t }) => {
           <div className="relative flex-1">
             <Link2 className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" />
             <input
+              id="thumbnail-url"
               type="text"
+              aria-invalid={Boolean(videoUrl && !videoId)}
               value={videoUrl}
               onChange={(e) => {
                 setVideoUrl(e.target.value);
@@ -102,12 +105,30 @@ const ThumbnailDownloader: React.FC<{ t?: any }> = ({ t }) => {
       </div>
 
       {error && (
-        <div className="alert alert-error text-sm">
+        <div className="alert alert-error text-sm" role="alert">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
+      {videoId && qualities.every((q) => imgErrors[q.key]) && (
+        <p role="status" className="text-sm text-warning">
+          {lang === 'ar'
+            ? 'تعذر تحميل الصور. تحقق من رابط الفيديو واتصالك، ثم أعد لصق الرابط.'
+            : 'No thumbnails could be loaded. Check that the video is available and your connection works, then paste the link again.'}
+        </p>
+      )}
+      {!videoUrl && (
+        <div className="empty-state">
+          <Download size={28} />
+          <h3>{lang === 'ar' ? 'اعثر على الصورة المصغرة' : 'Find the thumbnail you need'}</h3>
+          <p>
+            {lang === 'ar'
+              ? 'تظهر الدقات المتاحة عند إدخال رابط صحيح. استخدم الصور التي تملك إذناً بها فقط.'
+              : 'Available resolutions appear when you enter a valid link. Only reuse images you have permission to use.'}
+          </p>
+        </div>
+      )}
       {videoId && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {qualities.map((q) => {

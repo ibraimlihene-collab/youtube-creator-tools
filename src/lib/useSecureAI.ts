@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { runAI, type AIResult } from './api/client';
 
 export interface SecureAIState {
@@ -19,15 +19,24 @@ export function useSecureAI() {
   });
   const abortRef = useRef<AbortController | null>(null);
 
+  useEffect(
+    () => () => {
+      abortRef.current?.abort();
+    },
+    []
+  );
+
   const generate = useCallback(
     async (toolId: string, input: Record<string, unknown>, lang: 'ar' | 'en' = 'en') => {
       abortRef.current?.abort();
       const ac = new AbortController();
       abortRef.current = ac;
 
-      setState((s) => ({ ...s, isLoading: true, error: null }));
+      setState({ data: null, rawText: '', model: null, isLoading: true, error: null });
 
       const res = await runAI({ toolId, input, lang, signal: ac.signal });
+
+      if (ac.signal.aborted || abortRef.current !== ac) return false;
 
       if (!res.ok) {
         setState({
@@ -40,10 +49,7 @@ export function useSecureAI() {
         return false;
       }
 
-      const rawText =
-        res.result.type === 'list'
-          ? res.result.items.join('\n')
-          : res.result.content;
+      const rawText = res.result.type === 'list' ? res.result.items.join('\n') : res.result.content;
 
       setState({
         data: res.result,
@@ -59,6 +65,7 @@ export function useSecureAI() {
 
   const reset = useCallback(() => {
     abortRef.current?.abort();
+    abortRef.current = null;
     setState({ data: null, rawText: '', isLoading: false, error: null, model: null });
   }, []);
 

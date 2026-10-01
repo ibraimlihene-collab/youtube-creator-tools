@@ -3,81 +3,47 @@
  * Supports: watch, youtu.be, shorts, embed, live, music, attribution links, bare 11-char ids.
  */
 
-export function extractYouTubeVideoId(input: string): string | null {
-  if (!input) return null;
-  let raw = input.trim();
-
-  // strip surrounding quotes / angle brackets (common paste artifacts)
-  raw = raw.replace(/^['"<]+/, '').replace(/['">]+$/, '').trim();
-
-  // bare video id
+export function extractYouTubeVideoId(input: string, depth = 0): string | null {
+  if (!input || depth > 3) return null;
+  const raw = input
+    .trim()
+    .replace(/^['"<]+/, '')
+    .replace(/['">]+$/, '')
+    .trim();
   if (/^[\w-]{11}$/.test(raw)) return raw;
-
-  // sometimes users paste "v=XXXX" alone
-  const vOnly = raw.match(/(?:^|[?&])v=([\w-]{11})/);
-  if (vOnly) return vOnly[1];
-
-  // ensure protocol for URL parser
-  let candidate = raw;
-  if (!/^https?:\/\//i.test(candidate)) {
-    if (/^(www\.)?(youtube\.com|youtu\.be|m\.youtube\.com|music\.youtube\.com)/i.test(candidate)) {
-      candidate = `https://${candidate}`;
-    } else if (candidate.includes('youtube') || candidate.includes('youtu.be')) {
-      candidate = `https://${candidate}`;
-    } else {
-      // last resort: search for an 11-char id token in the string
-      const loose = raw.match(/(?:v=|\/|youtu\.be\/)([\w-]{11})(?:[&?\s]|$)/);
-      return loose ? loose[1] : null;
-    }
-  }
-
+  const standalone = raw.match(/^v=([\w-]{11})$/);
+  if (standalone) return standalone[1];
   try {
-    const url = new URL(candidate);
+    const url = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
+    if (!['https:', 'http:'].includes(url.protocol)) return null;
     const host = url.hostname.replace(/^www\./, '').toLowerCase();
-
-    // youtu.be/ID
     if (host === 'youtu.be') {
       const id = url.pathname.split('/').filter(Boolean)[0];
-      if (id && /^[\w-]{11}$/.test(id)) return id;
+      return id && /^[\w-]{11}$/.test(id) ? id : null;
     }
-
     if (
-      host === 'youtube.com' ||
-      host === 'm.youtube.com' ||
-      host === 'music.youtube.com' ||
-      host === 'youtube-nocookie.com'
-    ) {
-      const v = url.searchParams.get('v');
-      if (v && /^[\w-]{11}$/.test(v)) return v;
-
-      const parts = url.pathname.split('/').filter(Boolean);
-      // /embed/ID, /shorts/ID, /live/ID, /v/ID, /e/ID
-      const markers = ['embed', 'shorts', 'live', 'v', 'e', 'watch'];
-      for (let i = 0; i < parts.length; i++) {
-        if (markers.includes(parts[i]) && parts[i + 1] && /^[\w-]{11}$/.test(parts[i + 1])) {
-          return parts[i + 1];
-        }
-      }
-
-      // /ID at root rare
-      if (parts.length === 1 && /^[\w-]{11}$/.test(parts[0])) return parts[0];
-    }
-
-    // attribution_link etc. may nest u= or q=
+      !['youtube.com', 'm.youtube.com', 'music.youtube.com', 'youtube-nocookie.com'].includes(host)
+    )
+      return null;
+    const id = url.searchParams.get('v');
+    if (id && /^[\w-]{11}$/.test(id)) return id;
+    const parts = url.pathname.split('/').filter(Boolean);
+    if (
+      ['embed', 'shorts', 'live', 'v', 'e', 'watch'].includes(parts[0]) &&
+      /^[\w-]{11}$/.test(parts[1] || '')
+    )
+      return parts[1];
+    if (parts.length === 1 && /^[\w-]{11}$/.test(parts[0])) return parts[0];
     for (const key of ['u', 'q', 'url']) {
       const nested = url.searchParams.get(key);
-      if (nested) {
-        const inner = extractYouTubeVideoId(decodeURIComponent(nested));
-        if (inner) return inner;
-      }
+      if (!nested) continue;
+      const target = nested.startsWith('/') ? new URL(nested, 'https://youtube.com').href : nested;
+      const inner = extractYouTubeVideoId(target, depth + 1);
+      if (inner) return inner;
     }
   } catch {
-    // fall through
+    /* invalid URL */
   }
-
-  const fallback = raw.match(/([\w-]{11})/);
-  // only accept fallback if string clearly youtube-related
-  if (fallback && /youtu/i.test(raw)) return fallback[1];
   return null;
 }
 

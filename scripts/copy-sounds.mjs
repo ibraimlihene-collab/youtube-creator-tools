@@ -4,8 +4,8 @@ import { join } from 'path';
 const src = 'public/sounds';
 const dest = 'dist/sounds';
 if (!existsSync(src)) {
-  console.error('missing', src);
-  process.exit(1);
+  console.warn('[copy-sounds] Optional sound pack is missing; restore public/sounds to enable the sound library.');
+  process.exit(0);
 }
 mkdirSync(dest, { recursive: true });
 cpSync(src, dest, { recursive: true });

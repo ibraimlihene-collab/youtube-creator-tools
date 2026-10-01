@@ -53,13 +53,43 @@ export async function runAI(params: {
         ok: false,
         error:
           res.status === 404
-            ? 'AI server not found. Deploy with Netlify Functions or run `netlify dev`.'
-            : `Bad response (${res.status})`,
+            ? 'AI is temporarily unavailable. Please try again later or explore our non-AI tools.'
+            : 'The AI service could not respond. Please try again later.',
         code: 'HTTP',
       };
     }
-    if (!res.ok && !('error' in data && data.error)) {
+    if (!res.ok && !(data && 'error' in data && data.error)) {
       return { ok: false, error: `Request failed (${res.status})`, code: 'HTTP' };
+    }
+    if (data && data.ok === false) {
+      return {
+        ...data,
+        error:
+          params.lang === 'ar'
+            ? 'تعذر إكمال الطلب. تحقق من اتصالك وحاول لاحقاً، أو استخدم الأدوات التي لا تحتاج إلى ذكاء اصطناعي.'
+            : data.code === 'ENV_MISSING' || res.status === 500
+              ? 'AI is not available right now. Try again later or use a tool that does not need AI.'
+              : res.status === 429
+                ? 'Too many requests. Please wait a minute before trying again.'
+                : data.error,
+      };
+    }
+    if (
+      !data ||
+      data.ok !== true ||
+      !data.result ||
+      !(
+        (data.result.type === 'list' &&
+          Array.isArray(data.result.items) &&
+          data.result.items.every((item) => typeof item === 'string')) ||
+        (data.result.type === 'markdown' && typeof data.result.content === 'string')
+      )
+    ) {
+      return {
+        ok: false,
+        error: 'The AI service returned an unexpected response. Please try again.',
+        code: 'RESPONSE',
+      };
     }
     return data;
   } catch (e: unknown) {
@@ -69,8 +99,7 @@ export async function runAI(params: {
     }
     return {
       ok: false,
-      error:
-        'Cannot reach secure AI server. Use `netlify dev` locally, or deploy to Netlify with GEMINI_API_KEY set in Environment variables.',
+      error: 'Cannot reach the AI service. Check your connection and try again.',
       code: 'NETWORK',
     };
   }
@@ -81,7 +110,13 @@ export async function runApify(params: {
   input?: Record<string, unknown>;
   url?: string;
   actorId?: string;
-}): Promise<{ ok: boolean; data?: unknown; error?: string; configured?: boolean; source?: string }> {
+}): Promise<{
+  ok: boolean;
+  data?: unknown;
+  error?: string;
+  configured?: boolean;
+  source?: string;
+}> {
   try {
     const res = await fetch(`${apiBase()}/api/apify`, {
       method: 'POST',

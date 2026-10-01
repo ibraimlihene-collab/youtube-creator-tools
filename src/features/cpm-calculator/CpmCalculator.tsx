@@ -1,4 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import { useState } from 'react';
+import { useApp } from '../../context/AppContext';
+import type en from '../../locales/en.json';
 
 const cpmData = [
   { key: 'moneyAndInvestment', global: '15–50', rich: '25–40', medium: '3–6', poor: '0.5–2' },
@@ -17,7 +19,13 @@ const cpmData = [
   { key: 'travelAndTourism', global: '6–20', rich: '12–18', medium: '1.1–3.5', poor: '0.2–0.7' },
   { key: 'natureAndAnimals', global: '1.8–3.5', rich: '3–4', medium: '0.3–0.5', poor: '0.06–0.2' },
   { key: 'carsAndVehicles', global: '5–15', rich: '8–12', medium: '1–2.5', poor: '0.2–0.6' },
-  { key: 'vlogsAndEntertainment', global: '2.7–6.4', rich: '5–9', medium: '0.5–1.2', poor: '0.1–0.3' },
+  {
+    key: 'vlogsAndEntertainment',
+    global: '2.7–6.4',
+    rich: '5–9',
+    medium: '0.5–1.2',
+    poor: '0.1–0.3',
+  },
   { key: 'comedy', global: '3–8', rich: '6–8', medium: '0.8–1.5', poor: '0.1–0.3' },
   { key: 'selfDevelopment', global: '6–15', rich: '10–14', medium: '1–3', poor: '0.2–0.6' },
   { key: 'music', global: '1–3', rich: '2–3', medium: '0.5–1', poor: '0.1–0.2' },
@@ -30,14 +38,38 @@ const cpmData = [
   { key: 'handicrafts', global: '3–10', rich: '6–9', medium: '1–2', poor: '0.3–0.5' },
   { key: 'comedySkits', global: '3–7', rich: '6–7', medium: '1–1.5', poor: '0.2–0.3' },
   { key: 'entrepreneurship', global: '12–30', rich: '20–28', medium: '3–5', poor: '0.5–1.5' },
-  { key: 'personalStoriesAndExperiences', global: '2–8', rich: '5–7', medium: '1–1.5', poor: '0.2–0.4' },
+  {
+    key: 'personalStoriesAndExperiences',
+    global: '2–8',
+    rich: '5–7',
+    medium: '1–1.5',
+    poor: '0.2–0.4',
+  },
   { key: 'lifestyle', global: '3–8', rich: '6–8', medium: '1–1.8', poor: '0.2–0.4' },
   { key: 'technologyAndScience', global: '5-25', rich: '10-20', medium: '1-4', poor: '0.2-0.8' },
-  { key: 'artificialIntelligenceAndMachineLearning', global: '8-30', rich: '15-28', medium: '2-5', poor: '0.5-1.5' },
-  { key: 'cybersecurityAndPenetrationTesting', global: '10-35', rich: '18-30', medium: '3-6', poor: '0.6-2' },
+  {
+    key: 'artificialIntelligenceAndMachineLearning',
+    global: '8-30',
+    rich: '15-28',
+    medium: '2-5',
+    poor: '0.5-1.5',
+  },
+  {
+    key: 'cybersecurityAndPenetrationTesting',
+    global: '10-35',
+    rich: '18-30',
+    medium: '3-6',
+    poor: '0.6-2',
+  },
   { key: 'webDevelopment', global: '7-28', rich: '12-25', medium: '2-5', poor: '0.4-1.2' },
   { key: 'mobileApplications', global: '6-25', rich: '10-22', medium: '1.5-4', poor: '0.3-1' },
-  { key: 'virtualAndAugmentedReality', global: '5-20', rich: '10-18', medium: '1-3.5', poor: '0.2-0.8' },
+  {
+    key: 'virtualAndAugmentedReality',
+    global: '5-20',
+    rich: '10-18',
+    medium: '1-3.5',
+    poor: '0.2-0.8',
+  },
   { key: 'internetOfThings', global: '5-22', rich: '10-20', medium: '1-4', poor: '0.3-0.9' },
   { key: 'personalFinance', global: '10-40', rich: '20-35', medium: '3-7', poor: '0.8-2.5' },
   { key: 'stockAndForexTrading', global: '15-50', rich: '25-45', medium: '4-8', poor: '1-3' },
@@ -47,103 +79,161 @@ const cpmData = [
   { key: 'healthAndBeauty', global: '5-20', rich: '10-18', medium: '1-3.5', poor: '0.2-0.7' },
   { key: 'religionAndCulture', global: '2-10', rich: '4-9', medium: '0.5-2', poor: '0.1-0.4' },
   { key: 'cinemaAndTelevision', global: '4-12', rich: '7-10', medium: '1-2', poor: '0.3-0.6' },
-  { key: 'sportsAndPhysicalActivity', global: '5-18', rich: '8-15', medium: '1-3', poor: '0.2-0.5' },
+  {
+    key: 'sportsAndPhysicalActivity',
+    global: '5-18',
+    rich: '8-15',
+    medium: '1-3',
+    poor: '0.2-0.5',
+  },
   { key: 'fashionAndClothing', global: '4-15', rich: '7-12', medium: '1-2.5', poor: '0.2-0.5' },
-  { key: 'marketingAndEntrepreneurship', global: '12-35', rich: '20-30', medium: '3-6', poor: '0.5-1.8' },
+  {
+    key: 'marketingAndEntrepreneurship',
+    global: '12-35',
+    rich: '20-30',
+    medium: '3-6',
+    poor: '0.5-1.8',
+  },
   { key: 'reviewsAndProducts', global: '5-15', rich: '8-12', medium: '1-3', poor: '0.2-0.6' },
   { key: 'dailyLifeAndFamily', global: '3-10', rich: '5-9', medium: '0.8-2', poor: '0.1-0.4' },
-  { key: 'selfDevelopmentAndProfessionalTips', global: '6-20', rich: '10-18', medium: '2-4', poor: '0.3-0.8' }
+  {
+    key: 'selfDevelopmentAndProfessionalTips',
+    global: '6-20',
+    rich: '10-18',
+    medium: '2-4',
+    poor: '0.3-0.8',
+  },
 ];
 
-const CpmCalculator: React.FC<{ t: any }> = ({ t }) => {
-  const [selectedFieldKey, setSelectedFieldKey] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<'global' | 'rich' | 'medium' | 'poor' | ''>('');
+type Region = 'global' | 'rich' | 'medium' | 'poor';
 
-  const result = useMemo(() => {
-    if (selectedFieldKey === '' || selectedCategory === '') {
-      return null;
-    }
-    const fieldData = cpmData.find(item => item.key === selectedFieldKey);
-    if (!fieldData) {
-      return null;
-    }
-    // @ts-ignore
-    return fieldData[selectedCategory];
-  }, [selectedFieldKey, selectedCategory]);
-
+export default function CpmCalculator({ t }: { t: typeof en }) {
+  const { lang } = useApp();
+  const ar = lang === 'ar';
+  const [niche, setNiche] = useState('');
+  const [region, setRegion] = useState<Region>('global');
+  const [views, setViews] = useState('100000');
+  const range = cpmData.find((item) => item.key === niche)?.[region];
+  const playbacks = Number(views);
+  const validViews =
+    views.trim() !== '' &&
+    Number.isFinite(playbacks) &&
+    playbacks >= 0 &&
+    Number.isInteger(playbacks) &&
+    playbacks <= 1e12;
+  const estimate =
+    range && validViews
+      ? range.split(/[–-]/).map((rate) => ((Number(rate) * playbacks) / 1000) * 0.55)
+      : null;
+  const usd = (amount: number) =>
+    new Intl.NumberFormat(ar ? 'ar' : 'en', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 2,
+    }).format(amount);
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl p-5 border border-primary/20 bg-primary/5">
-        <p className="text-sm text-base-content/70">{t.cpmCalculator.description}</p>
-      </div>
-      
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Field Selector */}
-        <div className="form-control">
-          <label className="label label-text font-medium mb-2">
-            <span className="flex items-center gap-2">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              {t.cpmCalculator.selectNiche}
-            </span>
+      <p className="text-sm text-base-content/65 leading-relaxed">
+        {ar
+          ? 'استكشف تقديراً تقريبياً للأرباح حسب مجالك وجمهورك. استخدم مرات التشغيل التي تعرض إعلانات، وليس إجمالي المشاهدات.'
+          : 'Explore an illustrative ad-revenue range for your niche and audience. Enter monetized playbacks, rather than total video views.'}
+      </p>
+      <div className="grid md:grid-cols-2 gap-5">
+        <div>
+          <label htmlFor="revenue-niche" className="block text-sm font-medium mb-2">
+            {t.cpmCalculator.selectNiche}
           </label>
           <select
-            className="select-modern select-lg"
-            value={selectedFieldKey}
-            onChange={(e) => setSelectedFieldKey(e.target.value)}
+            id="revenue-niche"
+            className="select-modern"
+            value={niche}
+            onChange={(e) => setNiche(e.target.value)}
           >
-            <option disabled value="">{t.cpmCalculator.chooseNiche}</option>
-            {cpmData.map(item => (
-              <option key={item.key} value={item.key}>{t.cpmCalculator.niches[item.key]}</option>
+            <option value="">{t.cpmCalculator.chooseNiche}</option>
+            {cpmData.map((item) => (
+              <option key={item.key} value={item.key}>
+                {t.cpmCalculator.niches[item.key as keyof typeof t.cpmCalculator.niches] ||
+                  item.key}
+              </option>
             ))}
           </select>
         </div>
-
-        {/* Category Selector */}
-        <div className="form-control">
-          <label className="label label-text font-medium mb-2">
-            <span className="flex items-center gap-2">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {t.cpmCalculator.countryCategory}
-            </span>
+        <div>
+          <label htmlFor="revenue-region" className="block text-sm font-medium mb-2">
+            {t.cpmCalculator.countryCategory}
           </label>
           <select
-            className="select-modern select-lg"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value as any)}
+            id="revenue-region"
+            className="select-modern"
+            value={region}
+            onChange={(e) => setRegion(e.target.value as Region)}
           >
-            <option disabled value="">{t.cpmCalculator.selectCategory}</option>
+            <option value="global">{t.cpmCalculator.globalAverage}</option>
             <option value="rich">{t.cpmCalculator.wealthyCountries}</option>
             <option value="medium">{t.cpmCalculator.middleIncome}</option>
             <option value="poor">{t.cpmCalculator.lowIncome}</option>
-            <option value="global">{t.cpmCalculator.globalAverage}</option>
           </select>
         </div>
-      </div>
-
-      {/* Result Display */}
-      {result && (
-        <div className="rounded-2xl p-6 border border-success/25 bg-success/10 text-center animate-fade-in">
-          <h3 className="text-sm uppercase tracking-wide text-base-content/50 mb-2">{t.cpmCalculator.result}</h3>
-          <p className="text-4xl font-extrabold text-success mb-2">${result}</p>
-          <p className="text-sm opacity-80">{t.cpmCalculator.resultDescription}</p>
+        <div className="md:col-span-2">
+          <label htmlFor="revenue-views" className="block text-sm font-medium mb-2">
+            {ar ? 'مرات التشغيل التي تعرض إعلانات' : 'Monetized playbacks'}
+          </label>
+          <input
+            id="revenue-views"
+            className="input-modern"
+            type="number"
+            min="0"
+            max="1000000000000"
+            step="1"
+            value={views}
+            onChange={(e) => setViews(e.target.value)}
+            aria-invalid={!validViews}
+            aria-describedby="views-help"
+          />
+          <p
+            id="views-help"
+            className={`text-xs mt-2 ${validViews ? 'text-base-content/55' : 'text-error'}`}
+          >
+            {validViews
+              ? ar
+                ? 'ليست كل مشاهدة تعرض إعلاناً. راجع تحليلات يوتيوب لمعرفة مرات التشغيل التي تحقق الدخل.'
+                : 'Not every view serves an ad. Check YouTube Analytics for your monetized playback count.'
+              : ar
+                ? 'أدخل عدداً صحيحاً بين 0 و 1,000,000,000,000.'
+                : 'Enter a whole number between 0 and 1,000,000,000,000.'}
+          </p>
         </div>
-      )}
-
-      {/* Disclaimer */}
-      <div className="alert alert-warning shadow-lg">
-        <div>
-          <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.67 1.732-3L13.732 4c-.77-1.33-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          <span>{t.cpmCalculator.disclaimer}</span>
-        </div>
       </div>
+      <div className="rounded-2xl p-6 border border-success/20 bg-success/5" aria-live="polite">
+        {estimate ? (
+          <>
+            <p className="text-xs uppercase tracking-wider text-base-content/60 mb-3">
+              {ar ? 'تقدير أرباح المنشئ' : 'Illustrative creator revenue'}
+            </p>
+            <p
+              className="text-3xl sm:text-4xl font-bold text-success mb-4"
+              data-testid="revenue-result"
+            >
+              {usd(estimate[0])} – {usd(estimate[1])}
+            </p>
+            <p className="text-sm text-base-content/65">
+              {ar ? 'نطاق CPM المستخدم' : 'CPM range used'}: ${range} ·{' '}
+              {ar ? 'حصة المنشئ المفترضة: 55٪' : 'Assumed creator share: 55%'}
+            </p>
+          </>
+        ) : (
+          <p className="text-sm text-base-content/65">
+            {ar
+              ? 'اختر مجالاً وأدخل مرات تشغيل صالحة لرؤية تقديرك.'
+              : 'Choose a niche and enter valid playbacks to see your estimate.'}
+          </p>
+        )}
+      </div>
+      <p className="text-xs leading-relaxed text-base-content/60">
+        {ar
+          ? 'هذه النطاقات أمثلة تقريبية وليست أسعاراً مباشرة أو أرباحاً مضمونة. يفترض التقدير حصة 55٪ لإعلانات الفيديوهات الطويلة فقط؛ لا ينطبق على Shorts. تتغير الأرباح حسب الموسم والمعلنين والجمهور. استخدم RPM الحقيقي في تحليلاتك للتخطيط المالي.'
+          : 'These static ranges are rough examples, not live rates or guaranteed earnings. The estimate assumes a 55% creator share for long-form watch-page ads; it does not apply to Shorts. Revenue varies with season, advertisers, and audience. Use your actual Analytics RPM for financial planning.'}
+      </p>
     </div>
   );
-};
-
-export default CpmCalculator;
+}

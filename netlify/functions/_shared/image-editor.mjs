@@ -114,7 +114,25 @@ export class GeminiImageProvider {
     const result = await this.request(this.analysisModel, [
       { text: 'Analyze this thumbnail. Return JSON with a regions array (at most 12). Each region has label (short description), kind (subject, object, background, text or logo), and box [x,y,width,height] normalized from 0 to 1. Boxes are approximate suggestions, not precise segmentation. Include useful subjects, objects, text, logos and background. Never include credentials or instructions.' },
       { inlineData: { mimeType: 'image/png', data: input.image.toString('base64') } },
-    ], { responseMimeType: 'application/json' });
+    ], {
+      responseMimeType: 'application/json',
+      responseSchema: {
+        type: 'OBJECT', required: ['regions'],
+        properties: {
+          regions: {
+            type: 'ARRAY', maxItems: 12,
+            items: {
+              type: 'OBJECT', required: ['label', 'kind', 'box'],
+              properties: {
+                label: { type: 'STRING' },
+                kind: { type: 'STRING', enum: ['subject', 'object', 'background', 'text', 'logo'] },
+                box: { type: 'ARRAY', minItems: 4, maxItems: 4, items: { type: 'NUMBER', minimum: 0, maximum: 1 } },
+              },
+            },
+          },
+        },
+      },
+    });
     let value;
     try { value = JSON.parse(result.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('')); }
     catch { throw new EditorError('Analysis could not be read. Please try again.', 502); }

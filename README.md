@@ -1,6 +1,6 @@
 # YouCreator Tools
 
-Professional AI platform for YouTube creators — **50 tools**, bilingual (EN/AR), privacy-first.
+Professional AI platform for YouTube creators — **51 tools**, bilingual (EN/AR), privacy-first.
 
 **Live:** [youtube-creator-tools.netlify.app](https://youtube-creator-tools.netlify.app/)
 
@@ -44,6 +44,12 @@ npm run dev:app
 ```bash
 npm run build
 ```
+
+## Thumbnail AI Editor
+
+Open `/tools/thumbnail-editor` for selective AI editing: upload a thumbnail, paint the area to change, protect important details, and describe the edit. Compare results with the original and export PNG/JPG. The original stays untouched; the backend composites only selected pixels.
+
+Run `npm run dev:api` alongside `npm run dev:app` for the local API. Set a fresh server-side `GEMINI_API_KEY`; optional `GEMINI_IMAGE_MODEL` and `GEMINI_ANALYSIS_MODEL` select supported models. Without a key, manual selection and original export remain available. See [editor documentation](src/features/thumbnail-editor/README.md) for endpoint contracts and tests.
 
 ## Thumbnail Generator
 

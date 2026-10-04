@@ -6,6 +6,7 @@
 [functions]
   node_bundler = "esbuild"
   directory = "netlify/functions"
+  external_node_modules = ["sharp"]
 
 [[redirects]]
   from = "/api/ai"
@@ -22,6 +23,24 @@
 [[redirects]]
   from = "/api/health"
   to = "/.netlify/functions/health"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/edit"
+  to = "/.netlify/functions/edit"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/analyze"
+  to = "/.netlify/functions/analyze"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/variations"
+  to = "/.netlify/functions/variations"
   status = 200
   force = true
 

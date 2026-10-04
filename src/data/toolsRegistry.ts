@@ -142,10 +142,17 @@ const textArea = (
 });
 
 /**
- * 50 professional tools — no duplicates, each solves a real creator job.
+ * Professional creator tools — no duplicates, each solves a real creator job.
  * Thumbnail Generator (AI image) intentionally excluded.
  */
 export const TOOLS: ToolDef[] = [
+  {
+    id: 'thumbnailEditor', icon: Wand2, path: '/tools/thumbnail-editor',
+    category: 'thumbnails', kind: 'hybrid', badge: 'new',
+    titleEn: 'Thumbnail AI Editor', titleAr: 'محرّر الصور المصغّرة بالذكاء الاصطناعي',
+    descEn: 'Selectively edit your thumbnail with AI. Paint a region, describe the change, and preserve everything else.',
+    descAr: 'عدّل منطقة محددة بالذكاء الاصطناعي. ارسم التحديد واكتب طلبك مع الحفاظ على بقية الصورة.',
+  },
   {
     id: 'silenceRemover',
     icon: Scissors,

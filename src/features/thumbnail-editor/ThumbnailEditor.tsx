@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { PointerEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowUpRight, Brush, Check, ChevronDown, Download, Eraser, ImagePlus, Languages, Layers, LoaderCircle, LockKeyhole, Maximize2, RotateCcw, ShieldCheck, Sparkles, SquareDashed, Undo2, WandSparkles, X, ZoomIn } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Brush, Check, ChevronDown, Download, Eraser, ImagePlus, Languages, Layers, LoaderCircle, LockKeyhole, Maximize2, RefreshCw, RotateCcw, ShieldCheck, Sparkles, SquareDashed, Undo2, WandSparkles, X, ZoomIn } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { blankMask, canvasBlob, downloadImage, loadImage, paintRegion, practiceThumbnail } from './canvas';
 import type { Region } from './canvas';
+import { EditorApiError, readEditorResponse } from './api-response.mjs';
 import './editor.css';
 
 type Tool = 'brush'|'erase'|'protect'|'rectangle';
@@ -18,15 +19,42 @@ export default function ThumbnailEditor() {
   const [brushSize,setBrushSize]=useState(64); const [prompt,setPrompt]=useState(''); const [view,setView]=useState<View>('selection');
   const [results,setResults]=useState<string[]>([]); const [resultIndex,setResultIndex]=useState(0); const [split,setSplit]=useState(50);
   const [busy,setBusy]=useState<'edit'|'analyze'|'variations'|null>(null); const [error,setError]=useState('');
-  const [configured,setConfigured]=useState<boolean|null>(null); const [regions,setRegions]=useState<Region[]>([]);
+  const [configured,setConfigured]=useState<boolean|null>(null); const [checking,setChecking]=useState(true); const [regions,setRegions]=useState<Region[]>([]);
   const [selected,setSelected]=useState(0); const [locked,setLocked]=useState(0); const [undoCount,setUndoCount]=useState(0);
   const [format,setFormat]=useState<'png'|'jpeg'>('png'); const [zoom,setZoom]=useState(false); const [notice,setNotice]=useState(''); const [ready,setReady]=useState(false);
   const overlay=useRef<HTMLCanvasElement>(null); const mask=useRef<HTMLCanvasElement|null>(null); const protection=useRef<HTMLCanvasElement|null>(null);
   const history=useRef<Snapshot[]>([]); const stroke=useRef<{x:number;y:number;lastX:number;lastY:number;tool:Tool}|null>(null);
   const input=useRef<HTMLInputElement>(null); const alive=useRef(true); const requestController=useRef<AbortController|null>(null);
-  const fileVersion=useRef(0);
+  const fileVersion=useRef(0); const healthRequest=useRef<AbortController|null>(null); const connectionError=useRef(false);
 
-  useEffect(()=>{alive.current=true;setSource(practiceThumbnail());fetch('/api/health').then(r=>r.ok?r.json():Promise.reject()).then(data=>{if(alive.current)setConfigured(Boolean(data.gemini));}).catch(()=>{if(alive.current)setConfigured(null);});return()=>{alive.current=false;requestController.current?.abort();};},[]);
+  const checkConnection = useCallback(async () => {
+    if (healthRequest.current) return;
+    const controller = new AbortController(); healthRequest.current = controller;
+    const timer = setTimeout(() => controller.abort(), 8000); setChecking(true);
+    try {
+      const data = await readEditorResponse(await fetch('/api/health', { cache: 'no-store', signal: controller.signal }));
+      if (data.ok !== true || typeof data.gemini !== 'boolean') throw new Error('Invalid health response');
+      if (alive.current && healthRequest.current === controller) {
+        setConfigured(data.gemini);
+        if (connectionError.current) { setError(''); connectionError.current = false; }
+      }
+    } catch {
+      if (alive.current && healthRequest.current === controller) setConfigured(null);
+    } finally {
+      clearTimeout(timer);
+      if (healthRequest.current === controller) { healthRequest.current = null; if (alive.current) setChecking(false); }
+    }
+  }, []);
+  useEffect(() => {
+    alive.current = true; setSource(practiceThumbnail());
+    return () => { alive.current = false; requestController.current?.abort(); healthRequest.current?.abort(); healthRequest.current = null; };
+  }, []);
+  useEffect(() => {
+    const refresh = () => { if (document.visibilityState !== 'hidden') void checkConnection(); };
+    refresh(); const timer = setInterval(refresh, 15000);
+    window.addEventListener('focus', refresh); document.addEventListener('visibilitychange', refresh);
+    return () => { clearInterval(timer); window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', refresh); };
+  }, [checkConnection]);
   useEffect(()=>{
     if(!source)return; let disposed=false;setReady(false);
     loadImage(source).then(image=>{if(disposed)return;setDimensions({width:image.width,height:image.height});mask.current=blankMask(image.width,image.height);protection.current=blankMask(image.width,image.height);history.current=[];setUndoCount(0);setSelected(0);setLocked(0);setReady(true);});
@@ -66,19 +94,25 @@ export default function ThumbnailEditor() {
     catch(e){if(fileVersion.current===version){setReady(true);setError(e instanceof Error?e.message:tx('Could not open this image.','تعذر فتح الصورة.'));}}finally{URL.revokeObjectURL(url);if(input.current)input.current.value='';}
   }
   async function run(operation:'edit'|'analyze'|'variations'){
-    if(busy||!ready)return;setError('');setNotice('');
+    if(busy||!ready)return;setError('');connectionError.current=false;setNotice('');
     if(operation!=='analyze'&&(!selected||!prompt.trim())){setError(tx('Paint a selection and describe your edit first.','ارسم التحديد واكتب التعديل المطلوب أولاً.'));return;}
     setBusy(operation);const controller=new AbortController();requestController.current=controller;const timer=setTimeout(()=>controller.abort(),100_000);
     try{
       const image=await loadImage(source);const original=document.createElement('canvas');original.width=image.width;original.height=image.height;original.getContext('2d')!.drawImage(image,0,0);
       const form=new FormData();form.append('image',await canvasBlob(original),'original.png');
       if(operation!=='analyze'){form.append('mask',await canvasBlob(mask.current!),'selection.png');form.append('protectedMask',await canvasBlob(protection.current!),'protected.png');form.append('prompt',prompt.trim());form.append('selectionMode',tool==='rectangle'?'rectangle':'brush');if(operation==='variations')form.append('count','2');}
-      const response=await fetch(`/api/${operation}`,{method:'POST',body:form,signal:controller.signal});let data;
-      try{data=await response.json();}catch{throw new Error(tx('The server returned an unreadable response. Please try again.','أعاد الخادم استجابة غير مقروءة. حاول مرة أخرى.'));}
-      if(!response.ok)throw new Error(response.status===503?tx('AI is not configured yet. Add a new Gemini API key to the server environment.','الذكاء الاصطناعي غير مُهيّأ بعد. أضف مفتاح Gemini جديدًا إلى بيئة الخادم.'):String(data.error||tx('Request failed. Please try again.','فشل الطلب. حاول مرة أخرى.')));
+      const data=await readEditorResponse(await fetch(`/api/${operation}`,{method:'POST',body:form,signal:controller.signal}),ar);
       if(operation==='analyze'){if(!Array.isArray(data.regions))throw new Error(tx('Analysis returned no regions.','لم يُرجع التحليل مناطق.'));setRegions(data.regions);setNotice(tx('Analysis ready. Suggestions are approximate; refine the mask before editing.','التحليل جاهز. الاقتراحات تقريبية؛ حسّن التحديد قبل التعديل.'));}
       else{if(!Array.isArray(data.images)||!data.images.length||!data.images.every((s:unknown)=>typeof s==='string'&&s.startsWith('data:image/png;base64,')))throw new Error(tx('No edited image was returned.','لم تصل صورة معدلة.'));await Promise.all(data.images.map((s:string)=>loadImage(s)));setResults(data.images);setResultIndex(0);setView('compare');setNotice(tx('Your edit is ready. Pixels outside the selection are preserved.','التعديل جاهز. البكسلات خارج التحديد محفوظة.'));}
-    }catch(e){if(alive.current)setError(e instanceof Error&&e.name!=='AbortError'?e.message:tx('Request timed out or was cancelled. Your original is safe.','انتهت مهلة الطلب أو أُلغي. الصورة الأصلية محفوظة.'));}
+    }catch(e){
+      if(alive.current){
+        const unavailable=e instanceof TypeError || (e instanceof EditorApiError && e.unavailable);
+        connectionError.current=unavailable;
+        if(unavailable)setConfigured(null);
+        else if(e instanceof EditorApiError && e.status===503)setConfigured(false);
+        setError(unavailable?tx('The editing server is temporarily unavailable. Retry when the connection returns; your original is safe.','تعذر الاتصال بخادم التعديل. أعد المحاولة بعد عودة الاتصال؛ صورتك الأصلية محفوظة.'):e instanceof Error&&e.name!=='AbortError'?e.message:tx('Request timed out or was cancelled. Your original is safe.','انتهت مهلة الطلب أو أُلغي. الصورة الأصلية محفوظة.'));
+      }
+    }
     finally{clearTimeout(timer);if(alive.current)setBusy(null);requestController.current=null;}
   }
   async function exportResult(){try{await downloadImage(results[resultIndex]||source,filename+(results.length?'-edited':'-original'),format);setNotice(tx('Download started.','بدأ التنزيل.'));}catch{setError(tx('Could not export the image. Please try again.','تعذر تنزيل الصورة. حاول مرة أخرى.'));}}
@@ -116,7 +150,8 @@ export default function ThumbnailEditor() {
           <button data-testid="edit-submit" className="te-primary" onClick={()=>run('edit')} disabled={!ready||!selected||!prompt.trim()||!!busy}>{busy==='edit'?<LoaderCircle className="te-spin" size={18}/>:<Sparkles size={18}/>} {busy==='edit'?tx('Reimagining your selection…','جارٍ تعديل المنطقة…'):tx('Generate edit','تنفيذ التعديل')} {!busy&&<ArrowUpRight size={18}/>}</button>
           <button className="te-secondary" onClick={()=>run('variations')} disabled={!ready||!selected||!prompt.trim()||!!busy}>{busy==='variations'?<LoaderCircle className="te-spin" size={16}/>:<Layers size={16}/>} {tx('Create 2 variations','إنشاء بديلين')}</button>
           {busy&&<button className="te-cancel" onClick={()=>requestController.current?.abort()}><X size={13}/>{tx('Cancel request','إلغاء الطلب')}</button>}
-          <div className={`te-provider-status ${configured?'connected':''}`}><span/>{configured===true?tx('Gemini configured · Server-side','Gemini مُهيّأ · عبر الخادم'):configured===false?tx('AI setup needed · Editor ready','يلزم إعداد AI · المحرّر جاهز'):tx('AI connection unavailable','اتصال AI غير متاح')}</div>
+          <div data-testid="editor-connection" className={`te-provider-status ${configured?'connected':''}`}><span/>{checking&&configured===null?tx('Checking AI connection…','جارٍ فحص اتصال AI…'):configured===true?tx('Gemini configured · Server-side','Gemini مُهيّأ · عبر الخادم'):configured===false?tx('AI setup needed · Editor ready','يلزم إعداد AI · المحرّر جاهز'):tx('AI connection unavailable','اتصال AI غير متاح')}</div>
+          {configured===null&&<button className="te-text-button te-reconnect" data-testid="editor-reconnect" disabled={checking} onClick={()=>void checkConnection()}><RefreshCw size={13}/>{tx('Retry connection','إعادة فحص الاتصال')}</button>}
           {configured===false&&<p className="te-config-note">{tx('The site owner needs to add a new Gemini key to the server. You can still select, protect, and export your original.','يلزم إضافة مفتاح Gemini جديد للخادم. يمكنك الآن التحديد والحماية وتنزيل الأصل.')}</p>}
           <div className="te-analysis-header"><span>{tx('Image insights','تحليل الصورة')}</span><button data-testid="analyze-image" className="te-text-button" onClick={()=>run('analyze')} disabled={!ready||!!busy}>{busy==='analyze'?<LoaderCircle className="te-spin" size={13}/>:<Sparkles size={13}/>} {tx('Analyze','تحليل')}</button></div>
           {regions.length?<><p className="te-config-note">{tx('Approximate boxes. Refine with the brush.','مربعات تقريبية. حسّنها بالفرشاة.')}</p><div className="te-regions">{regions.map((region,i)=><div key={i}><button disabled={!!busy} onClick={()=>chooseRegion(region,false)}>{region.label}<small>{region.kind}</small></button><button disabled={!!busy} onClick={()=>chooseRegion(region,true)} aria-label={tx(`Protect ${region.label}`,`حماية ${region.label}`)}><LockKeyhole size={13}/></button></div>)}</div></>:<p className="te-config-note">{tx('Find suggested subjects, objects, text and logos with AI.','اعثر على الأشخاص والعناصر والنصوص والشعارات بالذكاء الاصطناعي.')}</p>}

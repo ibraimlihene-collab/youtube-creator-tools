@@ -11,7 +11,7 @@
     "deploy": "npm run build && echo 'To deploy to Netlify:' && echo '1. Go to https://app.netlify.com' && echo '2. Sign in or create an account' && echo '3. Click \"Add new site\" and select \"Deploy manually\"' && echo '4. Drag and drop the \"dist\" folder to the deployment area'",
     "dev:app": "vite",
     "dev:api": "node --watch server/dev-api.mjs",
-    "test:editor": "node --test tests/image-editor.test.mjs"
+    "test:editor": "node --test tests/image-editor.test.mjs tests/api-server.test.mjs tests/editor-response.test.mjs"
   },
   "dependencies": {
     "@ffmpeg/ffmpeg": "^0.12.15",

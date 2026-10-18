@@ -6,7 +6,7 @@ const MAX_PIXELS = 1920 * 1080;
 const FORMATS = new Set(['png', 'jpeg', 'webp']);
 const MODES = new Set(['brush', 'rectangle']);
 export class EditorError extends Error {
-  constructor(message, statusCode = 400) { super(message); this.statusCode = statusCode; }
+  constructor(message, statusCode = 400, code) { super(message); this.statusCode = statusCode; this.code = code; }
 }
 
 export async function decodeImage(buffer, mask = false) {
@@ -95,7 +95,18 @@ export class GeminiImageProvider {
       });
     } catch { throw new EditorError('The AI service did not respond in time. Please try again.', 504); }
     if (!response.ok) {
-      if (response.status === 429) throw new EditorError('The AI service is busy or its quota is exhausted. Please try again later.', 429);
+      if (response.status === 429) {
+        // Inspect only structured quota metadata; never expose the provider's body.
+        let quotaExceeded = false;
+        try {
+          const failure = await response.json();
+          quotaExceeded = Array.isArray(failure.error?.details) && failure.error.details.some(detail =>
+            detail['@type'] === 'type.googleapis.com/google.rpc.QuotaFailure' && Array.isArray(detail.violations) && detail.violations.length > 0);
+        } catch { /* An unreadable error still means a provider-side request limit. */ }
+        throw new EditorError(quotaExceeded
+          ? 'Google rejected this request because the Gemini project quota is exhausted. Check image-generation quota and billing for the project linked to the server API key. Changing keys within that project does not increase its quota.'
+          : 'Gemini is temporarily limiting requests. Wait before trying again.', 429, quotaExceeded ? 'GEMINI_QUOTA_EXCEEDED' : 'GEMINI_RATE_LIMITED');
+      }
       throw new EditorError('Image editing failed. Please try again or ask the site owner to check the AI configuration.', 502);
     }
     try { return await response.json(); } catch { throw new EditorError('The AI service returned an invalid response.', 502); }
@@ -165,7 +176,8 @@ export function makeEditorHandler(operation, providerFactory = () => new GeminiI
     } catch (error) {
       const status = error.statusCode || 500;
       // Deliberately do not log or return provider bodies, errors, credentials or stack traces.
-      return json(status, { error: error instanceof EditorError ? error.message : status === 429 ? 'Too many requests. Please wait a minute.' : status === 401 ? 'Unauthorized.' : 'Image editing failed. Please try again.' }, event);
+      const code = ['RATE_LIMIT', 'GEMINI_QUOTA_EXCEEDED', 'GEMINI_RATE_LIMITED'].includes(error.code) ? error.code : undefined;
+      return json(status, { code, error: error instanceof EditorError ? error.message : status === 429 ? 'Too many requests. Please wait a minute.' : status === 401 ? 'Unauthorized.' : 'Image editing failed. Please try again.' }, event);
     }
   };
 }

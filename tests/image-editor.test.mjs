@@ -77,3 +77,32 @@ test('method, origin and oversized request are rejected',async()=>{
   const previous=process.env.ALLOWED_ORIGINS;process.env.ALLOWED_ORIGINS='https://allowed.example';try{assert.equal((await handler(await eventFor(await fixture(),{origin:'https://other.example'}))).statusCode,403);}finally{if(previous===undefined)delete process.env.ALLOWED_ORIGINS;else process.env.ALLOWED_ORIGINS=previous;}
   assert.equal((await handler({httpMethod:'POST',headers:{'content-type':'multipart/form-data; boundary=x','x-forwarded-for':crypto.randomUUID()},body:Buffer.alloc(6*1024*1024+1).toString('base64'),isBase64Encoded:true})).statusCode,413);
 });
+
+test('provider quota and throttling stay distinct from the local limiter without exposing provider errors', async () => {
+  for (const [body, code] of [
+    [{error:{details:[{'@type':'type.googleapis.com/google.rpc.QuotaFailure',violations:[{quotaId:'test-quota'}]}],message:'private-provider-detail'}},'GEMINI_QUOTA_EXCEEDED'],
+    [{error:{message:'private-provider-detail'}},'GEMINI_RATE_LIMITED'],
+    [null,'GEMINI_RATE_LIMITED'],
+  ]) {
+    const provider = new GeminiImageProvider({apiKey:'test',fetchImpl:async()=>Response.json(body,{status:429})});
+    const response = await makeEditorHandler('edit',()=>provider)(await eventFor(await fixture()));
+    assert.equal(response.statusCode,429);
+    assert.equal(JSON.parse(response.body).code,code);
+    assert.ok(!response.body.includes('private-provider-detail'));
+  }
+  const event = await eventFor(await fixture());
+  const previous = process.env.IMAGE_RATE_LIMIT_PER_MINUTE;
+  process.env.IMAGE_RATE_LIMIT_PER_MINUTE = '1';
+  let calls = 0;
+  try {
+    const handler = makeEditorHandler('edit',()=>({editImage(){calls++;return image('#fff');}}));
+    assert.equal((await handler(event)).statusCode,200);
+    const blocked = await handler(event);
+    assert.equal(blocked.statusCode,429);
+    assert.equal(JSON.parse(blocked.body).code,'RATE_LIMIT');
+    assert.equal(calls,1);
+  } finally {
+    if(previous===undefined)delete process.env.IMAGE_RATE_LIMIT_PER_MINUTE;
+    else process.env.IMAGE_RATE_LIMIT_PER_MINUTE=previous;
+  }
+});

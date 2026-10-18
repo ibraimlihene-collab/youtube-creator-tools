@@ -16,3 +16,16 @@ test('successful JSON is preserved and malformed payloads are rejected', async (
   const data={ok:true,gemini:true}; assert.deepEqual(await readEditorResponse(Response.json(data)),data);
   await assert.rejects(() => readEditorResponse(Response.json(null)), EditorApiError);
 });
+
+test('local rate limits, Google quota and provider throttling have actionable localized messages', async () => {
+  for (const [code, english, arabic] of [
+    ['RATE_LIMIT','not sent to Google','لم يُرسل'],
+    ['GEMINI_QUOTA_EXCEEDED','billing','الفوترة'],
+    ['GEMINI_RATE_LIMITED','temporarily','مؤقتًا'],
+    [undefined,'temporarily','مؤقتًا'],
+  ]) {
+    for (const [ar, expected] of [[false,english],[true,arabic]]) {
+      await assert.rejects(()=>readEditorResponse(Response.json({code,error:'unsafe provider body'},{status:429}),ar),error=>error instanceof EditorApiError && error.status===429 && !error.unavailable && error.message.includes(expected) && !error.message.includes('unsafe'));
+    }
+  }
+});

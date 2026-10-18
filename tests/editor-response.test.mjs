@@ -29,3 +29,9 @@ test('local rate limits, Google quota and provider throttling have actionable lo
     }
   }
 });
+
+
+test('Runware errors remain localized and never suggest fixing Gemini instead',async()=>{
+  for(const code of ['RUNWARE_NOT_CONFIGURED','RUNWARE_AUTH_FAILED','RUNWARE_CREDITS','RUNWARE_RATE_LIMITED','RUNWARE_FAILED'])
+    for(const ar of [false,true])await assert.rejects(()=>readEditorResponse(Response.json({code,error:'private-provider-secret'},{status:code==='RUNWARE_CREDITS'?402:503}),ar),error=>error instanceof EditorApiError && error.message.includes('Runware') && !error.message.includes('Gemini') && !error.message.includes('private-provider-secret'));
+});

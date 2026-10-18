@@ -14,6 +14,7 @@ type Snapshot = { mask: ImageData; protectedMask: ImageData };
 
 export default function ThumbnailEditor() {
   const { lang, toggleLang } = useApp(); const ar = lang === 'ar'; const tx = (en: string, arabic: string) => ar ? arabic : en;
+  const [provider,setProvider]=useState('AI'); const [analysisConfigured,setAnalysisConfigured]=useState(false);
   const [source, setSource] = useState(''); const [sourceVersion, setSourceVersion] = useState(0); const [filename,setFilename]=useState('adventure-thumbnail');
   const [dimensions,setDimensions]=useState({width:1280,height:720}); const [tool,setTool]=useState<Tool>('brush');
   const [brushSize,setBrushSize]=useState(64); const [prompt,setPrompt]=useState(''); const [view,setView]=useState<View>('selection');
@@ -33,9 +34,9 @@ export default function ThumbnailEditor() {
     const timer = setTimeout(() => controller.abort(), 8000); setChecking(true);
     try {
       const data = await readEditorResponse(await fetch('/api/health', { cache: 'no-store', signal: controller.signal }));
-      if (data.ok !== true || typeof data.gemini !== 'boolean') throw new Error('Invalid health response');
+      if (data.ok !== true || typeof data.imageEditing !== 'boolean') throw new Error('Invalid health response');
       if (alive.current && healthRequest.current === controller) {
-        setConfigured(data.gemini);
+        setConfigured(data.imageEditing); setProvider(data.imageProvider === 'runware' ? 'Runware · Meta Muse' : 'Gemini'); setAnalysisConfigured(data.imageAnalysis === true);
         if (connectionError.current) { setError(''); connectionError.current = false; }
       }
     } catch {
@@ -150,10 +151,11 @@ export default function ThumbnailEditor() {
           <button data-testid="edit-submit" className="te-primary" onClick={()=>run('edit')} disabled={!ready||!selected||!prompt.trim()||!!busy}>{busy==='edit'?<LoaderCircle className="te-spin" size={18}/>:<Sparkles size={18}/>} {busy==='edit'?tx('Reimagining your selection…','جارٍ تعديل المنطقة…'):tx('Generate edit','تنفيذ التعديل')} {!busy&&<ArrowUpRight size={18}/>}</button>
           <button className="te-secondary" onClick={()=>run('variations')} disabled={!ready||!selected||!prompt.trim()||!!busy}>{busy==='variations'?<LoaderCircle className="te-spin" size={16}/>:<Layers size={16}/>} {tx('Create 2 variations','إنشاء بديلين')}</button>
           {busy&&<button className="te-cancel" onClick={()=>requestController.current?.abort()}><X size={13}/>{tx('Cancel request','إلغاء الطلب')}</button>}
-          <div data-testid="editor-connection" className={`te-provider-status ${configured?'connected':''}`}><span/>{checking&&configured===null?tx('Checking AI connection…','جارٍ فحص اتصال AI…'):configured===true?tx('Gemini configured · Server-side','Gemini مُهيّأ · عبر الخادم'):configured===false?tx('AI setup needed · Editor ready','يلزم إعداد AI · المحرّر جاهز'):tx('AI connection unavailable','اتصال AI غير متاح')}</div>
+          <div data-testid="editor-connection" className={`te-provider-status ${configured?'connected':''}`}><span/>{checking&&configured===null?tx('Checking AI connection…','جارٍ فحص اتصال AI…'):configured===true?tx(`${provider} configured · Server-side`,`${provider} مُهيّأ · عبر الخادم`):configured===false?tx('AI setup needed · Editor ready','يلزم إعداد AI · المحرّر جاهز'):tx('AI connection unavailable','اتصال AI غير متاح')}</div>
           {configured===null&&<button className="te-text-button te-reconnect" data-testid="editor-reconnect" disabled={checking} onClick={()=>void checkConnection()}><RefreshCw size={13}/>{tx('Retry connection','إعادة فحص الاتصال')}</button>}
-          {configured===false&&<p className="te-config-note">{tx('The site owner needs to add a new Gemini key to the server. You can still select, protect, and export your original.','يلزم إضافة مفتاح Gemini جديد للخادم. يمكنك الآن التحديد والحماية وتنزيل الأصل.')}</p>}
-          <div className="te-analysis-header"><span>{tx('Image insights','تحليل الصورة')}</span><button data-testid="analyze-image" className="te-text-button" onClick={()=>run('analyze')} disabled={!ready||!!busy}>{busy==='analyze'?<LoaderCircle className="te-spin" size={13}/>:<Sparkles size={13}/>} {tx('Analyze','تحليل')}</button></div>
+          {configured===false&&<p className="te-config-note">{tx('The site owner needs to configure the image provider API key on the server. You can still select, protect, and export your original.','يلزم إعداد مفتاح مزوّد الصور على الخادم. يمكنك الآن التحديد والحماية وتنزيل الأصل.')}</p>}
+          <div className="te-analysis-header"><span>{tx('Image insights','تحليل الصورة')}</span><button data-testid="analyze-image" className="te-text-button" onClick={()=>run('analyze')} disabled={!ready||!!busy||!analysisConfigured}>{busy==='analyze'?<LoaderCircle className="te-spin" size={13}/>:<Sparkles size={13}/>} {tx('Analyze','تحليل')}</button></div>
+          {!analysisConfigured&&<p className="te-config-note">{tx('Region suggestions require a separate Gemini key. Manual selection still works.','اقتراح المناطق يحتاج مفتاح Gemini منفصلًا. يمكنك التحديد يدويًا.')}</p>}
           {regions.length?<><p className="te-config-note">{tx('Approximate boxes. Refine with the brush.','مربعات تقريبية. حسّنها بالفرشاة.')}</p><div className="te-regions">{regions.map((region,i)=><div key={i}><button disabled={!!busy} onClick={()=>chooseRegion(region,false)}>{region.label}<small>{region.kind}</small></button><button disabled={!!busy} onClick={()=>chooseRegion(region,true)} aria-label={tx(`Protect ${region.label}`,`حماية ${region.label}`)}><LockKeyhole size={13}/></button></div>)}</div></>:<p className="te-config-note">{tx('Find suggested subjects, objects, text and logos with AI.','اعثر على الأشخاص والعناصر والنصوص والشعارات بالذكاء الاصطناعي.')}</p>}
         </aside>
       </div>

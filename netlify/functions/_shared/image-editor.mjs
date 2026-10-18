@@ -9,12 +9,12 @@ export class EditorError extends Error {
   constructor(message, statusCode = 400, code) { super(message); this.statusCode = statusCode; this.code = code; }
 }
 
-export async function decodeImage(buffer, mask = false) {
+export async function decodeImage(buffer, mask = false, maxPixels = MAX_PIXELS) {
   try {
-    const image = sharp(buffer, { limitInputPixels: MAX_PIXELS, animated: false });
+    const image = sharp(buffer, { limitInputPixels: maxPixels, animated: false });
     const meta = await image.metadata();
     if (!FORMATS.has(meta.format) || (meta.pages || 1) > 1) throw new Error('format');
-    if (!meta.width || !meta.height || meta.width * meta.height > MAX_PIXELS) throw new Error('size');
+    if (!meta.width || !meta.height || meta.width * meta.height > maxPixels) throw new Error('size');
     if (mask && meta.format !== 'png') throw new Error('mask');
     // Normalize orientation before dimensions are compared; strip metadata from provider input.
     const { data, info } = await image.rotate().toColourspace('srgb').ensureAlpha().raw().toBuffer({ resolveWithObject: true });
@@ -65,7 +65,7 @@ export async function readInput(event, needsMask) {
 }
 
 export async function compositeProtected(input, editedBuffer) {
-  const edited = await decodeImage(editedBuffer);
+  const edited = await decodeImage(editedBuffer, false, 9 * 1024 * 1024);
   // Gemini can return a native output resolution. Align an equivalent aspect ratio
   // to the original, but reject a materially different crop before compositing.
   const ratio = input.original.width / input.original.height;
@@ -153,8 +153,57 @@ export class GeminiImageProvider {
   async generateVariations(input) { return Promise.all([this.editImage(input), this.editImage(input, 1)]); }
 }
 
+// Muse edits reference images; the shared binary composite remains the final authority
+// over which pixels may change. Analysis continues to use Gemini independently.
+export class RunwareImageProvider {
+  constructor({ apiKey = process.env.RUNWARE_API_KEY, model = process.env.RUNWARE_IMAGE_MODEL || 'meta:muse@image', fetchImpl = fetch, analysisProvider = new GeminiImageProvider() } = {}) {
+    this.apiKey = apiKey; this.model = model; this.fetch = fetchImpl; this.analysisProvider = analysisProvider;
+  }
+  async editImage(input, variant = 0) {
+    if (!this.apiKey) throw new EditorError('Runware is not configured. Add RUNWARE_API_KEY on the server.', 503, 'RUNWARE_NOT_CONFIGURED');
+    const taskUUID = crypto.randomUUID();
+    let response, result;
+    try {
+      response = await this.fetch('https://api.runware.ai/v1', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiKey}` },
+        body: JSON.stringify([{
+          taskType: 'imageInference', taskUUID, model: this.model,
+          positivePrompt: `Edit the FIRST reference image. The SECOND reference is a binary selection mask: WHITE means editable, BLACK means protected. Apply this instruction only inside the white region: ${input.prompt}. Preserve all other subjects, text, logos, lighting and composition. Return the full image with the first reference's aspect ratio.${variant ? ' Create a distinct second interpretation.' : ''}`,
+          inputs: { referenceImages: [input.image, input.maskPng].map(image => `data:image/png;base64,${image.toString('base64')}`) },
+          // Explicitly pin shape to the original, not to the mask or a default square.
+          resolution: '2K', outputType: 'base64Data', outputFormat: 'PNG', numberResults: 1,
+          settings: { webSearch: false, imageSearch: false },
+        }]), signal: AbortSignal.timeout(90_000),
+      });
+      result = await response.json();
+    } catch { throw new EditorError('Runware did not return a usable response. Please try again.', 502, 'RUNWARE_FAILED'); }
+    const errors = Array.isArray(result?.errors) ? result.errors : [];
+    if (!response.ok || errors.length) {
+      const codes = errors.map(error => String(error.code || '').toLowerCase());
+      if (response.status === 401 || response.status === 403 || codes.some(code => /auth|apikey/.test(code))) throw new EditorError('Runware rejected the API key. The site owner must check the server configuration.', 503, 'RUNWARE_AUTH_FAILED');
+      if (response.status === 402 || codes.some(code => /credit|balance|fund/.test(code))) throw new EditorError('Runware credits are insufficient. Check the Runware account balance.', 402, 'RUNWARE_CREDITS');
+      if (response.status === 429 || codes.some(code => /ratelimit|toomany/.test(code))) throw new EditorError('Runware is limiting requests. Wait before trying again.', 429, 'RUNWARE_RATE_LIMITED');
+      throw new EditorError('Runware could not complete the image edit. Check model access and account configuration.', 502, 'RUNWARE_FAILED');
+    }
+    const image = result?.data?.find(item => item.taskUUID === taskUUID && item.taskType === 'imageInference');
+    const base64 = image?.imageBase64Data;
+    if (typeof base64 !== 'string' || !base64.length || base64.length > 12 * 1024 * 1024 || !/^[A-Za-z0-9+/]+={0,2}$/.test(base64)) throw new EditorError('Runware returned no usable image. Try a different instruction.', 502, 'RUNWARE_FAILED');
+    return Buffer.from(base64, 'base64');
+  }
+  analyzeImage(input) { return this.analysisProvider.analyzeImage(input); }
+  generateVariations(input) { return Promise.all([this.editImage(input), this.editImage(input, 1)]); }
+}
+
+export function imageProviderName() { return process.env.IMAGE_PROVIDER || (process.env.RUNWARE_API_KEY ? 'runware' : 'gemini'); }
+export function createImageProvider() {
+  const provider = imageProviderName();
+  if (provider === 'runware') return new RunwareImageProvider();
+  if (provider === 'gemini') return new GeminiImageProvider();
+  throw new EditorError('Unknown image provider. Check IMAGE_PROVIDER on the server.', 503, 'IMAGE_PROVIDER_INVALID');
+}
+
 // Provider factories can be replaced without changing the request/mask/compositing pipeline.
-export function makeEditorHandler(operation, providerFactory = () => new GeminiImageProvider()) {
+export function makeEditorHandler(operation, providerFactory = createImageProvider) {
   return async event => {
     try {
       if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: corsHeaders(event), body: '' };
@@ -165,7 +214,7 @@ export function makeEditorHandler(operation, providerFactory = () => new GeminiI
       optionalAppTokenCheck(event);
       rateLimit(clientIp(event), Number(process.env.IMAGE_RATE_LIMIT_PER_MINUTE || 5));
       const input = await readInput(event, operation !== 'analyze');
-      const provider = providerFactory();
+      const provider = operation === 'analyze' && providerFactory === createImageProvider ? new GeminiImageProvider() : providerFactory();
       if (operation === 'analyze') return json(200, { regions: await provider.analyzeImage(input) }, event);
       if (operation === 'variations' && input.count !== 2) throw new EditorError('Request exactly two variations.');
       const images = operation === 'variations' ? await provider.generateVariations(input) : [await provider.editImage(input)];
@@ -176,7 +225,7 @@ export function makeEditorHandler(operation, providerFactory = () => new GeminiI
     } catch (error) {
       const status = error.statusCode || 500;
       // Deliberately do not log or return provider bodies, errors, credentials or stack traces.
-      const code = ['RATE_LIMIT', 'GEMINI_QUOTA_EXCEEDED', 'GEMINI_RATE_LIMITED'].includes(error.code) ? error.code : undefined;
+      const code = ['RATE_LIMIT', 'GEMINI_QUOTA_EXCEEDED', 'GEMINI_RATE_LIMITED', 'RUNWARE_NOT_CONFIGURED', 'RUNWARE_AUTH_FAILED', 'RUNWARE_CREDITS', 'RUNWARE_RATE_LIMITED', 'RUNWARE_FAILED', 'IMAGE_PROVIDER_INVALID'].includes(error.code) ? error.code : undefined;
       return json(status, { code, error: error instanceof EditorError ? error.message : status === 429 ? 'Too many requests. Please wait a minute.' : status === 401 ? 'Unauthorized.' : 'Image editing failed. Please try again.' }, event);
     }
   };

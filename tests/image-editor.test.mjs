@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import sharp from 'sharp';
-import { compositeProtected, decodeImage, GeminiImageProvider, makeEditorHandler, readInput } from '../netlify/functions/_shared/image-editor.mjs';
+import { compositeProtected, decodeImage, GeminiImageProvider, RunwareImageProvider, createImageProvider, makeEditorHandler, readInput } from '../netlify/functions/_shared/image-editor.mjs';
 
 const size = { width: 4, height: 3, channels: 4 };
 async function image(color, dimensions = size) { return sharp({ create: { ...dimensions, background: color } }).png().toBuffer(); }
@@ -105,4 +105,61 @@ test('provider quota and throttling stay distinct from the local limiter without
     if(previous===undefined)delete process.env.IMAGE_RATE_LIMIT_PER_MINUTE;
     else process.env.IMAGE_RATE_LIMIT_PER_MINUTE=previous;
   }
+});
+
+
+test('Runware Muse sends references server-side and composites native 2K results without changing locked pixels', async () => {
+  const fields=await fixture();
+  const generated=await image('#40a0f0',{width:2048,height:1536,channels:4});
+  const tasks=[];
+  const provider=new RunwareImageProvider({apiKey:'private-runware-key',fetchImpl:async(url,options)=>{
+    assert.equal(url,'https://api.runware.ai/v1');
+    assert.equal(options.headers.Authorization,'Bearer private-runware-key');
+    const [task]=JSON.parse(options.body);tasks.push(task);
+    assert.equal(task.model,'meta:muse@image');assert.equal(task.resolution,'2K');
+    assert.equal(task.outputType,'base64Data');assert.equal(task.inputs.referenceImages.length,2);
+    assert.ok(task.inputs.referenceImages.every(src=>src.startsWith('data:image/png;base64,')));
+    assert.ok(!options.body.includes('private-runware-key'));
+    return Response.json({data:[{taskType:'imageInference',taskUUID:task.taskUUID,imageBase64Data:generated.toString('base64')}]});
+  }});
+  for(const operation of ['edit','variations']){
+    const response=await makeEditorHandler(operation,()=>provider)(await eventFor(fields));
+    assert.equal(response.statusCode,200);
+    const data=JSON.parse(response.body);assert.equal(data.images.length,operation==='edit'?1:2);
+    for(const src of data.images){
+      const result=await decodeImage(Buffer.from(src.split(',')[1],'base64'));
+      for(let p=0;p<12;p++)assert.deepEqual([...result.data.subarray(p*4,p*4+4)],[0,5].includes(p)?[64,160,240,255]:[18,52,86,255]);
+    }
+  }
+  assert.equal(new Set(tasks.map(task=>task.taskUUID)).size,3);
+});
+
+test('Runware errors are classified safely, including errors in HTTP 200 responses', async()=>{
+  for(const [status,body,code] of [
+    [401,{errors:[{code:'invalidApiKey',message:'private-provider-secret'}]},'RUNWARE_AUTH_FAILED'],
+    [200,{errors:[{code:'insufficientCredits',message:'private-provider-secret'}]},'RUNWARE_CREDITS'],
+    [429,{},'RUNWARE_RATE_LIMITED'],[400,{errors:[{code:'providerBadRequest'}]},'RUNWARE_FAILED'],
+    [200,{data:[]},'RUNWARE_FAILED'],[200,null,'RUNWARE_FAILED'],
+  ]){
+    const provider=new RunwareImageProvider({apiKey:'test',fetchImpl:async()=>Response.json(body,{status})});
+    const result=await makeEditorHandler('edit',()=>provider)(await eventFor(await fixture()));
+    assert.equal(JSON.parse(result.body).code,code);assert.ok(!result.body.includes('private-provider-secret'));
+  }
+  const missing=new RunwareImageProvider({apiKey:''});
+  assert.equal(JSON.parse((await makeEditorHandler('edit',()=>missing)(await eventFor(await fixture()))).body).code,'RUNWARE_NOT_CONFIGURED');
+  const broken=new RunwareImageProvider({apiKey:'test',fetchImpl:async()=>{throw new Error('private-secret');}});
+  assert.equal(JSON.parse((await makeEditorHandler('edit',()=>broken)(await eventFor(await fixture()))).body).code,'RUNWARE_FAILED');
+});
+
+test('provider selection and health report image editing separately from Gemini analysis',async()=>{
+  const names=['IMAGE_PROVIDER','RUNWARE_API_KEY','GEMINI_API_KEY'];const previous=Object.fromEntries(names.map(name=>[name,process.env[name]]));
+  try {
+    delete process.env.IMAGE_PROVIDER;process.env.RUNWARE_API_KEY='test';delete process.env.GEMINI_API_KEY;
+    assert.ok(createImageProvider() instanceof RunwareImageProvider);
+    const {handler}=await import('../netlify/functions/health.mjs');
+    const health=JSON.parse((await handler({httpMethod:'GET',headers:{}})).body);
+    assert.equal(health.imageProvider,'runware');assert.equal(health.imageEditing,true);assert.equal(health.imageAnalysis,false);assert.ok(!JSON.stringify(health).includes('test'));
+    process.env.IMAGE_PROVIDER='gemini';assert.ok(createImageProvider() instanceof GeminiImageProvider);
+    process.env.IMAGE_PROVIDER='invalid';assert.throws(()=>createImageProvider(),/Unknown image provider/);
+  } finally {for(const name of names){if(previous[name]===undefined)delete process.env[name];else process.env[name]=previous[name];}}
 });

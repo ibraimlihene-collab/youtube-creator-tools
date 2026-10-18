@@ -163,3 +163,20 @@ test('provider selection and health report image editing separately from Gemini 
     process.env.IMAGE_PROVIDER='invalid';assert.throws(()=>createImageProvider(),/Unknown image provider/);
   } finally {for(const name of names){if(previous[name]===undefined)delete process.env[name];else process.env[name]=previous[name];}}
 });
+
+
+test('default editing never falls back to Gemini when the Runware key is absent',async()=>{
+  const names=['IMAGE_PROVIDER','RUNWARE_API_KEY','GEMINI_API_KEY'];const previous=Object.fromEntries(names.map(name=>[name,process.env[name]]));
+  try {
+    delete process.env.IMAGE_PROVIDER;delete process.env.RUNWARE_API_KEY;process.env.GEMINI_API_KEY='configured-gemini-key';
+    assert.ok(createImageProvider() instanceof RunwareImageProvider);
+    const {handler}=await import('../netlify/functions/health.mjs');
+    const health=JSON.parse((await handler({httpMethod:'GET',headers:{}})).body);
+    assert.equal(health.imageProvider,'runware');assert.equal(health.imageEditing,false);assert.equal(health.imageAnalysis,true);
+    for(const operation of ['edit','variations']){
+      const response=await makeEditorHandler(operation)(await eventFor(await fixture()));
+      assert.equal(response.statusCode,503);assert.equal(JSON.parse(response.body).code,'RUNWARE_NOT_CONFIGURED');
+      assert.ok(!response.body.includes('Gemini'));
+    }
+  }finally{for(const name of names){if(previous[name]===undefined)delete process.env[name];else process.env[name]=previous[name];}}
+});

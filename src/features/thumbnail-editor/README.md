@@ -9,7 +9,7 @@ Open `/tools/thumbnail-editor`, or choose **Thumbnail AI Editor** from the studi
 
 Run `npm install`, then start the frontend with `npm run dev:app` and the API with `npm run dev:api` in separate terminals. Vite proxies `/api` to port 8888. Alternatively use Netlify CLI with `npm run dev`. Production uses the same handlers through the Netlify redirects.
 
-Set `RUNWARE_API_KEY` on the server for Meta Muse editing (see below). `GEMINI_API_KEY` enables region analysis and Gemini image editing when Runware is not selected. `GEMINI_IMAGE_MODEL` and `GEMINI_ANALYSIS_MODEL` are replaceable server settings. The Gemini image model defaults to `gemini-2.5-flash-image`, listed in Google's official documentation:
+Set `RUNWARE_API_KEY` on the server for Meta Muse editing (see below). `GEMINI_API_KEY` enables region analysis and optional Gemini image editing only when `IMAGE_PROVIDER=gemini` is explicitly set. `GEMINI_IMAGE_MODEL` and `GEMINI_ANALYSIS_MODEL` are replaceable server settings. The Gemini image model defaults to `gemini-2.5-flash-image`, listed in Google's official documentation:
 https://ai.google.dev/gemini-api/docs/image-generation
 
 Without a key the local editor and original export still work; AI operations return a clear 503 configuration message. The health endpoint returns configuration booleans, never credentials. In Lightsprint, persist variables in stack sandbox configuration and resync the environment. In Netlify, add them to the site's environment settings.
@@ -38,7 +38,7 @@ Live AI generation requires a configured fresh key, provider quota or credits an
 
 ## Runware / Meta Muse image editing
 
-Set `RUNWARE_API_KEY` on the server to select Runware automatically, or set `IMAGE_PROVIDER=runware` explicitly. `RUNWARE_IMAGE_MODEL` defaults to `meta:muse@image`. Keep these values in the hosting environment; no secret belongs in `VITE_*`, browser storage or source control. Durable Lightsprint environment updates require a workspace administrator. Existing Gemini-only deployments continue to work; `IMAGE_PROVIDER=gemini` explicitly selects Gemini.
+Runware is the default image-editing provider. Set `RUNWARE_API_KEY` on the server; `IMAGE_PROVIDER=runware` makes that choice explicit. An absent Runware key returns a configuration error and never falls back to Gemini. `RUNWARE_IMAGE_MODEL` defaults to `meta:muse@image`. Keep these values in the hosting environment; no secret belongs in `VITE_*`, browser storage or source control. Durable Lightsprint environment updates require a workspace administrator. Existing Gemini-only deployments must set `IMAGE_PROVIDER=gemini` to opt into Gemini image editing.
 
 Muse edits use Runware's `POST https://api.runware.ai/v1` REST API with Bearer authentication, unique task UUIDs, and `inputs.referenceImages` containing the original and effective binary mask. `resolution: "2K"` follows the reference aspect ratio. The response uses `imageBase64Data`, avoiding arbitrary output URL downloads. Generated native 2K images are decoded with a separate bounded pixel budget, aligned to the original, and passed through the same exact protected-pixel composite. Input upload limits are unchanged. Two variations make two billable requests. No automatic retry or paid-provider fallback occurs.
 

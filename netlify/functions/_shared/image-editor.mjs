@@ -194,7 +194,7 @@ export class RunwareImageProvider {
   generateVariations(input) { return Promise.all([this.editImage(input), this.editImage(input, 1)]); }
 }
 
-export function imageProviderName() { return process.env.IMAGE_PROVIDER || (process.env.RUNWARE_API_KEY ? 'runware' : 'gemini'); }
+export function imageProviderName() { return process.env.IMAGE_PROVIDER || 'runware'; }
 export function createImageProvider() {
   const provider = imageProviderName();
   if (provider === 'runware') return new RunwareImageProvider();

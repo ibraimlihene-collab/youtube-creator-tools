@@ -1,28 +1,53 @@
-# YouCreator — Thumbnail studio
+# YouCreator Tools
 
-A single-purpose YouTube thumbnail designer. Open the site, choose a style, add your words and optional photo, then download a 1280 × 720 PNG. No account, backend, or AI credentials are required.
+Professional AI platform for YouTube creators — **50 tools**, bilingual (EN/AR), privacy-first.
 
-## Features
+**Live:** [youtube-creator-tools.netlify.app](https://youtube-creator-tools.netlify.app/)
 
-- Three customizable styles with a live 16:9 canvas
-- Headline, supporting line, text size, color, and position controls
-- Local JPG, PNG, and WebP backgrounds (up to 10 MB and 40 megapixels)
-- Image crop and contrast controls
-- English/Arabic, RTL, light/dark themes, and responsive controls
-- Full-resolution PNG export
+## Security (read this)
 
-Images and edits stay in the current tab. Download before leaving; drafts are not persisted. The designer has no AI image generation or background removal.
+Provider API keys (**Gemini**, **Apify**, **Netlify**) are **server-only**:
 
-## Development
+1. Copy `.env.example` → `.env` (never commit `.env`)
+2. In Netlify: **Site settings → Environment variables** add:
+   - `GEMINI_API_KEY`
+   - `APIFY_TOKEN`
+   - `ALLOWED_ORIGINS` (your production domain)
+   - `RATE_LIMIT_PER_MINUTE` (e.g. `20`)
+3. The browser calls `/api/ai` and `/api/apify` only. Keys never ship to the client.
 
-```sh
+See [SECURITY.md](./SECURITY.md).
+
+> If you ever pasted keys in a chat or commit: **rotate them now**.
+
+## Stack
+
+- React 19 + TypeScript + Vite 7
+- Tailwind CSS 4 + DaisyUI 5
+- Netlify Functions (secure AI/Apify proxy)
+- FFmpeg.wasm (on-device silence remover)
+- Models: `gemini-3.1-flash-lite`, Gemma 4, Flash fallbacks
+
+## Develop
+
+```bash
 npm install
-npm run dev:app -- --host 0.0.0.0
+# optional: npm i -g netlify-cli
+cp .env.example .env   # fill secrets locally
+npm run dev            # netlify dev (functions + vite)
+# or frontend only:
+npm run dev:app
 ```
 
-Run checks with `bun run check`, tests with `bun run test`, and lint with `bun run lint`. Bun is required for the test runner. The repository contains legacy tools that are not routed or imported by the public app; legacy lint failures remain in those sources.
+## Build
 
-Production: `npm run build` publishes `dist` using Netlify's SPA fallback. The designer does not need the legacy functions or optional sound pack. Old app/tool URLs redirect to `/`.
+```bash
+npm run build
+```
+
+## Thumbnail Generator
+
+The AI **Thumbnail Generator** was **removed** by product decision. Use Thumbnail Downloader, Previewer, Text Ideas, and Color tools instead.
 
 ## License
 

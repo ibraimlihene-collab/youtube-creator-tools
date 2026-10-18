@@ -1,14 +1,11 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 @plugin "daisyui" {
-  themes:
-    light --default,
-    dark,
-    youtube --prefersdark;
+  themes: light --default, dark, youtube --prefersdark;
 }
 
 /* ─── YouTube-inspired brand theme ─── */
 @plugin "daisyui/theme" {
-  name: 'youtube';
+  name: "youtube";
   default: false;
   prefersdark: true;
   color-scheme: dark;
@@ -47,22 +44,12 @@
 
 /* ─── Fonts (loaded from index.html) ─── */
 html {
-  font-family:
-    'Inter',
-    'Noto Sans Arabic',
-    system-ui,
-    -apple-system,
-    sans-serif;
+  font-family: 'Inter', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif;
   scroll-behavior: smooth;
 }
 
 html[dir='rtl'] {
-  font-family:
-    'Noto Sans Arabic',
-    'Inter',
-    system-ui,
-    -apple-system,
-    sans-serif;
+  font-family: 'Noto Sans Arabic', 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 body {
@@ -243,36 +230,16 @@ body {
 
   .mesh-bg {
     background-image:
-      radial-gradient(
-        at 20% 20%,
-        color-mix(in oklab, var(--color-primary) 18%, transparent) 0px,
-        transparent 45%
-      ),
-      radial-gradient(
-        at 80% 10%,
-        color-mix(in oklab, var(--color-secondary) 14%, transparent) 0px,
-        transparent 40%
-      ),
-      radial-gradient(
-        at 50% 80%,
-        color-mix(in oklab, var(--color-primary) 10%, transparent) 0px,
-        transparent 45%
-      );
+      radial-gradient(at 20% 20%, color-mix(in oklab, var(--color-primary) 18%, transparent) 0px, transparent 45%),
+      radial-gradient(at 80% 10%, color-mix(in oklab, var(--color-secondary) 14%, transparent) 0px, transparent 40%),
+      radial-gradient(at 50% 80%, color-mix(in oklab, var(--color-primary) 10%, transparent) 0px, transparent 45%);
   }
 
   .grid-bg {
     background-size: 40px 40px;
     background-image:
-      linear-gradient(
-        to right,
-        color-mix(in oklab, var(--color-base-content) 4%, transparent) 1px,
-        transparent 1px
-      ),
-      linear-gradient(
-        to bottom,
-        color-mix(in oklab, var(--color-base-content) 4%, transparent) 1px,
-        transparent 1px
-      );
+      linear-gradient(to right, color-mix(in oklab, var(--color-base-content) 4%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklab, var(--color-base-content) 4%, transparent) 1px, transparent 1px);
   }
 }
 
@@ -288,12 +255,8 @@ body {
 }
 
 @keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* ─── Scrollbar ─── */
@@ -347,104 +310,4 @@ button:focus-visible {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-/* Thumbnail studio shared shell */
-[data-theme='light'] {
-  --color-base-100: #faf9f6;
-  --color-base-200: #ffffff;
-  --color-base-300: #e8e5df;
-  --color-base-content: #242824;
-  --color-primary: #cf4938;
-  --color-primary-content: #ffffff;
-  --color-accent: #267557;
-}
-.btn-brand {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  min-height: 2.75rem;
-  padding: 0.65rem 1.15rem;
-  border-radius: 0.7rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: none;
-}
-.btn-brand:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-size: 1.3rem;
-  font-weight: 800;
-  letter-spacing: -0.05em;
-}
-.brand-mark {
-  width: 35px;
-  height: 35px;
-  background: var(--color-primary);
-  color: white;
-  border-radius: 10px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.nav-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  padding: 9px;
-  font-size: 0.7rem;
-  border-radius: 8px;
-  cursor: pointer;
-}
-.nav-icon:hover {
-  background: var(--color-base-300);
-}
-.eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  font-size: 0.67rem;
-  font-weight: 700;
-  letter-spacing: 0.13em;
-  color: color-mix(in oklab, var(--color-base-content) 65%, transparent);
-}
-.status-dot {
-  background: var(--color-accent);
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-accent) 10%, transparent);
-}
-.skip-link {
-  position: fixed;
-  top: -100px;
-  inset-inline-start: 15px;
-  padding: 12px 20px;
-  background: var(--color-base-200);
-  border: 2px solid var(--color-primary);
-  border-radius: 8px;
-  z-index: 100;
-}
-.skip-link:focus {
-  top: 12px;
-}
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
 }

@@ -1,5 +1,5 @@
 [build]
-  command = "npm run build"
+  command = "npm run build && mkdir -p dist/sounds && cp -a public/sounds/. dist/sounds/"
   publish = "dist"
   functions = "netlify/functions"
 

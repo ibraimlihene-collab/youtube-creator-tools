@@ -1,4 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
+import { useApp } from '../context/AppContext';
 
 interface ToolCardProps {
   title: string;
@@ -15,11 +18,16 @@ const ToolCard: React.FC<ToolCardProps> = ({
   badge,
   children,
 }) => {
+  const { lang } = useApp();
   return (
     <div className="tool-panel animate-fade-in">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6 pb-5 border-b border-base-300">
+      <Link to="/app" className="tool-back-link">
+        <ArrowLeft size={14} className="directional-icon" />
+        {lang === 'ar' ? 'كل الأدوات' : 'All tools'}
+      </Link>
+      <div className="tool-panel-header flex flex-col sm:flex-row sm:items-center gap-4 border-b border-base-300">
         <div className="flex items-center gap-4 min-w-0">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary/25 to-primary/5 border border-primary/20 flex items-center justify-center shadow-inner shrink-0">
+          <div className="tool-panel-icon w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shrink-0">
             <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
           </div>
           <div className="min-w-0">
@@ -30,7 +38,7 @@ const ToolCard: React.FC<ToolCardProps> = ({
               {badge}
             </div>
             {description ? (
-              <p className="text-sm text-base-content/60 mt-1 line-clamp-2">
+              <p className="text-sm text-base-content/60 mt-2 leading-relaxed">
                 {description}
               </p>
             ) : null}

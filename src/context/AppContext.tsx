@@ -36,7 +36,7 @@ function resolveInitialTheme(): Theme {
   if (saved === 'light' || saved === 'dark' || saved === 'youtube') return saved;
   // Migrate legacy customDark → youtube
   if (saved === 'customDark') return 'youtube';
-  return 'youtube';
+  return 'light';
 }
 
 export function AppProvider({ children }: { children: React.ReactNode }) {

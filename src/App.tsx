@@ -7,12 +7,7 @@ import LandingPage from './pages/LandingPage';
 import ArticlesIndex from './pages/articles/ArticlesIndex';
 import ArticlePage from './pages/articles/ArticlePage';
 import DashboardPage from './pages/DashboardPage';
-import {
-  TOOLS,
-  TOOL_COUNT,
-  getToolById,
-  type ToolDef,
-} from './lib/tools';
+import { TOOLS, TOOL_COUNT, getToolById, type ToolDef } from './lib/tools';
 
 import ColorPaletteGenerator from './features/color-palette-generator/ColorPaletteGenerator';
 import CpmCalculator from './features/cpm-calculator/CpmCalculator';
@@ -84,53 +79,60 @@ function ToolPage({ id }: { id: string }) {
 
 function AppHub() {
   const { lang } = useApp();
+  const ar = lang === 'ar';
   return (
-    <div className="space-y-8 animate-fade-in">
-      <div className="mesh-bg rounded-3xl border border-base-300 p-6 sm:p-8">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-2">
-              {lang === 'ar' ? 'استوديو الصنّاع' : 'Creator studio'}
-            </p>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">
-              {lang === 'ar'
-                ? `${TOOL_COUNT} أداة احترافية لصنّاع يوتيوب`
-                : `${TOOL_COUNT} pro tools for YouTube creators`}
-            </h1>
-            <p className="text-base-content/65 max-w-2xl">
-              {lang === 'ar'
-                ? 'اختر أداة من الشريط الجانبي. أدوات الذكاء الاصطناعي تعمل عبر خادم آمن — المفاتيح لا تظهر في المتصفح.'
-                : 'Pick a tool from the sidebar. AI runs through a secure server proxy — keys never touch the browser.'}
-            </p>
-          </div>
-          <Link to="/dashboard" className="btn-brand btn-sm">
-            {lang === 'ar' ? 'لوحة التحكم' : 'Dashboard'}
-          </Link>
+    <div className="space-y-7 animate-fade-in" data-testid="tool-catalogue">
+      <div className="studio-welcome">
+        <div>
+          <p className="eyebrow">
+            {ar ? 'مساحتك الإبداعية' : 'WELCOME TO YOUR CREATIVE SPACE'}
+          </p>
+          <h1>{ar ? 'فكرة جديدة؟ لنبدأ.' : 'Big idea? Let’s get into it.'}</h1>
+          <p>
+            {ar
+              ? 'كل ما تحتاجه للخطوة التالية، من الكتابة والتصميم إلى آخر لمسة قبل النشر. اختر أداة وابدأ.'
+              : 'A little help for every part of your process, from the first draft to the finishing touches. Pick a tool and make it happen.'}
+          </p>
         </div>
       </div>
-
+      <div className="catalogue-heading">
+        <h2>
+          {ar ? `كل الأدوات (${TOOL_COUNT})` : `Your toolkit (${TOOL_COUNT})`}
+        </h2>
+        <span>
+          {ar
+            ? 'ابحث عن أداتك في القائمة الجانبية'
+            : 'Find a tool with the sidebar search'}
+        </span>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-        {TOOLS.map((tool) => {
+        {TOOLS.map((tool, index) => {
           const Icon = tool.icon;
           return (
-            <Link key={tool.id} to={tool.path} className="surface-card p-5 hover-lift group">
-              <div className="flex items-start gap-3">
-                <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
-                  <Icon className="w-5 h-5 text-primary" />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <h2 className="font-semibold truncate">{toolTitle(tool, lang)}</h2>
-                    {(tool.badge === 'ai' || tool.kind === 'ai') && (
-                      <span className="badge-ai text-[10px]">AI</span>
-                    )}
-                    {(tool.badge === 'local' || tool.kind === 'local') && (
-                      <span className="badge-local text-[10px]">Local</span>
-                    )}
-                    {tool.badge === 'new' && <span className="badge-ai text-[10px]">New</span>}
-                  </div>
-                  <p className="text-sm text-base-content/60 line-clamp-2">{toolDesc(tool, lang)}</p>
-                </div>
+            <Link
+              key={tool.id}
+              to={tool.path}
+              className={`surface-card catalogue-tool hover-lift tool-tone-${index % 4}`}
+            >
+              <div className="catalogue-card-top">
+                <span className="tool-icon">
+                  <Icon size={19} />
+                </span>
+                {(tool.badge === 'ai' || tool.kind === 'ai') && (
+                  <span className="badge-ai">AI</span>
+                )}
+                {(tool.badge === 'local' || tool.kind === 'local') && (
+                  <span className="badge-local">
+                    {ar ? 'على جهازك' : 'On device'}
+                  </span>
+                )}
+                {tool.badge === 'new' && (
+                  <span className="badge-ai">{ar ? 'جديد' : 'New'}</span>
+                )}
+              </div>
+              <div>
+                <h3>{toolTitle(tool, lang)}</h3>
+                <p>{toolDesc(tool, lang)}</p>
               </div>
             </Link>
           );
@@ -150,19 +152,56 @@ function AppRoutes() {
         <Route path="/app" element={<AppHub />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         {TOOLS.map((tool) => (
-          <Route key={tool.id} path={tool.path} element={<ToolPage id={tool.id} />} />
+          <Route
+            key={tool.id}
+            path={tool.path}
+            element={<ToolPage id={tool.id} />}
+          />
         ))}
-        <Route path="/silence-remover" element={<Navigate to="/tools/silence-remover" replace />} />
-        <Route path="/cpm-calculator" element={<Navigate to="/tools/cpm-calculator" replace />} />
-        <Route path="/thumbnail-downloader" element={<Navigate to="/tools/thumbnail-downloader" replace />} />
-        <Route path="/thumbnail-previewer" element={<Navigate to="/tools/thumbnail-previewer" replace />} />
-        <Route path="/hashtag-generator" element={<Navigate to="/tools/hashtag-generator" replace />} />
-        <Route path="/color-palette-generator" element={<Navigate to="/tools/color-palette" replace />} />
-        <Route path="/thumbnail-generator" element={<Navigate to="/app" replace />} />
-        <Route path="/video-rephraser" element={<Navigate to="/tools/video-rephraser" replace />} />
-        <Route path="/script-writer" element={<Navigate to="/tools/script-writer" replace />} />
-        <Route path="/description-generator" element={<Navigate to="/tools/description-generator" replace />} />
-        <Route path="/title-generator" element={<Navigate to="/tools/title-generator" replace />} />
+        <Route
+          path="/silence-remover"
+          element={<Navigate to="/tools/silence-remover" replace />}
+        />
+        <Route
+          path="/cpm-calculator"
+          element={<Navigate to="/tools/cpm-calculator" replace />}
+        />
+        <Route
+          path="/thumbnail-downloader"
+          element={<Navigate to="/tools/thumbnail-downloader" replace />}
+        />
+        <Route
+          path="/thumbnail-previewer"
+          element={<Navigate to="/tools/thumbnail-previewer" replace />}
+        />
+        <Route
+          path="/hashtag-generator"
+          element={<Navigate to="/tools/hashtag-generator" replace />}
+        />
+        <Route
+          path="/color-palette-generator"
+          element={<Navigate to="/tools/color-palette" replace />}
+        />
+        <Route
+          path="/thumbnail-generator"
+          element={<Navigate to="/app" replace />}
+        />
+        <Route
+          path="/video-rephraser"
+          element={<Navigate to="/tools/video-rephraser" replace />}
+        />
+        <Route
+          path="/script-writer"
+          element={<Navigate to="/tools/script-writer" replace />}
+        />
+        <Route
+          path="/description-generator"
+          element={<Navigate to="/tools/description-generator" replace />}
+        />
+        <Route
+          path="/title-generator"
+          element={<Navigate to="/tools/title-generator" replace />}
+        />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

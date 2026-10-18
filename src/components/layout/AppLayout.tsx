@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
   Github,
@@ -13,9 +13,16 @@ import {
   Home,
   LayoutDashboard,
   BookOpen,
+  Youtube,
+  ArrowUpRight,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { TOOLS, CATEGORY_META, ALL_CATEGORIES, TOOL_COUNT } from '../../lib/tools';
+import {
+  TOOLS,
+  CATEGORY_META,
+  ALL_CATEGORIES,
+  TOOL_COUNT,
+} from '../../lib/tools';
 
 const AppLayout: React.FC = () => {
   const { theme, toggleTheme, toggleLang, lang } = useApp();
@@ -23,6 +30,28 @@ const AppLayout: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [query, setQuery] = useState('');
+  const mobileDialog = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    const dialog = mobileDialog.current;
+    if (!dialog) return;
+    if (!mobileOpen) {
+      dialog.close();
+      return;
+    }
+    dialog.showModal();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const closeOnDesktop = () => {
+      if (window.innerWidth >= 1024) setMobileOpen(false);
+    };
+    window.addEventListener('resize', closeOnDesktop);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('resize', closeOnDesktop);
+      dialog.close();
+    };
+  }, [mobileOpen]);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -34,7 +63,9 @@ const AppLayout: React.FC = () => {
       const items = TOOLS.filter((tool) => {
         if (tool.category !== cat) return false;
         if (!q) return true;
-        const title = (lang === 'ar' ? tool.titleAr : tool.titleEn).toLowerCase();
+        const title = (
+          lang === 'ar' ? tool.titleAr : tool.titleEn
+        ).toLowerCase();
         return title.includes(q) || tool.id.toLowerCase().includes(q);
       });
       return { cat, items };
@@ -48,16 +79,9 @@ const AppLayout: React.FC = () => {
     <div className="flex flex-col h-full">
       <div className="flex items-center gap-3 px-4 py-5 border-b border-base-300">
         <Link to="/" className="flex items-center gap-3 min-w-0 group">
-          <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md ring-1 ring-base-300 shrink-0 bg-primary flex items-center justify-center">
-            <img
-              src="/assets/youtube-creator-icon.png"
-              alt="YouCreator Tools"
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
-            />
-          </div>
+          <span className="logo-symbol shrink-0">
+            <Youtube size={23} />
+          </span>
           {!collapsed && (
             <div className="min-w-0">
               <div className="font-bold text-base truncate group-hover:text-primary transition-colors">
@@ -73,15 +97,20 @@ const AppLayout: React.FC = () => {
           type="button"
           className="btn btn-ghost btn-sm btn-circle ms-auto hidden lg:inline-flex"
           onClick={() => setCollapsed((c) => !c)}
-          aria-label="Toggle sidebar"
+          aria-label={lang === 'ar' ? 'طي أو توسيع القائمة' : 'Toggle sidebar'}
+          aria-expanded={!collapsed}
         >
-          {collapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+          {collapsed ? (
+            <PanelLeftOpen className="w-4 h-4" />
+          ) : (
+            <PanelLeftClose className="w-4 h-4" />
+          )}
         </button>
         <button
           type="button"
           className="btn btn-ghost btn-sm btn-circle ms-auto lg:hidden"
           onClick={() => setMobileOpen(false)}
-          aria-label="Close menu"
+          aria-label={lang === 'ar' ? 'إغلاق القائمة' : 'Close menu'}
         >
           <X className="w-4 h-4" />
         </button>
@@ -93,6 +122,7 @@ const AppLayout: React.FC = () => {
             <Search className="w-4 h-4 opacity-50" />
             <input
               type="search"
+              aria-label={lang === 'ar' ? 'ابحث عن أداة' : 'Search tools'}
               className="grow bg-transparent outline-none"
               placeholder={lang === 'ar' ? 'ابحث عن أداة…' : 'Search tools…'}
               value={query}
@@ -102,9 +132,13 @@ const AppLayout: React.FC = () => {
         </div>
       )}
 
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
+      <nav
+        aria-label={lang === 'ar' ? 'قائمة الأدوات' : 'Tool navigation'}
+        className="flex-1 overflow-y-auto px-3 py-4 space-y-5"
+      >
         <Link
           to="/app"
+          aria-label={lang === 'ar' ? 'الاستوديو' : 'Studio'}
           className={`sidebar-link ${location.pathname === '/app' ? 'sidebar-link-active' : 'sidebar-link-idle'}`}
         >
           <Home className="w-4 h-4 shrink-0" />
@@ -112,19 +146,30 @@ const AppLayout: React.FC = () => {
         </Link>
         <Link
           to="/dashboard"
+          aria-label={lang === 'ar' ? 'لوحة التحكم' : 'Dashboard'}
           className={`sidebar-link ${location.pathname === '/dashboard' ? 'sidebar-link-active' : 'sidebar-link-idle'}`}
         >
           <LayoutDashboard className="w-4 h-4 shrink-0" />
-          {!collapsed && <span>{lang === 'ar' ? 'لوحة التحكم' : 'Dashboard'}</span>}
+          {!collapsed && (
+            <span>{lang === 'ar' ? 'لوحة التحكم' : 'Dashboard'}</span>
+          )}
         </Link>
         <Link
           to="/articles"
+          aria-label={lang === 'ar' ? 'المقالات' : 'Articles'}
           className={`sidebar-link ${location.pathname.startsWith('/articles') ? 'sidebar-link-active' : 'sidebar-link-idle'}`}
         >
           <BookOpen className="w-4 h-4 shrink-0" />
           {!collapsed && <span>{lang === 'ar' ? 'المقالات' : 'Articles'}</span>}
         </Link>
 
+        {!grouped.length && !collapsed && (
+          <p className="search-empty" role="status">
+            {lang === 'ar'
+              ? 'لا توجد أداة بهذا الاسم. جرّب كلمة أخرى.'
+              : 'No tools found. Try another name.'}
+          </p>
+        )}
         {grouped.map(({ cat, items }) => {
           const CatIcon = CATEGORY_META[cat].icon;
           return (
@@ -151,12 +196,17 @@ const AppLayout: React.FC = () => {
                         <Icon className="w-4 h-4 shrink-0" />
                         {!collapsed && (
                           <>
-                            <span className="truncate flex-1 text-start">{title}</span>
+                            <span className="truncate flex-1 text-start">
+                              {title}
+                            </span>
                             {(tool.badge === 'ai' || tool.kind === 'ai') && (
                               <span className="badge-ai text-[10px]">AI</span>
                             )}
-                            {(tool.badge === 'local' || tool.kind === 'local') && (
-                              <span className="badge-local text-[10px]">Local</span>
+                            {(tool.badge === 'local' ||
+                              tool.kind === 'local') && (
+                              <span className="badge-local text-[10px]">
+                                Local
+                              </span>
                             )}
                           </>
                         )}
@@ -171,7 +221,9 @@ const AppLayout: React.FC = () => {
       </nav>
 
       <div className="border-t border-base-300 p-3 space-y-2">
-        <div className={`flex ${collapsed ? 'flex-col' : 'flex-row'} items-center justify-center gap-1`}>
+        <div
+          className={`flex ${collapsed ? 'flex-col' : 'flex-row'} items-center justify-center gap-1`}
+        >
           <a
             href="https://github.com/ibraimlihene-collab/youtube-creator-tools"
             target="_blank"
@@ -185,15 +237,21 @@ const AppLayout: React.FC = () => {
             type="button"
             onClick={toggleTheme}
             className="btn btn-ghost btn-sm btn-circle"
-            title="Theme"
+            aria-label={lang === 'ar' ? 'تغيير المظهر' : 'Change theme'}
           >
-            {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+            {theme === 'light' ? (
+              <Moon className="w-4 h-4" />
+            ) : (
+              <Sun className="w-4 h-4" />
+            )}
           </button>
           <button
             type="button"
             onClick={toggleLang}
             className="btn btn-ghost btn-sm btn-circle"
-            title={lang === 'ar' ? 'English' : 'العربية'}
+            aria-label={
+              lang === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'
+            }
           >
             <Languages className="w-4 h-4" />
           </button>
@@ -201,8 +259,8 @@ const AppLayout: React.FC = () => {
         {!collapsed && (
           <p className="text-[10px] text-center text-base-content/40 px-2">
             {lang === 'ar'
-              ? '🔒 مفاتيح API على الخادم فقط'
-              : '🔒 API keys server-side only'}
+              ? 'صُنع بشغف لصنّاع المحتوى'
+              : 'A little help. A lot more creating.'}
           </p>
         )}
       </div>
@@ -210,37 +268,66 @@ const AppLayout: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-base-100 text-base-content flex">
+    <div className="studio-shell min-h-screen text-base-content flex">
+      <a className="skip-link" href="#studio-content">
+        {lang === 'ar' ? 'انتقل للمحتوى' : 'Skip to content'}
+      </a>
       <aside
-        className={`hidden lg:flex flex-col border-e border-base-300 bg-base-200/60 backdrop-blur-xl sticky top-0 h-screen transition-all duration-200 ${
+        className={`studio-sidebar hidden lg:flex flex-col border-e border-base-300 bg-base-200/60 backdrop-blur-xl sticky top-0 h-screen transition-all duration-200 ${
           collapsed ? 'w-[72px]' : 'w-72'
         }`}
       >
         {SidebarContent}
       </aside>
 
-      {mobileOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 flex">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
-          <aside className="relative w-80 max-w-[85vw] h-full bg-base-200 border-e border-base-300 flex flex-col z-10">
-            {SidebarContent}
-          </aside>
-        </div>
-      )}
+      <dialog
+        ref={mobileDialog}
+        className="studio-mobile-dialog"
+        aria-label={lang === 'ar' ? 'قائمة الأدوات' : 'Tool menu'}
+        onClose={() => setMobileOpen(false)}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) setMobileOpen(false);
+        }}
+      >
+        <aside className="studio-sidebar relative w-80 max-w-[85vw] h-full border-e border-base-300 flex flex-col">
+          {SidebarContent}
+        </aside>
+      </dialog>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="lg:hidden sticky top-0 z-30 flex items-center gap-3 px-3 py-3 border-b border-base-300 bg-base-100/90 backdrop-blur-xl">
+        <header className="studio-mobile-header lg:hidden sticky top-0 z-30 flex items-center gap-3 px-3 py-3 border-b border-base-300 bg-base-100/90 backdrop-blur-xl">
           <button
             type="button"
             className="btn btn-ghost btn-sm btn-circle"
-            onClick={() => setMobileOpen(true)}
-            aria-label="Open menu"
+            onClick={() => {
+              setCollapsed(false);
+              setMobileOpen(true);
+            }}
+            aria-label={lang === 'ar' ? 'فتح القائمة' : 'Open menu'}
+            aria-haspopup="dialog"
+            aria-expanded={mobileOpen}
+            data-testid="open-menu"
           >
             <Menu className="w-5 h-5" />
           </button>
           <span className="font-bold truncate">YouCreator Tools</span>
         </header>
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl w-full mx-auto">
+        <div className="studio-topbar">
+          <span>
+            <span className="logo-dot">✳</span>
+            {lang === 'ar'
+              ? 'مساحة للأفكار الكبيرة'
+              : 'A space for your next big idea'}
+          </span>
+          <Link to="/articles">
+            {lang === 'ar' ? 'قليل من الإلهام' : 'A little inspiration'}
+            <ArrowUpRight size={14} className="directional-icon" />
+          </Link>
+        </div>
+        <main
+          id="studio-content"
+          className="studio-main flex-1 max-w-6xl w-full mx-auto"
+        >
           <Outlet />
         </main>
       </div>

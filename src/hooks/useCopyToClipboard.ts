@@ -27,9 +27,8 @@ export function useCopyToClipboard(resetMs = 2000) {
           ta.style.left = '-9999px';
           document.body.appendChild(ta);
           ta.select();
-          const succeeded = document.execCommand('copy');
+          document.execCommand('copy');
           document.body.removeChild(ta);
-          if (!succeeded) return false;
           setCopied(true);
           setCopiedKey(key ?? null);
           window.setTimeout(() => {

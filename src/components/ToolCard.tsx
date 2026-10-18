@@ -1,7 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import { useApp } from '../context/AppContext';
 
 interface ToolCardProps {
   title: string;
@@ -11,14 +8,15 @@ interface ToolCardProps {
   children: React.ReactNode;
 }
 
-const ToolCard: React.FC<ToolCardProps> = ({ title, icon: Icon, description, badge, children }) => {
-  const { lang } = useApp();
+const ToolCard: React.FC<ToolCardProps> = ({
+  title,
+  icon: Icon,
+  description,
+  badge,
+  children,
+}) => {
   return (
     <div className="tool-panel animate-fade-in">
-      <Link to="/app" className="text-link mb-6 text-base-content/60">
-        <ArrowLeft size={15} />
-        {lang === 'ar' ? 'كل الأدوات' : 'All tools'}
-      </Link>
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6 pb-5 border-b border-base-300">
         <div className="flex items-center gap-4 min-w-0">
           <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary/25 to-primary/5 border border-primary/20 flex items-center justify-center shadow-inner shrink-0">
@@ -26,11 +24,15 @@ const ToolCard: React.FC<ToolCardProps> = ({ title, icon: Icon, description, bad
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">{title}</h1>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight truncate">
+                {title}
+              </h1>
               {badge}
             </div>
             {description ? (
-              <p className="text-sm text-base-content/60 mt-1 leading-relaxed">{description}</p>
+              <p className="text-sm text-base-content/60 mt-1 line-clamp-2">
+                {description}
+              </p>
             ) : null}
           </div>
         </div>

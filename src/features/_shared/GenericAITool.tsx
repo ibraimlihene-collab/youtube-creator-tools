@@ -29,7 +29,7 @@ export default function GenericAITool({ tool }: { tool: ToolDef }) {
   const { data, rawText, isLoading, error, model, generate, reset } = useSecureAI();
 
   const missing = fields.filter(
-    (f) => f.required === true && f.type !== 'select' && !String(values[f.name] || '').trim()
+    (f) => f.required !== false && f.type !== 'select' && !String(values[f.name] || '').trim()
   );
 
   const detectedId = useMemo(() => {
@@ -62,20 +62,12 @@ export default function GenericAITool({ tool }: { tool: ToolDef }) {
   const listItems = data?.type === 'list' ? data.items : null;
 
   return (
-    <form
-      className="space-y-5"
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (!isLoading) void onGenerate();
-      }}
-    >
-      <div className="rounded-xl bg-primary/5 border border-primary/10 p-4">
-        <p className="text-sm leading-relaxed text-base-content/70">
-          {lang === 'ar'
-            ? 'ابدأ بتفاصيل واضحة عن فكرتك. أضف جمهورك والكلمات المفتاحية لتحصل على نتائج أفضل، ثم راجع النتيجة قبل النشر.'
-            : 'Start with a specific idea. Add your audience and keywords for better results, then review and make the output your own before publishing.'}
-        </p>
-      </div>
+    <div className="space-y-5">
+            <p className="text-xs text-base-content/50">
+        {lang === 'ar'
+          ? 'اختياري: الصق رابط يوتيوب في أي حقل. التوليد على الخادم.'
+          : 'Optional: paste a YouTube link. Generation runs on the server.'}
+      </p>
 
       {detectedId && (
         <div className="flex items-center gap-2 text-xs text-success font-mono" dir="ltr">
@@ -90,19 +82,8 @@ export default function GenericAITool({ tool }: { tool: ToolDef }) {
           const showPaste = f.type === 'text' || f.type === 'textarea';
           return (
             <div key={f.name} className={`form-control ${span}`}>
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <label htmlFor={`field-${f.name}`} className="text-sm font-medium">
-                  {fieldLabel(f, lang)}{' '}
-                  <span className="text-xs font-normal text-base-content/50">
-                    {f.required
-                      ? lang === 'ar'
-                        ? '* مطلوب'
-                        : '* required'
-                      : lang === 'ar'
-                        ? 'اختياري'
-                        : 'optional'}
-                  </span>
-                </label>
+              <label className="label py-1 justify-between gap-2">
+                <span className="label-text font-medium">{fieldLabel(f, lang)}</span>
                 {showPaste && (
                   <button
                     type="button"
@@ -113,12 +94,9 @@ export default function GenericAITool({ tool }: { tool: ToolDef }) {
                     {lang === 'ar' ? 'لصق' : 'Paste'}
                   </button>
                 )}
-              </div>
+              </label>
               {f.type === 'textarea' ? (
                 <textarea
-                  id={`field-${f.name}`}
-                  required={f.required}
-                  disabled={isLoading}
                   className="textarea-modern min-h-[140px]"
                   rows={f.rows || 6}
                   value={values[f.name] || ''}
@@ -127,9 +105,6 @@ export default function GenericAITool({ tool }: { tool: ToolDef }) {
                 />
               ) : f.type === 'select' ? (
                 <select
-                  id={`field-${f.name}`}
-                  required={f.required}
-                  disabled={isLoading}
                   className="select-modern"
                   value={values[f.name] || ''}
                   onChange={(e) => setValues((v) => ({ ...v, [f.name]: e.target.value }))}
@@ -142,14 +117,14 @@ export default function GenericAITool({ tool }: { tool: ToolDef }) {
                 </select>
               ) : (
                 <input
-                  id={`field-${f.name}`}
-                  required={f.required}
-                  disabled={isLoading}
                   type={f.type === 'number' ? 'number' : 'text'}
                   className="input-modern"
                   value={values[f.name] || ''}
                   placeholder={fieldPh(f, lang)}
                   onChange={(e) => setValues((v) => ({ ...v, [f.name]: e.target.value }))}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !isLoading && !missing.length) onGenerate();
+                  }}
                 />
               )}
             </div>
@@ -157,18 +132,12 @@ export default function GenericAITool({ tool }: { tool: ToolDef }) {
         })}
       </div>
 
-      {missing.length > 0 && (
-        <p className="text-xs text-base-content/60">
-          {lang === 'ar'
-            ? 'أكمل الحقول المطلوبة للبدء.'
-            : 'Complete the required fields to get started.'}
-        </p>
-      )}
       <div className="flex flex-wrap gap-2">
         <button
-          type="submit"
+          type="button"
           className="btn-brand gap-2"
           disabled={isLoading || missing.length > 0}
+          onClick={onGenerate}
         >
           {isLoading ? (
             <>
@@ -196,33 +165,14 @@ export default function GenericAITool({ tool }: { tool: ToolDef }) {
       </div>
 
       {error && (
-        <div className="alert alert-error text-sm" role="alert">
+        <div className="alert alert-error text-sm">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
-      {!listItems && !rawText && !error && (
-        <div className="empty-state" role="status">
-          <Sparkles size={26} />
-          <h3>
-            {isLoading
-              ? lang === 'ar'
-                ? 'جاري العمل على فكرتك…'
-                : 'Working on your idea…'
-              : lang === 'ar'
-                ? 'فكرتك تبدأ هنا'
-                : 'Your next idea starts here'}
-          </h3>
-          <p>
-            {lang === 'ar'
-              ? 'ستظهر النتائج هنا، جاهزة للمراجعة والنسخ.'
-              : 'Your results will appear here, ready to review and copy.'}
-          </p>
-        </div>
-      )}
       {(listItems || rawText) && (
-        <div className="surface-card p-4 sm:p-5 space-y-3" aria-live="polite">
+        <div className="surface-card p-4 sm:p-5 space-y-3">
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <div>
               <h3 className="text-lg font-bold">{lang === 'ar' ? 'النتيجة' : 'Result'}</h3>
@@ -247,12 +197,7 @@ export default function GenericAITool({ tool }: { tool: ToolDef }) {
                   className="flex items-start justify-between gap-3 rounded-xl border border-base-300 bg-base-100/60 px-3 py-2.5"
                 >
                   <span className="text-sm leading-relaxed">{item}</span>
-                  <CopyButton
-                    text={item}
-                    label=""
-                    copiedLabel="✓"
-                    className="btn btn-ghost btn-xs shrink-0"
-                  />
+                  <CopyButton text={item} label="" copiedLabel="✓" className="btn btn-ghost btn-xs shrink-0" />
                 </li>
               ))}
             </ul>
@@ -263,6 +208,6 @@ export default function GenericAITool({ tool }: { tool: ToolDef }) {
           )}
         </div>
       )}
-    </form>
+    </div>
   );
 }

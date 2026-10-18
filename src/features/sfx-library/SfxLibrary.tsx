@@ -95,12 +95,13 @@ export default function SfxLibrary() {
       };
       await audio.play();
       setPlaying(id);
-    } catch {
+    } catch (e) {
       setPlaying(null);
+      const msg = e instanceof Error ? e.message : 'error';
       setError(
         lang === 'ar'
-          ? 'هذا المؤثر غير متاح حالياً. قد تكون ملفات مكتبة الأصوات مفقودة. جرّب مؤثراً آخر.'
-          : 'This sound is unavailable. The sound library files may be missing. Try another sound.'
+          ? `تعذّر التحميل/التشغيل (${msg}). حدّث الصفحة بقوة Ctrl+Shift+R`
+          : `Could not load/play (${msg}). Hard-refresh Ctrl+Shift+R`
       );
     } finally {
       setLoadingId(null);
@@ -149,7 +150,7 @@ export default function SfxLibrary() {
       </div>
 
       {error && (
-        <div className="alert alert-warning text-sm py-2" role="alert">
+        <div className="alert alert-warning text-sm py-2">
           <span>{error}</span>
         </div>
       )}

@@ -1,4 +1,7 @@
 /api/ai      /.netlify/functions/ai      200!
 /api/apify   /.netlify/functions/apify   200!
 /api/health  /.netlify/functions/health  200!
+/api/edit       /.netlify/functions/edit       200!
+/api/analyze    /.netlify/functions/analyze    200!
+/api/variations /.netlify/functions/variations 200!
 /*           /index.html                 200

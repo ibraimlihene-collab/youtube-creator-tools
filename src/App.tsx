@@ -22,6 +22,7 @@ import ThumbnailDownloader from './features/thumbnail-downloader/ThumbnailDownlo
 import ThumbnailPreviewer from './features/thumbnail-previewer/ThumbnailPreviewer';
 import GenericAITool from './features/_shared/GenericAITool';
 import SfxLibrary from './features/sfx-library/SfxLibrary';
+import ThumbnailEditor from './features/thumbnail-editor/ThumbnailEditor';
 
 function toolTitle(tool: ToolDef, lang: 'ar' | 'en') {
   return lang === 'ar' ? tool.titleAr : tool.titleEn;
@@ -144,12 +145,13 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/tools/thumbnail-editor" element={<ThumbnailEditor />} />
       <Route path="/articles" element={<ArticlesIndex />} />
       <Route path="/articles/:slug" element={<ArticlePage />} />
       <Route element={<AppLayout />}>
         <Route path="/app" element={<AppHub />} />
         <Route path="/dashboard" element={<DashboardPage />} />
-        {TOOLS.map((tool) => (
+        {TOOLS.filter(tool => tool.id !== 'thumbnailEditor').map((tool) => (
           <Route key={tool.id} path={tool.path} element={<ToolPage id={tool.id} />} />
         ))}
         <Route path="/silence-remover" element={<Navigate to="/tools/silence-remover" replace />} />

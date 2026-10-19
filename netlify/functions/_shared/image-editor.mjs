@@ -37,21 +37,22 @@ export async function readInput(event, needsMask) {
   const input = { original, image, prompt: '', selectionMode: 'brush' };
   if (!needsMask) return input;
   input.editMode = String(form.get('editMode') || 'selective');
-  if (!['selective', 'face'].includes(input.editMode)) throw new EditorError('Invalid editing mode.');
+  if (input.editMode === 'face') input.editMode = 'person'; // Compatibility with previously loaded editors.
+  if (!['selective', 'person'].includes(input.editMode)) throw new EditorError('Invalid editing mode.');
   input.prompt = String(form.get('prompt') || '').trim();
-  if (input.editMode === 'face' && !input.prompt) input.prompt = 'Replace the selected face with the person in the face reference photo.';
+  if (input.editMode === 'person' && !input.prompt) input.prompt = 'Replace the entire selected person with the person in the identity reference photo, with a consistent head, hair and body.';
   input.selectionMode = String(form.get('selectionMode') || 'brush');
   if (!input.prompt || input.prompt.length > 2000) throw new EditorError('Write an editing instruction between 1 and 2000 characters.');
   if (!MODES.has(input.selectionMode)) throw new EditorError('Invalid selection mode.');
   const reference = form.get('referenceImage');
-  if (input.editMode === 'face') {
-    if (!reference || typeof reference === 'string' || !reference.size) throw new EditorError('Upload a face reference photo first.', 400, 'REFERENCE_REQUIRED');
-    if (reference.size > 2 * 1024 * 1024) throw new EditorError('Use a face reference smaller than 2 MB.', 400, 'REFERENCE_INVALID');
+  if (input.editMode === 'person') {
+    if (!reference || typeof reference === 'string' || !reference.size) throw new EditorError('Upload an identity reference photo first.', 400, 'REFERENCE_REQUIRED');
+    if (reference.size > 2 * 1024 * 1024) throw new EditorError('Use an identity reference smaller than 2 MB.', 400, 'REFERENCE_INVALID');
     let decoded;
     try { decoded = await decodeImage(Buffer.from(await reference.arrayBuffer())); }
-    catch { throw new EditorError('Use a valid PNG, JPEG or WebP face reference up to 1920 × 1080 pixels.', 400, 'REFERENCE_INVALID'); }
+    catch { throw new EditorError('Use a valid PNG, JPEG or WebP identity reference up to 1920 × 1080 pixels.', 400, 'REFERENCE_INVALID'); }
     input.referenceImage = await sharp(decoded.data, { raw: decoded }).png().toBuffer();
-  } else if (reference) throw new EditorError('Choose face replacement mode to use a face reference.', 400, 'REFERENCE_INVALID');
+  } else if (reference) throw new EditorError('Choose person replacement mode to use an identity reference.', 400, 'REFERENCE_INVALID');
   for (const name of ['mask', 'protectedMask']) {
     const f = form.get(name);
     if (!f && name === 'protectedMask') continue;
@@ -92,9 +93,9 @@ export async function compositeProtected(input, editedBuffer) {
   return sharp(output, { raw: input.original }).png({ compressionLevel: 9 }).toBuffer();
 }
 
-function faceReferenceInstruction(input) {
-  return input.editMode === 'face'
-    ? '\nThe THIRD image is the identity reference photo, not an image to edit. Replace only the selected face in the FIRST image with the person from the THIRD image. Preserve the reference identity and recognizable facial features, while matching the target head angle, expression, skin lighting and image style. Keep the target hairstyle, clothes, body and background unless they are explicitly selected and requested. Never copy the reference background or the mask into the result. Blend naturally inside the editable mask.'
+function personReferenceInstruction(input) {
+  return input.editMode === 'person'
+    ? '\nThe THIRD image is the identity reference photo, not an image to edit. Replace the ENTIRE selected person in the FIRST image with the person from the THIRD image. This is a whole-person replacement, not a face swap or a blend of two people. Use the reference identity consistently for the face, head, hairstyle, skin tone, neck, visible body and hands. Do not attach the reference head to the original person’s body or retain the original body shape or gender presentation when it conflicts with the reference. Use visible body proportions and clothing from the reference where available; if the reference is only a portrait, generate a plausible consistent body without claiming exact unseen details. Preserve the target position, pose, camera perspective, scene lighting and image style. Fit the replacement naturally within the selected silhouette. Preserve background, other people, text and logos. Never copy the reference background or the mask into the result. Edit only the white selection; never change black or locked pixels.'
     : '';
 }
 
@@ -130,7 +131,7 @@ export class GeminiImageProvider {
     try { return await response.json(); } catch { throw new EditorError('The AI service returned an invalid response.', 502); }
   }
   async editImage(input, variant = 0) {
-    const instruction = `Selectively edit this original thumbnail. The second image is the exact binary mask: WHITE = editable, BLACK = protected.\nUser request: ${input.prompt}\nEdit only the white region. Preserve text, logos, background and unrelated objects outside that region. Preserve the exact ${input.original.width} x ${input.original.height} dimensions, crop and composition. Match lighting, perspective, shadows and style. Return the full edited image.${faceReferenceInstruction(input)}${variant ? '\nCreate a second distinct interpretation of the same request inside the same mask.' : ''}`;
+    const instruction = `Selectively edit this original thumbnail. The second image is the exact binary mask: WHITE = editable, BLACK = protected.\nUser request: ${input.prompt}\nEdit only the white region. Preserve text, logos, background and unrelated objects outside that region. Preserve the exact ${input.original.width} x ${input.original.height} dimensions, crop and composition. Match lighting, perspective, shadows and style. Return the full edited image.${personReferenceInstruction(input)}${variant ? '\nCreate a second distinct interpretation of the same request inside the same mask.' : ''}`;
     const result = await this.request(this.imageModel, [
       { text: instruction }, { inlineData: { mimeType: 'image/png', data: input.image.toString('base64') } },
       { inlineData: { mimeType: 'image/png', data: input.maskPng.toString('base64') } },
@@ -190,7 +191,7 @@ export class RunwareImageProvider {
         method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiKey}` },
         body: JSON.stringify([{
           taskType: 'imageInference', taskUUID, model: this.model,
-          positivePrompt: `Edit the FIRST reference image. The SECOND reference is a binary selection mask: WHITE means editable, BLACK means protected. Apply this instruction only inside the white region: ${input.prompt}. Preserve all other subjects, text, logos, lighting and composition. Return the full image with the first reference's aspect ratio.${faceReferenceInstruction(input)}${variant ? ' Create a distinct second interpretation.' : ''}`,
+          positivePrompt: `Edit the FIRST reference image. The SECOND reference is a binary selection mask: WHITE means editable, BLACK means protected. Apply this instruction only inside the white region: ${input.prompt}. Preserve all other subjects, text, logos, lighting and composition. Return the full image with the first reference's aspect ratio.${personReferenceInstruction(input)}${variant ? ' Create a distinct second interpretation.' : ''}`,
           inputs: { referenceImages: [input.image, input.maskPng, ...(input.referenceImage ? [input.referenceImage] : [])].map(image => `data:image/png;base64,${image.toString('base64')}`) },
           // Explicitly pin shape to the original, not to the mask or a default square.
           resolution: '2K', outputType: 'base64Data', outputFormat: 'PNG', numberResults: 1,

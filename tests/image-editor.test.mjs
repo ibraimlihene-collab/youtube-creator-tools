@@ -195,14 +195,17 @@ test('the existing mixed-case Runware variable configures both provider and heal
   }finally{for(const name of names){if(previous[name]===undefined)delete process.env[name];else process.env[name]=previous[name];}}
 });
 
-test('face replacement sends the identity reference as image three for edits and both variations',async()=>{
-  const fields={...await fixture(),editMode:'face',prompt:'',referenceImage:await image('#fa80cc',{width:3,height:4,channels:4})};
+test('whole-person replacement sends the identity reference as image three for edits and both variations',async()=>{
+  const fields={...await fixture(),editMode:'person',prompt:'',referenceImage:await image('#fa80cc',{width:3,height:4,channels:4})};
   let calls=0;
   const provider=new RunwareImageProvider({apiKey:'test-face-key',fetchImpl:async(url,options)=>{
     const [task]=JSON.parse(options.body);calls++;
     assert.equal(task.inputs.referenceImages.length,3);
     assert.match(task.positivePrompt,/THIRD image is the identity reference/);
-    assert.match(task.positivePrompt,/Replace the selected face/);
+    assert.match(task.positivePrompt,/Replace the ENTIRE selected person/);
+    assert.match(task.positivePrompt,/not a face swap or a blend/);
+    assert.match(task.positivePrompt,/Do not attach the reference head to the original person/);
+    assert.match(task.positivePrompt,/if the reference is only a portrait/);
     const reference=await decodeImage(Buffer.from(task.inputs.referenceImages[2].split(',')[1],'base64'));
     assert.equal(reference.width,3);assert.equal(reference.height,4);assert.deepEqual([...reference.data.subarray(0,4)],[250,128,204,255]);
     return Response.json({data:[{taskType:'imageInference',taskUUID:task.taskUUID,imageBase64Data:(await image('#f09020')).toString('base64')}]});
@@ -219,8 +222,8 @@ test('face replacement sends the identity reference as image three for edits and
   assert.equal(calls,3);
 });
 
-test('invalid or absent face references and modes reject before a provider is invoked',async()=>{
-  const fields={...await fixture(),editMode:'face',referenceImage:await image('#fa80cc')};
+test('invalid or absent identity references and modes reject before a provider is invoked',async()=>{
+  const fields={...await fixture(),editMode:'person',referenceImage:await image('#fa80cc')};
   let calls=0;const handler=makeEditorHandler('edit',()=>{calls++;throw new Error('must not reach provider');});
   for(const override of [{referenceImage:undefined},{referenceImage:'not-a-file'},{referenceImage:Buffer.from('invalid image')},{referenceImage:Buffer.alloc(2*1024*1024+1)},{editMode:'unknown'},{editMode:'selective'}]){
     const input={...fields,...override};if(input.referenceImage===undefined)delete input.referenceImage;
@@ -231,11 +234,17 @@ test('invalid or absent face references and modes reject before a provider is in
   assert.equal(input.referenceImage,undefined);
 });
 
-test('Gemini opt-in also receives the third identity image for face edits',async()=>{
-  const input=await readInput(await eventFor({...await fixture(),editMode:'face',referenceImage:await image('#fa80cc')}),true);
+test('Gemini opt-in also receives the third identity image for person edits',async()=>{
+  const input=await readInput(await eventFor({...await fixture(),editMode:'person',referenceImage:await image('#fa80cc')}),true);
   const provider=new GeminiImageProvider({apiKey:'test',fetchImpl:async(url,options)=>{
     const body=JSON.parse(options.body);assert.equal(body.contents[0].parts.length,4);assert.match(body.contents[0].parts[0].text,/THIRD image is the identity reference/);
     return Response.json({candidates:[{content:{parts:[{inlineData:{mimeType:'image/png',data:(await image('#f09020')).toString('base64')}}]}}]});
   }});
   assert.ok((await provider.editImage(input)).length>0);
+});
+
+test('previously loaded face-mode clients use whole-person instructions too',async()=>{
+  const input=await readInput(await eventFor({...await fixture(),editMode:'face',prompt:'',referenceImage:await image('#fa80cc')}),true);
+  assert.equal(input.editMode,'person');
+  assert.match(input.prompt,/entire selected person/);
 });

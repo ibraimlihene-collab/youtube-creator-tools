@@ -36,7 +36,7 @@ test('Runware errors remain localized and never suggest fixing Gemini instead',a
     for(const ar of [false,true])await assert.rejects(()=>readEditorResponse(Response.json({code,error:'private-provider-secret'},{status:code==='RUNWARE_CREDITS'?402:503}),ar),error=>error instanceof EditorApiError && error.message.includes('Runware') && !error.message.includes('Gemini') && !error.message.includes('private-provider-secret'));
 });
 
-test('face reference errors are localized without exposing provider details',async()=>{
+test('identity reference errors are localized without exposing provider details',async()=>{
   for(const code of ['REFERENCE_REQUIRED','REFERENCE_INVALID'])for(const ar of [false,true])
-    await assert.rejects(()=>readEditorResponse(Response.json({code,error:'private-provider-detail'},{status:400}),ar),error=>error.status===400&&!error.unavailable&&error.message.includes(ar?'وجه':'face')&&!error.message.includes('private-provider-detail'));
+    await assert.rejects(()=>readEditorResponse(Response.json({code,error:'private-provider-detail'},{status:400}),ar),error=>error.status===400&&!error.unavailable&&error.message.includes(ar?'مرجعي':'reference')&&!error.message.includes('private-provider-detail'));
 });

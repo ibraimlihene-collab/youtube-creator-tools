@@ -155,8 +155,11 @@ export class GeminiImageProvider {
 
 // Muse edits reference images; the shared binary composite remains the final authority
 // over which pixels may change. Analysis continues to use Gemini independently.
+// Accept the existing stack variable spelling as well as the documented name.
+export function runwareApiKey() { return process.env.RUNWARE_API_KEY?.trim() || process.env.Runware_api_key?.trim() || ''; }
+
 export class RunwareImageProvider {
-  constructor({ apiKey = process.env.RUNWARE_API_KEY, model = process.env.RUNWARE_IMAGE_MODEL || 'meta:muse@image', fetchImpl = fetch, analysisProvider = new GeminiImageProvider() } = {}) {
+  constructor({ apiKey = runwareApiKey(), model = process.env.RUNWARE_IMAGE_MODEL || 'meta:muse@image', fetchImpl = fetch, analysisProvider = new GeminiImageProvider() } = {}) {
     this.apiKey = apiKey; this.model = model; this.fetch = fetchImpl; this.analysisProvider = analysisProvider;
   }
   async editImage(input, variant = 0) {

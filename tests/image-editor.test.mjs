@@ -152,7 +152,7 @@ test('Runware errors are classified safely, including errors in HTTP 200 respons
 });
 
 test('provider selection and health report image editing separately from Gemini analysis',async()=>{
-  const names=['IMAGE_PROVIDER','RUNWARE_API_KEY','GEMINI_API_KEY'];const previous=Object.fromEntries(names.map(name=>[name,process.env[name]]));
+  const names=['IMAGE_PROVIDER','RUNWARE_API_KEY','Runware_api_key','GEMINI_API_KEY'];const previous=Object.fromEntries(names.map(name=>[name,process.env[name]]));
   try {
     delete process.env.IMAGE_PROVIDER;process.env.RUNWARE_API_KEY='test';delete process.env.GEMINI_API_KEY;
     assert.ok(createImageProvider() instanceof RunwareImageProvider);
@@ -166,9 +166,9 @@ test('provider selection and health report image editing separately from Gemini 
 
 
 test('default editing never falls back to Gemini when the Runware key is absent',async()=>{
-  const names=['IMAGE_PROVIDER','RUNWARE_API_KEY','GEMINI_API_KEY'];const previous=Object.fromEntries(names.map(name=>[name,process.env[name]]));
+  const names=['IMAGE_PROVIDER','RUNWARE_API_KEY','Runware_api_key','GEMINI_API_KEY'];const previous=Object.fromEntries(names.map(name=>[name,process.env[name]]));
   try {
-    delete process.env.IMAGE_PROVIDER;delete process.env.RUNWARE_API_KEY;process.env.GEMINI_API_KEY='configured-gemini-key';
+    delete process.env.IMAGE_PROVIDER;delete process.env.RUNWARE_API_KEY;delete process.env.Runware_api_key;process.env.GEMINI_API_KEY='configured-gemini-key';
     assert.ok(createImageProvider() instanceof RunwareImageProvider);
     const {handler}=await import('../netlify/functions/health.mjs');
     const health=JSON.parse((await handler({httpMethod:'GET',headers:{}})).body);
@@ -178,5 +178,19 @@ test('default editing never falls back to Gemini when the Runware key is absent'
       assert.equal(response.statusCode,503);assert.equal(JSON.parse(response.body).code,'RUNWARE_NOT_CONFIGURED');
       assert.ok(!response.body.includes('Gemini'));
     }
+  }finally{for(const name of names){if(previous[name]===undefined)delete process.env[name];else process.env[name]=previous[name];}}
+});
+
+
+test('the existing mixed-case Runware variable configures both provider and health safely',async()=>{
+  const names=['RUNWARE_API_KEY','Runware_api_key','IMAGE_PROVIDER'];const previous=Object.fromEntries(names.map(name=>[name,process.env[name]]));
+  try {
+    delete process.env.RUNWARE_API_KEY;delete process.env.IMAGE_PROVIDER;process.env.Runware_api_key='  saved-test-key  ';
+    assert.equal(createImageProvider().apiKey,'saved-test-key');
+    const {handler}=await import('../netlify/functions/health.mjs');
+    const health=JSON.parse((await handler({httpMethod:'GET',headers:{}})).body);
+    assert.equal(health.imageProvider,'runware');assert.equal(health.imageEditing,true);assert.ok(!JSON.stringify(health).includes('saved-test-key'));
+    process.env.RUNWARE_API_KEY=' canonical-test-key ';assert.equal(createImageProvider().apiKey,'canonical-test-key');
+    process.env.RUNWARE_API_KEY=' ';assert.equal(createImageProvider().apiKey,'saved-test-key');
   }finally{for(const name of names){if(previous[name]===undefined)delete process.env[name];else process.env[name]=previous[name];}}
 });

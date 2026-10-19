@@ -1,4 +1,4 @@
-import { imageProviderName } from './_shared/image-editor.mjs';
+import { imageProviderName, runwareApiKey } from './_shared/image-editor.mjs';
 import { corsHeaders, json } from './_shared/security.mjs';
 
 export async function handler(event) {
@@ -21,7 +21,7 @@ export async function handler(event) {
         service: 'youcreator-api',
         gemini: Boolean(process.env.GEMINI_API_KEY),
         imageProvider: imageProviderName(),
-        imageEditing: imageProviderName() === 'runware' ? Boolean(process.env.RUNWARE_API_KEY) : imageProviderName() === 'gemini' && Boolean(process.env.GEMINI_API_KEY),
+        imageEditing: imageProviderName() === 'runware' ? Boolean(runwareApiKey()) : imageProviderName() === 'gemini' && Boolean(process.env.GEMINI_API_KEY),
         imageAnalysis: Boolean(process.env.GEMINI_API_KEY),
         apify: Boolean(process.env.APIFY_TOKEN),
         ts: Date.now(),

@@ -20,6 +20,8 @@ export async function readEditorResponse(response, ar = false) {
       RUNWARE_CREDITS: ['Runware credits are insufficient. The site owner must check the account balance.', 'رصيد Runware غير كافٍ. على مالك الموقع مراجعة رصيد الحساب.'],
       RUNWARE_RATE_LIMITED: ['Runware is temporarily limiting requests. Wait before retrying.', 'يحد Runware الطلبات مؤقتًا. انتظر قبل إعادة المحاولة.'],
       RUNWARE_FAILED: ['Runware could not complete the image edit. Retry or check model access and account configuration.', 'تعذر إكمال التعديل عبر Runware. أعد المحاولة أو تحقق من إتاحة النموذج وإعداد الحساب.'],
+      REFERENCE_REQUIRED: ['Upload a face reference photo before replacing a face.', 'ارفع صورة وجهك المرجعية قبل استبدال الوجه.'],
+      REFERENCE_INVALID: ['The face reference is invalid. Upload a PNG, JPG or WebP reference smaller than 2 MB after resizing.', 'صورة الوجه المرجعية غير صالحة. ارفع PNG أو JPG أو WebP بحجم أقل من 2 ميغابايت بعد التصغير.'],
       IMAGE_PROVIDER_INVALID: ['The image provider configuration is invalid. Contact the site owner.', 'إعداد مزوّد الصور غير صحيح. تواصل مع مالك الموقع.'],
     };
     if (Object.hasOwn(runwareMessages, data.code)) throw new EditorApiError(runwareMessages[data.code][ar ? 1 : 0], response.status);

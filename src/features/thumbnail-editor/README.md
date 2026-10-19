@@ -48,3 +48,12 @@ Official model schema and editing guide:
 
 - https://runware.ai/docs/models/meta-muse-image
 - https://runware.ai/docs/models/meta-muse-image/guides/editing-images
+
+
+## Uploads and face replacement
+
+Open **Uploads** in the image toolbar, or **Replace a face** in the settings panel. Upload your main thumbnail and a clear selfie as the face reference. The browser resizes reference uploads (PNG/JPEG/WebP, up to 8 MB) to at most 1024 pixels on the longest side and converts them to JPEG before sending. The original thumbnail remains unchanged. After uploading the reference, paint or draw a rectangle over the target face, including its edges, then choose **Replace selected face**. Extra instructions are optional. References can be changed, removed, or reused for another thumbnail during the same editor session. Choosing standard editing keeps the reference locally but does not send it with ordinary edits or region analysis. Closing/reloading the page discards it.
+
+Face edits and both variations use `editMode=face` plus a `referenceImage` multipart file (PNG/JPEG/WebP, at most 2 MB and the same pixel budget as image uploads). Empty prompts use the face-replacement instruction automatically. Invalid/missing references reject before any provider call. Muse receives the original, binary mask, and identity photo in that order; its prompt names the third image as the identity source and preserves pose, lighting and the surrounding scene. The same protected-pixel composite still applies. Total request size remains capped at 6 MB; use a smaller main image if the combined upload exceeds that cap.
+
+Face targeting is manual; this feature does not automatically detect faces or guarantee biometric identity accuracy. Review the result before downloading. The application does not persist face references or send them for region analysis. References are sent to the selected provider only for a requested face edit, under that provider's data policy.

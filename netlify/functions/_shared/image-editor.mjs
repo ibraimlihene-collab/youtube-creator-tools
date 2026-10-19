@@ -36,10 +36,22 @@ export async function readInput(event, needsMask) {
   const image = await sharp(original.data, { raw: original }).png().toBuffer();
   const input = { original, image, prompt: '', selectionMode: 'brush' };
   if (!needsMask) return input;
+  input.editMode = String(form.get('editMode') || 'selective');
+  if (!['selective', 'face'].includes(input.editMode)) throw new EditorError('Invalid editing mode.');
   input.prompt = String(form.get('prompt') || '').trim();
+  if (input.editMode === 'face' && !input.prompt) input.prompt = 'Replace the selected face with the person in the face reference photo.';
   input.selectionMode = String(form.get('selectionMode') || 'brush');
   if (!input.prompt || input.prompt.length > 2000) throw new EditorError('Write an editing instruction between 1 and 2000 characters.');
   if (!MODES.has(input.selectionMode)) throw new EditorError('Invalid selection mode.');
+  const reference = form.get('referenceImage');
+  if (input.editMode === 'face') {
+    if (!reference || typeof reference === 'string' || !reference.size) throw new EditorError('Upload a face reference photo first.', 400, 'REFERENCE_REQUIRED');
+    if (reference.size > 2 * 1024 * 1024) throw new EditorError('Use a face reference smaller than 2 MB.', 400, 'REFERENCE_INVALID');
+    let decoded;
+    try { decoded = await decodeImage(Buffer.from(await reference.arrayBuffer())); }
+    catch { throw new EditorError('Use a valid PNG, JPEG or WebP face reference up to 1920 × 1080 pixels.', 400, 'REFERENCE_INVALID'); }
+    input.referenceImage = await sharp(decoded.data, { raw: decoded }).png().toBuffer();
+  } else if (reference) throw new EditorError('Choose face replacement mode to use a face reference.', 400, 'REFERENCE_INVALID');
   for (const name of ['mask', 'protectedMask']) {
     const f = form.get(name);
     if (!f && name === 'protectedMask') continue;
@@ -80,6 +92,12 @@ export async function compositeProtected(input, editedBuffer) {
   return sharp(output, { raw: input.original }).png({ compressionLevel: 9 }).toBuffer();
 }
 
+function faceReferenceInstruction(input) {
+  return input.editMode === 'face'
+    ? '\nThe THIRD image is the identity reference photo, not an image to edit. Replace only the selected face in the FIRST image with the person from the THIRD image. Preserve the reference identity and recognizable facial features, while matching the target head angle, expression, skin lighting and image style. Keep the target hairstyle, clothes, body and background unless they are explicitly selected and requested. Never copy the reference background or the mask into the result. Blend naturally inside the editable mask.'
+    : '';
+}
+
 export class GeminiImageProvider {
   constructor({ apiKey = process.env.GEMINI_API_KEY, imageModel = process.env.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image', analysisModel = process.env.GEMINI_ANALYSIS_MODEL || 'gemini-3.1-flash-lite', fetchImpl = fetch } = {}) {
     this.apiKey = apiKey; this.imageModel = imageModel; this.analysisModel = analysisModel; this.fetch = fetchImpl;
@@ -112,10 +130,11 @@ export class GeminiImageProvider {
     try { return await response.json(); } catch { throw new EditorError('The AI service returned an invalid response.', 502); }
   }
   async editImage(input, variant = 0) {
-    const instruction = `Selectively edit this original thumbnail. The second image is the exact binary mask: WHITE = editable, BLACK = protected.\nUser request: ${input.prompt}\nEdit only the white region. Preserve text, logos, background and unrelated objects outside that region. Preserve the exact ${input.original.width} x ${input.original.height} dimensions, crop and composition. Match lighting, perspective, shadows and style. Return the full edited image.${variant ? '\nCreate a second distinct interpretation of the same request inside the same mask.' : ''}`;
+    const instruction = `Selectively edit this original thumbnail. The second image is the exact binary mask: WHITE = editable, BLACK = protected.\nUser request: ${input.prompt}\nEdit only the white region. Preserve text, logos, background and unrelated objects outside that region. Preserve the exact ${input.original.width} x ${input.original.height} dimensions, crop and composition. Match lighting, perspective, shadows and style. Return the full edited image.${faceReferenceInstruction(input)}${variant ? '\nCreate a second distinct interpretation of the same request inside the same mask.' : ''}`;
     const result = await this.request(this.imageModel, [
       { text: instruction }, { inlineData: { mimeType: 'image/png', data: input.image.toString('base64') } },
       { inlineData: { mimeType: 'image/png', data: input.maskPng.toString('base64') } },
+      ...(input.referenceImage ? [{ inlineData: { mimeType: 'image/png', data: input.referenceImage.toString('base64') } }] : []),
     ], { responseModalities: ['TEXT', 'IMAGE'] });
     const image = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData?.mimeType?.startsWith('image/'))?.inlineData;
     if (!image?.data || image.data.length > 12 * 1024 * 1024) throw new EditorError('The AI did not return a usable image. Try a different instruction.', 502);
@@ -171,8 +190,8 @@ export class RunwareImageProvider {
         method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiKey}` },
         body: JSON.stringify([{
           taskType: 'imageInference', taskUUID, model: this.model,
-          positivePrompt: `Edit the FIRST reference image. The SECOND reference is a binary selection mask: WHITE means editable, BLACK means protected. Apply this instruction only inside the white region: ${input.prompt}. Preserve all other subjects, text, logos, lighting and composition. Return the full image with the first reference's aspect ratio.${variant ? ' Create a distinct second interpretation.' : ''}`,
-          inputs: { referenceImages: [input.image, input.maskPng].map(image => `data:image/png;base64,${image.toString('base64')}`) },
+          positivePrompt: `Edit the FIRST reference image. The SECOND reference is a binary selection mask: WHITE means editable, BLACK means protected. Apply this instruction only inside the white region: ${input.prompt}. Preserve all other subjects, text, logos, lighting and composition. Return the full image with the first reference's aspect ratio.${faceReferenceInstruction(input)}${variant ? ' Create a distinct second interpretation.' : ''}`,
+          inputs: { referenceImages: [input.image, input.maskPng, ...(input.referenceImage ? [input.referenceImage] : [])].map(image => `data:image/png;base64,${image.toString('base64')}`) },
           // Explicitly pin shape to the original, not to the mask or a default square.
           resolution: '2K', outputType: 'base64Data', outputFormat: 'PNG', numberResults: 1,
           settings: { webSearch: false, imageSearch: false },
@@ -228,7 +247,7 @@ export function makeEditorHandler(operation, providerFactory = createImageProvid
     } catch (error) {
       const status = error.statusCode || 500;
       // Deliberately do not log or return provider bodies, errors, credentials or stack traces.
-      const code = ['RATE_LIMIT', 'GEMINI_QUOTA_EXCEEDED', 'GEMINI_RATE_LIMITED', 'RUNWARE_NOT_CONFIGURED', 'RUNWARE_AUTH_FAILED', 'RUNWARE_CREDITS', 'RUNWARE_RATE_LIMITED', 'RUNWARE_FAILED', 'IMAGE_PROVIDER_INVALID'].includes(error.code) ? error.code : undefined;
+      const code = ['RATE_LIMIT', 'GEMINI_QUOTA_EXCEEDED', 'GEMINI_RATE_LIMITED', 'RUNWARE_NOT_CONFIGURED', 'RUNWARE_AUTH_FAILED', 'RUNWARE_CREDITS', 'RUNWARE_RATE_LIMITED', 'RUNWARE_FAILED', 'IMAGE_PROVIDER_INVALID', 'REFERENCE_REQUIRED', 'REFERENCE_INVALID'].includes(error.code) ? error.code : undefined;
       return json(status, { code, error: error instanceof EditorError ? error.message : status === 429 ? 'Too many requests. Please wait a minute.' : status === 401 ? 'Unauthorized.' : 'Image editing failed. Please try again.' }, event);
     }
   };

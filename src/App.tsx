@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { Routes, Route, Navigate, Link } from 'react-router-dom';
+import { lazy, Suspense, type ReactNode } from 'react';
+import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 import AppLayout from './components/layout/AppLayout';
 import ToolCard from './components/ToolCard';
@@ -22,6 +22,8 @@ import ThumbnailDownloader from './features/thumbnail-downloader/ThumbnailDownlo
 import ThumbnailPreviewer from './features/thumbnail-previewer/ThumbnailPreviewer';
 import GenericAITool from './features/_shared/GenericAITool';
 import SfxLibrary from './features/sfx-library/SfxLibrary';
+
+const KnowledgeApp = lazy(() => import('./knowledge/KnowledgeApp'));
 
 function toolTitle(tool: ToolDef, lang: 'ar' | 'en') {
   return lang === 'ar' ? tool.titleAr : tool.titleEn;
@@ -143,7 +145,7 @@ function AppHub() {
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
+      <Route path="/creator" element={<LandingPage />} />
       <Route path="/articles" element={<ArticlesIndex />} />
       <Route path="/articles/:slug" element={<ArticlePage />} />
       <Route element={<AppLayout />}>
@@ -170,6 +172,11 @@ function AppRoutes() {
 }
 
 function App() {
+  const { pathname } = useLocation();
+  if (pathname === '/') return <Navigate to="/knowledge" replace />;
+  if (pathname === '/knowledge' || pathname.startsWith('/knowledge/')) {
+    return <Suspense fallback={<div role="status" dir="rtl">جارٍ التحميل…</div>}><KnowledgeApp /></Suspense>;
+  }
   return (
     <AppProvider>
       <AppRoutes />

@@ -44,7 +44,11 @@ import Dashboard from './Dashboard';
 import { Collection, Planner, DomainExplorer, Flashcards, Analytics } from './Pages';
 import Settings, { Assistant } from './Settings';
 import { Editor, EntryDetail } from './Editor';
+import { installSchoolPack } from './schoolPack';
+import SchoolWeek from './SchoolWeek';
+import AuxChamps from './AuxChamps';
 import './knowledge.css';
+import './school.css';
 const groups = [
   [
     'overview',
@@ -57,6 +61,7 @@ const groups = [
   [
     'learning',
     [
+      ['school', BookOpen],
       ['knowledge', BookOpen],
       ['education', Library],
       ['domains', Network],
@@ -99,6 +104,8 @@ export default function KnowledgeApp() {
   const pageFromPath = location.pathname.split('/')[2] || 'dashboard';
   const validPages = [
     'dashboard',
+    'school',
+    'reading',
     'inbox',
     'planner',
     'knowledge',
@@ -118,14 +125,22 @@ export default function KnowledgeApp() {
   ];
   const page = validPages.includes(pageFromPath) ? pageFromPath : 'dashboard';
   const t = translator(data?.settings.language || 'ar');
+  const loadingRef = useRef(false);
   const load = useCallback(() => {
+    if (loadingRef.current) return;
+    loadingRef.current = true;
     setError('');
     loadWorkspace()
-      .then((value) => {
-        stateRef.current = value;
-        setData(value);
+      .then(async (value) => {
+        const prepared = installSchoolPack(value);
+        const saved = prepared === value ? value : await saveWorkspace(prepared, value.revision);
+        stateRef.current = saved;
+        setData(saved);
       })
-      .catch((e) => setError(e.message || 'storageError'));
+      .catch((e) => setError(e.message || 'storageError'))
+      .finally(() => {
+        loadingRef.current = false;
+      });
   }, []);
   useEffect(load, [load]);
   useEffect(() => {
@@ -414,7 +429,12 @@ export default function KnowledgeApp() {
                   <span className={error ? 'error' : ''} />
                   {t(error ? 'storageError' : busy ? 'saving' : 'saved')}
                 </span>
-                {page !== 'dashboard' && page !== 'settings' && page !== 'assistant' && (
+                {['dashboard', 'education'].includes(page) && (
+                  <Link className="uko-button secondary" to="/knowledge/school">
+                    {t('school')}
+                  </Link>
+                )}
+                {!['dashboard', 'settings', 'assistant', 'school', 'reading'].includes(page) && (
                   <button
                     className="uko-button"
                     onClick={() => create(defaultKind[page] || 'note')}
@@ -437,6 +457,10 @@ export default function KnowledgeApp() {
             )}
             {page === 'dashboard' ? (
               <Dashboard />
+            ) : page === 'school' ? (
+              <SchoolWeek />
+            ) : page === 'reading' ? (
+              <AuxChamps />
             ) : page === 'settings' ? (
               <Settings />
             ) : page === 'assistant' ? (

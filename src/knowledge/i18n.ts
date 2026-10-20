@@ -1,6 +1,68 @@
 import type { Language } from './model';
 export const ar = {
+  revisionGuide: 'دليل الشخصيات والأحداث والمراجعة',
   appName: 'كون المعرفة',
+  school: 'دروسي هذا الأسبوع',
+  schoolSub: 'دروسك الأولى، قراءة Aux champs، وخطّة قابلة للتعديل.',
+  reading: 'قراءة Aux champs',
+  readingSub: 'اقرأ بالفرنسية، وافهم بالعربية، ثم أجب بلغتك الدراسية.',
+  schoolNotice:
+    'هذه عناوين أرسلتها أنت، وليست لائحة رسمية للمنهاج. أُضيفت مرة واحدة؛ تبقى تعديلاتك وحذوفاتك محفوظة.',
+  studySheets: 'الدروس وأوراق المراجعة',
+  sheetNotice:
+    'الشرح والتمارين أوراق تعليمية أُعدّت للتطبيق؛ قارنها بدفترك وتعليمات أستاذك. لا يوجد موعد امتحان مفترض.',
+  mainLessons: 'دروس أساسية',
+  proposedPlan: 'خطّة الأيام السبعة',
+  planDate: 'تاريخ بداية مقترح',
+  shiftPlan: 'نقل الجلسات المخطّطة',
+  planShifted: 'حُدّثت تواريخ الجلسات المقترحة. الجلسات المكتملة لم تتغيّر.',
+  planHelp:
+    'المدد مقترحة والتوقيت غير محدّد. عدّل كل جلسة حسب وقتك؛ لا تُحسب الجلسة إنجازًا قبل تسجيل نتيجتها.',
+  weekGoals: 'الدراسة والإبداع',
+  videoCadence: 'الافتراض الحالي: فيديو واحد أسبوعيًا. يمكنك تعديل الهدف؛ تبقى الدراسة أولوية.',
+  videoNextWeek: 'إعداد مشروع فيديو لأسبوع آخر',
+  videoCreated: 'أُضيف مشروع الفيديو وخطواته دون نشر تلقائي.',
+  videoExists: 'يوجد مشروع فيديو لهذا التاريخ بالفعل.',
+  videoDate: 'بداية أسبوع الفيديو',
+  openReading: 'افتح القراءة الثنائية',
+  bookKicker: 'مكتبة الفرنسية · نص كامل',
+  bookGenre: 'قصة قصيرة واقعية · غي دو موباسان',
+  bookPurpose: 'من فهم الحكاية إلى تحليلها بالفرنسية',
+  bookIntro:
+    'Aux champs قصة قصيرة وليست رواية. تتناول أسرتين فقيرتين وعرض التبنّي ومصير طفلين. نقرأها في سبعة مشاهد تعليمية، وليست فصولًا وضعها الكاتب.',
+  translationNotice:
+    'الترجمة العربية أُعدّت لهذا التطبيق للمساعدة على الفهم؛ ليست ترجمة مدرسية معتمدة. حافظ على قراءة النص الفرنسي والاستشهاد به في إجاباتك.',
+  scene: 'المشهد',
+  originalText: 'النص الفرنسي الأصلي',
+  arabicTranslation: 'الترجمة العربية التعليمية',
+  parallelReading: 'الفرنسية والعربية',
+  frenchReading: 'الفرنسية فقط',
+  arabicReading: 'العربية فقط',
+  markRead: 'سجّل أنني قرأت هذا المشهد',
+  markedRead: 'مسجّل كمقروء',
+  readingProgress: 'مشاهد سجّلت قراءتها',
+  readingProgressHelp: 'هذا سجلّ قراءة ذاتي، وليس درجة فهم أو إتقان.',
+  sourceChecked: 'المصدر متاح وتمت مراجعته في',
+  sourceLink: 'افتح مصدر النص',
+  sourceCrossCheck: 'نسخة أخرى للمقارنة',
+  downloadOriginal: 'تحميل النص الفرنسي',
+  downloadTranslation: 'تحميل الترجمة العربية',
+  downloadAudio: 'تحميل القراءة العربية كاملة',
+  syntheticAudio:
+    'قراءة عربية بصوت اصطناعي أُنتجت محليًا. قد يخطئ النطق، خصوصًا في الأسماء. الملفات مسجّلة ولا تحتاج اتصالًا بمزوّد ذكاء اصطناعي.',
+  audioReferenceNotice:
+    'الصوت والملفات المرفقة يطابقان النص المرجعي؛ لا يُعاد إنتاجهما تلقائيًا إذا عدّلت سجلّ المشهد.',
+  playAudio: 'استمع إلى هذا المشهد بالعربية',
+  pauseAudio: 'أوقف القراءة مؤقتًا',
+  audioError: 'تعذّر تشغيل الصوت. جرّب تحميل الملف أو إعادة المحاولة.',
+  audioRate: 'سرعة القراءة',
+  literatureQuestions: 'بعد القراءة: حاول الإجابة بالفرنسية',
+  readerPractice: 'اكتب إجابتك وملاحظاتك في سجلّ المشهد؛ لا يوجد تصحيح آلي أو إجابة رسمية مفترضة.',
+  readerNotes: 'إجابتي وملاحظاتي',
+  readerDeleted:
+    'حُذف سجلّ هذا المشهد من مساحتك. يمكنك قراءة النص المرجعي هنا؛ لن يُعاد السجل تلقائيًا.',
+  editionNotice:
+    'قد تختلف علامات الترقيم والصياغة بين الطبعات. طابق النص مع النسخة التي يطلبها أستاذك. لا نختلق تعليمات أو أسئلة امتحان رسمية.',
   appSubtitle: 'مساحتك للتعلّم والحياة',
   workspace: 'مساحتي الشخصية',
   overview: 'نظرة عامة',
@@ -256,7 +318,7 @@ export const ar = {
   submitAttempt: 'إرسال المحاولة',
   revealSolution: 'عرض التصحيح',
   noSolution: 'لا يوجد مفتاح حلّ محفوظ. تحقّق مع أستاذك أو مصدر موثوق.',
-  userSolution: 'تصحيح محفوظ من المستخدم، لم يُتحقّق منه رسميًا.',
+  userSolution: 'تصحيح محفوظ للمراجعة، لم يُتحقّق منه رسميًا. راجع مصدره وقارنه بدفترك.',
   practiceHelp: 'حاول أولًا. المقارنة هنا ذاتية؛ لا يوجد مصحّح آلي متصل.',
   createCard: 'إنشاء بطاقة مرتبطة',
   scheduleReview: 'جدولة مراجعة',
@@ -364,6 +426,70 @@ export const ar = {
 } as const;
 export type Key = keyof typeof ar;
 export const fr: Record<Key, string> = {
+  revisionGuide: 'Fiche de lecture et révision',
+  school: 'Mes cours de la semaine',
+  schoolSub: 'Vos premiers cours, Aux champs et un planning modifiable.',
+  reading: 'Lire Aux champs',
+  readingSub: 'Lire en français, comprendre avec l’arabe, puis répondre en français.',
+  schoolNotice:
+    'Ces titres viennent de votre demande, pas d’un programme officiel. Ajout unique : vos modifications et suppressions sont conservées.',
+  studySheets: 'Cours et fiches de révision',
+  sheetNotice:
+    'Explications et exercices préparés pour cette application : confrontez-les à votre cahier et aux consignes du professeur. Aucune date d’examen n’est supposée.',
+  mainLessons: 'cours principaux',
+  proposedPlan: 'Programme sur sept jours',
+  planDate: 'Date de début proposée',
+  shiftPlan: 'Déplacer les séances prévues',
+  planShifted: 'Dates proposées mises à jour. Les séances terminées sont conservées.',
+  planHelp:
+    'Durées proposées, horaires non fixés. Adaptez chaque séance ; aucun résultat n’est compté avant son enregistrement.',
+  weekGoals: 'Études et création',
+  videoCadence:
+    'Hypothèse actuelle : une vidéo par semaine. Modifiez l’objectif si nécessaire ; les études restent prioritaires.',
+  videoNextWeek: 'Préparer une autre semaine vidéo',
+  videoCreated: 'Projet et étapes ajoutés, sans publication automatique.',
+  videoExists: 'Un projet vidéo existe déjà pour cette date.',
+  videoDate: 'Début de la semaine vidéo',
+  openReading: 'Ouvrir la lecture bilingue',
+  bookKicker: 'Bibliothèque de français · texte intégral',
+  bookGenre: 'Nouvelle réaliste · Guy de Maupassant',
+  bookPurpose: 'Comprendre le récit, puis l’analyser en français',
+  bookIntro:
+    'Aux champs est une nouvelle, pas un roman. Deux familles pauvres, une proposition d’adoption et deux destins. Les sept scènes sont un découpage pédagogique, pas des chapitres de l’auteur.',
+  translationNotice:
+    'Traduction arabe préparée pour cette application, non agréée par un établissement scolaire. Lisez et citez toujours le texte français dans vos réponses.',
+  scene: 'Scène',
+  originalText: 'Texte français original',
+  arabicTranslation: 'Traduction arabe pédagogique',
+  parallelReading: 'Français et arabe',
+  frenchReading: 'Français seulement',
+  arabicReading: 'Arabe seulement',
+  markRead: 'Enregistrer cette scène comme lue',
+  markedRead: 'Marquée comme lue',
+  readingProgress: 'scènes déclarées lues',
+  readingProgressHelp: 'Suivi personnel de lecture, pas une note de compréhension ou de maîtrise.',
+  sourceChecked: 'Source accessible et consultée le',
+  sourceLink: 'Ouvrir la source',
+  sourceCrossCheck: 'Comparer une autre transcription',
+  downloadOriginal: 'Télécharger le texte français',
+  downloadTranslation: 'Télécharger la traduction arabe',
+  downloadAudio: 'Télécharger toute la lecture arabe',
+  syntheticAudio:
+    'Voix arabe de synthèse produite localement. Des erreurs de prononciation, notamment des noms, restent possibles. Fichiers préenregistrés, sans fournisseur IA connecté.',
+  audioReferenceNotice:
+    'Audio et téléchargements correspondent au texte de référence ; les modifications de votre fiche ne les régénèrent pas.',
+  playAudio: 'Écouter cette scène en arabe',
+  pauseAudio: 'Mettre la lecture en pause',
+  audioError: 'Lecture audio impossible. Téléchargez le fichier ou réessayez.',
+  audioRate: 'Vitesse de lecture',
+  literatureQuestions: 'Après la lecture : répondre en français',
+  readerPractice:
+    'Rédigez votre réponse et vos notes dans la fiche de la scène. Aucun corrigé automatique ou officiel n’est supposé.',
+  readerNotes: 'Ma réponse et mes notes',
+  readerDeleted:
+    'La fiche de cette scène a été supprimée. Le texte de référence reste consultable, sans recréer la fiche.',
+  editionNotice:
+    'La ponctuation et certaines formulations varient selon les éditions. Comparez avec l’édition demandée par votre professeur. Aucune consigne ou question officielle d’examen n’est inventée.',
   appName: 'Univers de savoir',
   appSubtitle: 'Apprendre, créer, avancer',
   workspace: 'Mon espace personnel',
@@ -625,7 +751,8 @@ export const fr: Record<Key, string> = {
   submitAttempt: 'Soumettre ma tentative',
   revealSolution: 'Afficher le corrigé',
   noSolution: 'Aucun corrigé enregistré. Vérifiez avec votre enseignant ou une source fiable.',
-  userSolution: 'Corrigé fourni par l’utilisateur, non vérifié officiellement.',
+  userSolution:
+    'Corrigé enregistré pour révision, non vérifié officiellement. Vérifiez sa source et comparez avec votre cours.',
   practiceHelp:
     'Essayez d’abord. La comparaison est personnelle ; aucun correcteur automatique n’est connecté.',
   createCard: 'Créer une carte liée',

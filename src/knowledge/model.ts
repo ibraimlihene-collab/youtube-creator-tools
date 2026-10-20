@@ -92,6 +92,7 @@ export interface Settings {
 export interface Workspace {
   version: 1;
   revision: number;
+  installedPacks?: string[];
   records: Entry[];
   profile: Profile;
   settings: Settings;
@@ -398,6 +399,14 @@ export function validateWorkspace(value: unknown): value is Workspace {
   )
     return false;
   if (
+    value.installedPacks !== undefined &&
+    (!Array.isArray(value.installedPacks) ||
+      value.installedPacks.length > 100 ||
+      !value.installedPacks.every((id) => isText(id, 120)) ||
+      new Set(value.installedPacks).size !== value.installedPacks.length)
+  )
+    return false;
+  if (
     !isObject(value.profile) ||
     !profileKeys.every((k) => isText((value.profile as Record<string, unknown>)[k], 10000))
   )
@@ -444,7 +453,15 @@ export function mergeBackup(current: Workspace, incoming: Workspace): Workspace 
       (e) => !current.records.some((c) => c.id === e.id && JSON.stringify(c) === JSON.stringify(e)),
     )
     .map((e) => ({ ...e, id: ids.get(e.id)!, links: e.links.map((id) => ids.get(id) || id) }));
-  return { ...current, records: [...current.records, ...additions] };
+  const installedPacks = [
+    ...new Set([...(current.installedPacks || []), ...(incoming.installedPacks || [])]),
+  ];
+  if (installedPacks.length > 100) throw new Error('invalidBackup');
+  return {
+    ...current,
+    records: [...current.records, ...additions],
+    ...(installedPacks.length ? { installedPacks } : {}),
+  };
 }
 export function removeEntry(state: Workspace, id: string): Workspace {
   return {

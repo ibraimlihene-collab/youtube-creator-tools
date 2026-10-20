@@ -1,0 +1,335 @@
+.uko-school,
+.uko-reading {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.uko-school .uko-info {
+  margin: 0;
+}
+.uko-school-book {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  padding: 30px 36px;
+  background: var(--uko-surface);
+  border: 1px solid var(--uko-line);
+  border-radius: 16px;
+}
+.uko-school-book h2 {
+  margin: 6px 0;
+  font-size: 2rem;
+  text-align: start;
+}
+.uko-school-book p {
+  color: var(--uko-muted);
+  margin: 8px 0 16px;
+}
+.uko-book-spine {
+  flex: 0 0 156px;
+  min-height: 210px;
+  color: #fff5dd;
+  background: #315746;
+  border-inline-start: 8px solid #244133;
+  border-radius: 3px 10px 10px 3px;
+  padding: 22px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  direction: ltr;
+  box-shadow: 3px 7px 14px #18352618;
+}
+.uko-book-spine strong {
+  font-family: Georgia, serif;
+  font-size: 34px;
+  line-height: 1.04;
+  font-weight: 400;
+}
+.uko-book-spine span,
+.uko-book-spine small {
+  font-size: 9px;
+  letter-spacing: 1.4px;
+}
+.uko-school-columns {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+  align-items: start;
+  min-width: 0;
+}
+.uko-school-subject {
+  padding-top: 16px;
+}
+.uko-school-subject h3 {
+  color: var(--uko-green);
+  font-size: 14px;
+  margin: 8px 0;
+  text-align: start;
+}
+.uko-school-date-form {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-block: 20px;
+}
+.uko-school-date-form label {
+  flex: 1 1 180px;
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--uko-muted);
+}
+.uko-school-date-form input {
+  width: 100%;
+  min-width: 0;
+}
+.uko-school-day {
+  padding-block: 14px;
+  border-top: 1px solid var(--uko-line);
+}
+.uko-school-day h3 {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  margin: 0 0 8px;
+}
+.uko-school-day h3 small {
+  font-weight: 400;
+  color: var(--uko-muted);
+  white-space: nowrap;
+}
+.uko-school-session {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: start;
+  gap: 5px;
+  padding: 10px;
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  color: var(--uko-text);
+  background: transparent;
+}
+.uko-school-session:hover {
+  background: var(--uko-soft);
+}
+.uko-school-session small {
+  color: var(--uko-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.uko-school-video {
+  margin-block: 24px 8px;
+  padding: 16px;
+  background: var(--uko-soft);
+  border-radius: 10px;
+}
+.uko-school-video > p {
+  font-size: 13px;
+  line-height: 1.8;
+}
+.uko-reading-intro {
+  max-width: 840px;
+}
+.uko-reading-intro h2 {
+  font-family: Georgia, serif;
+  font-size: clamp(30px, 4vw, 44px);
+  margin: 12px 0;
+  font-weight: 400;
+  text-align: start;
+}
+.uko-reading-intro h2 span {
+  font-family: inherit;
+  display: block;
+  font-size: 16px;
+  color: var(--uko-muted);
+  margin-top: 12px;
+}
+.uko-reading-intro > p {
+  line-height: 1.9;
+}
+.uko-reading-downloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 22px;
+}
+.uko-reading-progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  color: var(--uko-green);
+  font-size: 13px;
+}
+.uko-reading-progress small {
+  color: var(--uko-muted);
+}
+.uko-reading-scenes {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+.uko-reading-scenes button {
+  flex: 0 0 155px;
+  border: 1px solid var(--uko-line);
+  background: var(--uko-surface);
+  border-radius: 10px;
+  padding: 13px;
+  text-align: start;
+  display: grid;
+  gap: 7px;
+  color: var(--uko-muted);
+}
+.uko-reading-scenes button.selected {
+  background: var(--uko-soft);
+  color: var(--uko-green);
+  border-color: var(--uko-green);
+}
+.uko-reading-scenes strong {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--uko-text);
+}
+.uko-reading-scene-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+.uko-reading-scene-heading h2 {
+  font-size: 22px;
+  margin-block: 10px;
+  text-align: start;
+}
+.uko-reading-scene-heading p {
+  color: var(--uko-muted);
+  margin-bottom: 18px;
+}
+.uko-reading-audio {
+  display: grid;
+  gap: 12px;
+  margin-block: 14px;
+}
+.uko-reading-audio audio {
+  width: 100%;
+  max-width: 640px;
+  height: 42px;
+}
+.uko-audio-rate {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.uko-audio-rate select {
+  padding: 8px;
+}
+.uko-reading-tabs {
+  margin-block: 22px;
+  display: flex;
+  flex-wrap: wrap;
+}
+.uko-reading-text {
+  display: grid;
+  gap: 30px;
+}
+.uko-reading-text.parallel {
+  grid-template-columns: 1fr 1fr;
+}
+.uko-reading-text article {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.uko-reading-text h3 {
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--uko-muted);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--uko-line);
+}
+.uko-reading-text article[lang='fr'] p {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+  line-height: 1.9;
+}
+.uko-reading-text article[lang='ar'] p {
+  font-size: 17px;
+  line-height: 2.2;
+}
+.uko-reading-practice {
+  padding: 22px;
+  background: var(--uko-soft);
+  border-radius: 12px;
+  margin-top: 30px;
+}
+.uko-reading-practice h3 {
+  font-size: 16px;
+}
+.uko-reading-practice label {
+  display: grid;
+  gap: 8px;
+  margin-block: 16px;
+  font-size: 13px;
+}
+.uko-reading-practice textarea {
+  width: 100%;
+}
+.uko-reading-sources a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--uko-green);
+  margin-block: 12px;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1050px) {
+  .uko-school-columns {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 700px) {
+  .uko-school-book {
+    gap: 18px;
+    padding: 20px;
+    align-items: start;
+  }
+  .uko-book-spine {
+    flex-basis: 95px;
+    min-height: 155px;
+    padding: 15px 10px;
+  }
+  .uko-book-spine strong {
+    font-size: 25px;
+  }
+  .uko-book-spine span,
+  .uko-book-spine small {
+    font-size: 7px;
+    letter-spacing: 0.5px;
+  }
+  .uko-school-book h2 {
+    font-size: 23px;
+  }
+  .uko-school-book p {
+    font-size: 12px;
+  }
+  .uko-school-book .uko-button {
+    padding: 10px;
+    font-size: 11px;
+  }
+  .uko-reading-text.parallel {
+    grid-template-columns: 1fr;
+  }
+  .uko-reading-scene-heading h2 {
+    font-size: 19px;
+  }
+  .uko-reading-practice {
+    padding: 16px;
+  }
+  .uko-reading-scenes button {
+    flex-basis: 140px;
+  }
+}

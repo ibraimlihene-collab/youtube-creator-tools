@@ -32,6 +32,7 @@ import {
   addDays,
   stats,
   reviewCard,
+  scienceSubjects,
   type Entry,
 } from './model';
 
@@ -58,7 +59,10 @@ export function Collection({ page, global = false }: { page: string; global?: bo
   const [graph, setGraph] = useState(false);
   const permitted = global ? [...kinds] : pageKinds[page] || [...kinds];
   const base = data.records.filter(
-    (e) => permitted.includes(e.kind) && (page !== 'inbox' || e.status === 'inbox'),
+    (e) =>
+      permitted.includes(e.kind) &&
+      (page !== 'inbox' || e.status === 'inbox') &&
+      (page !== 'languages' || e.kind !== 'session' || !scienceSubjects.includes(e.fields.subject)),
   );
   const entries = searchEntries(base, query)
     .filter(

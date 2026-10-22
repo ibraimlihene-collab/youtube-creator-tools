@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import type { FormEvent } from 'react';
+import {Link} from 'react-router-dom';
 import {
   Download,
   Upload,
@@ -10,15 +11,12 @@ import {
   Database,
   Unplug,
   Check,
-  Sparkles,
-  ArrowUpRight,
 } from 'lucide-react';
 import { useKnowledge } from './context';
 import {
   profileKeys,
   parseBackup,
   mergeBackup,
-  makeEntry,
   type Workspace,
   type Language,
   type Settings as SettingsType,
@@ -304,9 +302,9 @@ export function Integrations() {
         </h2>
       </div>
       <p className="uko-help">{t('serviceHelp')}</p>
+      <Link className="uko-button secondary" to="/knowledge/assistant">Google Drive · Gmail · Gemini — {t('brainConnection')}</Link>
       {[
         ['Notion', 'notionHelp'],
-        ['Google Drive', 'driveHelp'],
         [t('calendar'), 'calendarHelp'],
       ].map(([name, help]) => (
         <details className="uko-integration" key={help}>
@@ -320,69 +318,4 @@ export function Integrations() {
     </section>
   );
 }
-export function Assistant() {
-  const { t, update, notify } = useKnowledge();
-  const [provider, setProvider] = useState('');
-  const [model, setModel] = useState('');
-  const [notes, setNotes] = useState('');
-  async function submit(event: FormEvent) {
-    event.preventDefault();
-    const entry = makeEntry('note');
-    entry.title = t('aiConfig');
-    entry.content = `${t('provider')}: ${provider}\n${t('model')}: ${model}\n${notes}`;
-    if (await update(entry)) {
-      setNotes('');
-      notify(t('saved'));
-    }
-  }
-  return (
-    <div data-testid="page-assistant" className="uko-assistant-grid">
-      <section className="uko-panel uko-ai-info">
-        <span className="uko-ai-symbol">
-          <Sparkles size={35} strokeWidth={1.3} />
-        </span>
-        <span className="uko-badge">{t('notConfigured')}</span>
-        <h2>{t('assistantSub')}</h2>
-        <p>{t('aiHelp')}</p>
-        <p className="uko-info">
-          <ShieldCheck size={18} />
-          {t('serviceHelp')}
-        </p>
-      </section>
-      <section className="uko-panel">
-        <div className="uko-section-heading">
-          <h2>{t('aiConfig')}</h2>
-        </div>
-        <form className="uko-stack" onSubmit={submit}>
-          <label>
-            {t('provider')}
-            <input
-              value={provider}
-              required
-              maxLength={100}
-              onChange={(e) => setProvider(e.target.value)}
-            />
-          </label>
-          <label>
-            {t('model')}
-            <input value={model} maxLength={100} onChange={(e) => setModel(e.target.value)} />
-          </label>
-          <label>
-            {t('setupNotes')}
-            <textarea
-              rows={5}
-              maxLength={10000}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-            />
-          </label>
-          <button className="uko-button" type="submit">
-            {t('saveSetup')}
-            <ArrowUpRight size={17} />
-          </button>
-        </form>
-      </section>
-      <Integrations />
-    </div>
-  );
-}
+export { default as Assistant } from './BrainWorkspace';

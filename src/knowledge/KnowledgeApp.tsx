@@ -47,6 +47,8 @@ import { Editor, EntryDetail } from './Editor';
 import { installSchoolPack } from './schoolPack';
 import SchoolWeek from './SchoolWeek';
 import AuxChamps from './AuxChamps';
+import BrainController from './BrainController';
+import BrainNotice from './BrainNotice';
 import './knowledge.css';
 import './school.css';
 const groups = [
@@ -175,6 +177,7 @@ export default function KnowledgeApp() {
   }, [toast]);
   async function commit(next: Workspace): Promise<boolean> {
     if (busyRef.current || !stateRef.current) return false;
+    if (next.revision !== stateRef.current.revision) {setError('tabConflict');return false;}
     busyRef.current = true;
     setBusy(true);
     setError('');
@@ -254,6 +257,7 @@ export default function KnowledgeApp() {
         notify: setToast,
       }}
     >
+      <BrainController />
       <div
         className={`uko-app ${data.settings.theme}`}
         dir={data.settings.language === 'ar' ? 'rtl' : 'ltr'}
@@ -413,6 +417,7 @@ export default function KnowledgeApp() {
             </div>
           </header>
           <main id="uko-main" className="uko-main" tabIndex={-1}>
+            {page !== 'assistant' && <BrainNotice />}
             <div className="uko-page-heading">
               <div>
                 <span className="uko-kicker">

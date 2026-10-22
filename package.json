@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@ffmpeg/ffmpeg": "^0.12.15",
+    "@netlify/blobs": "^11.1.6",
     "@react-icons/all-files": "^4.1.0",
     "lucide-react": "^0.536.0",
     "react": "^19.1.0",

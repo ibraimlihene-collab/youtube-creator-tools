@@ -1,6 +1,6 @@
 # Universal Knowledge OS — first functional version
 
-Arabic-first, French-alternative personal knowledge, learning and creation workspace. This delivery implements the local foundation and connected manual workflows from phases 1–5. It is **not completion of the entire master roadmap**: autonomous tutoring, scientific verification, file processing, AI, OAuth integrations and cloud sync remain explicit follow-up work.
+Arabic-first, French-alternative personal knowledge, learning and creation workspace. This delivery implements the local foundation and connected manual workflows from phases 1–5. It is **not completion of the entire master roadmap**: autonomous tutoring and scientific verification remain follow-up work. The daily assistant now has a local rules engine and a secure optional Gemini/Composio server implementation; real Google authorization and deployed cloud operation require setup. See [daily assistant setup](./KNOWLEDGE-BRAIN.md).
 
 ## Run and deploy
 
@@ -26,7 +26,7 @@ npm run preview -- --host 0.0.0.0
 
 Deploy `dist` to a static HTTPS host. Existing `netlify.toml` provides SPA fallback to `index.html`. On another host, rewrite all non-file paths to `index.html`, preserving static assets; deploy at the origin root (no base path is configured). HTTPS or localhost is required for `crypto.randomUUID`. Production build is documented but was deliberately not run over the active Vite preview; see the test report.
 
-The existing creator AI functions remain separate and optional; their `.env.example` / `SECURITY.md` instructions do not enable Knowledge OS AI. No Knowledge OS API keys belong in Vite environment variables or browser storage.
+The existing creator AI functions remain separate and optional; their `.env.example` / `SECURITY.md` instructions are separate from the Knowledge OS daily assistant. See its dedicated setup guide. No Knowledge OS API keys belong in Vite environment variables or browser storage.
 
 ## Source structure
 
@@ -59,7 +59,7 @@ The existing creator AI functions remain separate and optional; their `.env.exam
 - Resource library with creator/source/URL/status, claims and reflection prompts. User-provided sources and explicitly attributed study-text sources are displayed. No fabricated books, URLs or quotations.
 - Education context defaults only to the supplied TCS / option française. Subject definitions are organizational defaults, **not a verified syllabus**. The supplied first-week lesson titles are installed once; further lessons can be entered by the user. Mathematics, Physics, Chemistry and SVT default to French content; separate Arabic/French explanation fields remain available. Lesson titles are not automatically translated. Custom subjects have their own content/explanation language.
 - Manual learning workflow: objectives/prerequisites, saved definitions/formulas/examples, exercise, progressive user-authored hints, independent attempt, explicit submission, reveal of a saved correction with its source disclosure, linked mistake/card creation, and scheduled review-session creation. Examination mode hides hints and correction until submission. Correction is never labelled official or machine-verified. Missing answer keys are disclosed.
-- Day/week/month planner with manual dates/times, academic deadline priority, completed states, undated records and over-capacity warnings. Capacity is configurable. Nothing automatically fills free time or rolls missed sessions forward.
+- Day/week/month planner with manual dates/times, academic deadline priority, completed states, undated records and over-capacity warnings. Capacity is configurable. Optional daily-assistant rules can suggest or, with explicit opt-in, move overdue tasks/sessions within capacity limits.
 - Study sessions record actual date, duration, objective and outcome. A completed session cannot be saved without a nonempty outcome and valid duration. Seven-day analytics exclude future sessions, planned sessions and sessions lacking outcomes. Completing a task does not claim mastery.
 - Goals/projects/paths connect to tasks, milestones and other records; list and status board views. Detail views derive completed/total counts from linked work. Dependencies, success criteria and risks are manual fields. Ideas convert to projects only on explicit action, preserving identity and links.
 - Vocabulary with sentence/context, target language, answer, pronunciation notes and review schedule. No audio analysis or pronunciation evaluation is claimed.
@@ -67,7 +67,7 @@ The existing creator AI functions remain separate and optional; their `.env.exam
 - Private local journal and research records; evidence, supporting/contradicting observations, uncertainty and source fields. Saved personal content is rendered as text, never raw HTML.
 - Weekly review records capture accomplishment, understanding, remaining uncertainty, changes and next action; linked actions can be created explicitly.
 - Editable optional profile, explicit profile clearing, learning-time preferences, explanation language and review interval. Supplied school context is the only prefilled personal fact.
-- AI/provider setup **plan**, saved as a local note. All integration states remain unconfigured. No API-key input and no personal records sent to any AI provider. The previous global analytics script has been removed.
+- Daily assistant with portable reports, local scheduling, guarded moves, honest server/provider checks and optional server-only Gemini/Composio configuration. Google access requires OAuth and per-service sharing consent. No frontend API-key input. The previous global analytics script has been removed.
 
 ## Daily guide / دليل يومي / Guide quotidien
 
@@ -110,12 +110,12 @@ Backup procedure:
 
 | Capability | Current status | Next step |
 | --- | --- | --- |
-| AI tutor, generation, writing correction, summaries | Not connected | Authenticated backend with server-held secret, provider validation/health check, rate limits, explicit per-document consent and provenance-labelled output |
+| General AI tutor, writing correction and note summaries | Not implemented; daily review has a separate tested Gemini adapter | Authenticated backend with server-held secret, provider validation/health check, rate limits, explicit per-document consent and provenance-labelled output |
 | Notion | Not configured | Supported OAuth flow, selected-page scopes, server token storage, revocation and tested import/sync conflict handling |
-| Google Drive | Not configured | OAuth with selected-file scopes, server tokens, retrieval and tested extraction/permissions |
+| Google Drive / Gmail | Read-only Composio adapter implemented; credentials/OAuth not configured | Follow [daily assistant setup](./KNOWLEDGE-BRAIN.md); authorize the owner account and test real reads after deployment |
 | Calendar sync | Not configured | OAuth read/write scopes, event mapping and tested two-way conflict rules |
-| Accounts and cloud sync | Unavailable | Auth/authorization, per-user database records, migrations, backup policy and multi-device conflict resolution |
-| Document upload, OCR, PDF parsing | Unavailable | Validated attachments with size/type checks, durable storage and parser/OCR pipeline; links and pasted text work now |
+| Multiuser accounts and general cloud sync | Unavailable; optional daily-assistant snapshots have a separate single-owner backend | Auth/authorization, per-user database records, migrations, backup policy and multi-device conflict resolution |
+| Local uploads and general document parsing | Not implemented; daily assistant supports bounded Drive PDF/image/text inputs | Validated attachments with size/type checks, durable storage and parser/OCR pipeline; links and pasted text work now |
 | Official curriculum, teacher material ingestion | User-authored only | Verified official source/version/date and import/attachment UI; never infer a syllabus from defaults |
 | Speech, listening and pronunciation scoring | Unavailable | Audio capture/playback permissions and actual evaluated audio pipeline |
 | Intelligent timetable/energy scheduling | Manual planner with capacity warnings | Explicit availability/commitments model and academic-priority scheduling with protected breaks/sleep |
@@ -141,3 +141,7 @@ The plan proposes nine 25-minute scientific sessions and seven 15-minute reading
 The academic goal links to lessons. A second goal/project supports video creation: evaluate a Moroccan-politics video's sources, outline, record/edit and publish manually. **One video per week is a changeable assumption** because no answer arrived to the cadence clarification, not a confirmed preference. Edit the goal to change it. Create later weekly projects explicitly; duplicate project dates are blocked. They reuse saved original task templates, so deliberately deleted templates stay omitted. No video is selected, watched, published or marked completed automatically.
 
 The pack adds requested content once, preserving existing records/profile/preferences. Optional version-1 `installedPacks` metadata survives export/import and prevents deleted lessons from reappearing. Import remains a merge: conflicts preserve both versions with remapped links. A clean browser has no personal results, grades or exam dates. There is no full-year syllabus beyond the supplied lessons; add the next topics progressively.
+
+## Daily assistant
+
+See [KNOWLEDGE-BRAIN.md](./KNOWLEDGE-BRAIN.md) for browser-open review, independent scheduled deployment, Google permissions, actual inspection limits, consent, pause/revocation and encrypted-state backup precautions. Runtime integration paths are implemented; credentials/OAuth/deployment are required before their status can become connected.

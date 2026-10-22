@@ -6,8 +6,11 @@ import {brainRequest,withConfig,localReview,reports,parseReports,reportRecord} f
 import {readConfig,modelId,applyMoves,taskSnapshot,type BrainConfig} from './brain-engine.mjs';
 import './brain.css';
 import {brainTranslator} from './brain-i18n';
+import {useSearchParams} from 'react-router-dom';
+import CommandsWorkspace,{CommandLink} from './CommandsWorkspace';
 type ServerStatus={configured:boolean;authenticated:boolean;geminiKey:boolean;composioKey:boolean;scheduled:boolean;missing:string[];invalid:string[];existingUser:boolean;authLinks:Record<string,boolean>};
 export default function BrainWorkspace() {
+  const [params]=useSearchParams();
   const {data,t:sharedT,busy,commit,inspect,notify}=useKnowledge();
   const t=brainTranslator(data.settings.language,sharedT);
   const latest=useRef({data,busy,commit});latest.current={data,busy,commit};
@@ -77,11 +80,13 @@ export default function BrainWorkspace() {
     });
   }
   function toggle(key:keyof Pick<BrainConfig,'enabled'|'autoMove'|'cloud'|'shareDrive'|'shareGmail'|'shareNotion'>) {setConfig(c=>({...c,[key]:!c[key]}));}
+  if(params.get('commands')==='1')return <CommandsWorkspace/>;
   return <div className="uko-brain" data-testid="page-assistant">
     <section className="uko-panel uko-brain-hero">
       <span className="uko-ai-symbol"><BrainCircuit size={32}/></span>
       <div><span className="uko-eyebrow">{t('brainKicker')}</span><h2>{t('brainTitle')}</h2><p>{t('brainIntro')}</p></div>
       <span className="uko-badge" data-testid="brain-mode">{t(saved.cloud?'brainCloudMode':'brainLocalMode')}</span>
+      <CommandLink/>
     </section>
     {error&&<p className="uko-info error" role="alert" data-testid="brain-error">{t(error)}</p>}
     <div className="uko-brain-grid">

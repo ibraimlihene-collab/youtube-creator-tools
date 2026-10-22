@@ -2,6 +2,7 @@ import {createHmac,timingSafeEqual,createHash} from 'node:crypto';
 import {BrainError,authLink,accountFor,testGemini,MODEL} from './providers.mjs';
 import {openBrainStore} from './store.mjs';
 import {enqueueReview} from './job.mjs';
+import {handleCommand} from './commands.mjs';
 import {readConfig,validDay} from '../../../src/knowledge/brain-engine.mjs';
 const attempts=new Map();
 function equal(a,b){const x=createHash('sha256').update(a).digest(),y=createHash('sha256').update(b).digest();return timingSafeEqual(x,y);}
@@ -56,6 +57,7 @@ export async function handleBrain(request,{env=process.env,storeFactory=()=>open
     }
     if(!authenticated(request.headers.get('cookie'),env))throw new BrainError('loginNeeded',401);
     if(action==='logout'&&request.method==='POST'){headers['Set-Cookie']='uko_brain=; HttpOnly; Secure; SameSite=Strict; Path=/api/knowledge-brain; Max-Age=0';return respond(200,{ok:true});}
+    if(['command-draft','command-search','command-prepare','command-execute','command-result'].includes(action)&&request.method==='POST')return respond(200,{ok:true,...await handleCommand(action,body,env,storeFactory)});
     if(action==='state'&&request.method==='GET'){const {value}=await storeFactory().read();return respond(200,{ok:true,state:value});}
     if(action==='sync'&&request.method==='POST') {
       const store=storeFactory();

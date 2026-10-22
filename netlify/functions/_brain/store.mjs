@@ -20,5 +20,8 @@ export function openBrainStore(env=process.env) {
     async read() {const result=await blob.getWithMetadata('state',{type:'text'});return result?{value:decode(result.data),etag:result.etag}:{value:{revision:0,config:null,tasks:[],reports:[],cursor:null,completedDay:null},etag:null};},
     async write(value,etag) {const result=await blob.set('state',encode(value),etag?{onlyIfMatch:etag}:{onlyIfNew:true});if(!result.modified)throw new BrainError('cloudConflict',409);},
     async claim(slot) {const result=await blob.set('run/'+slot,encode({at:new Date().toISOString()}),{onlyIfNew:true});return result.modified;},
+    async readCommand(id) {const result=await blob.getWithMetadata('commands/'+id,{type:'text'});return result?{value:decode(result.data),etag:result.etag}:null;},
+    async createCommand(value) {const result=await blob.set('commands/'+value.id,encode(value),{onlyIfNew:true});if(!result.modified)throw new BrainError('cloudConflict',409);},
+    async writeCommand(value,etag) {if(typeof etag!=='string'||!etag)throw new BrainError('cloudConflict',409);const result=await blob.set('commands/'+value.id,encode(value),{onlyIfMatch:etag});if(!result.modified||typeof result.etag!=='string'||!result.etag)throw new BrainError('cloudConflict',409);return result.etag;},
   };
 }

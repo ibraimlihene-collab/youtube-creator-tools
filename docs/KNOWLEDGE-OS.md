@@ -110,8 +110,8 @@ Backup procedure:
 
 | Capability | Current status | Next step |
 | --- | --- | --- |
-| General AI tutor, writing correction and note summaries | Not implemented; daily review has a separate tested Gemini adapter | Authenticated backend with server-held secret, provider validation/health check, rate limits, explicit per-document consent and provenance-labelled output |
-| Notion | Read-only Composio page adapter implemented; independent app connection not activated | Reuse an existing Composio user/account or optionally authorize; grant selected pages, enable explicit sharing and verify the live workspace. Bounded/partial inspection, not full bidirectional sync. |
+| General AI tutor and writing correction | Not implemented; selected-text drafting/summarizing for Notion commands is implemented but live generation remains unverified | Configure the server-only Gemini command adapter and explicit source consent; extend separately for general tutoring/correction |
+| Notion | Read-only scanner plus explicitly confirmed append commands implemented; independent connection not activated | Reuse an existing Composio user/account; grant intended pages, Read content and (for append only) Insert content. See [command guide](./KNOWLEDGE-COMMANDS.md). No full bidirectional sync. |
 | Google Drive / Gmail | Read-only Composio adapters implemented; current server key fails authentication | Follow [daily assistant setup](./KNOWLEDGE-BRAIN.md); reuse existing active accounts with the exact Composio user ID, verify owner identity and test real reads after valid server setup |
 | Calendar sync | Not configured | OAuth read/write scopes, event mapping and tested two-way conflict rules |
 | Multiuser accounts and general cloud sync | Unavailable; optional daily-assistant snapshots have a separate single-owner backend | Auth/authorization, per-user database records, migrations, backup policy and multi-device conflict resolution |
@@ -145,3 +145,7 @@ The pack adds requested content once, preserving existing records/profile/prefer
 ## Daily assistant
 
 See [KNOWLEDGE-BRAIN.md](./KNOWLEDGE-BRAIN.md) for browser-open review, independent scheduled deployment, Google permissions, actual inspection limits, consent, pause/revocation and encrypted-state backup precautions. Runtime integration paths are implemented; credentials/OAuth/deployment are required before their status can become connected.
+
+## Commands inside the website
+
+The assistant includes a bilingual command workspace for a selected source or pasted text, optional Gemini drafting, Notion page selection and explicit server-preview confirmation. Exact-text drafts and backups work locally. External execution requires valid server configuration and durable Blobs; it is not currently activated. See [KNOWLEDGE-COMMANDS.md](./KNOWLEDGE-COMMANDS.md).

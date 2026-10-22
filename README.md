@@ -1,3 +1,13 @@
+# Universal Knowledge OS + YouCreator Tools
+
+The default entry now opens **Universal Knowledge OS**, an Arabic/French, browser-local knowledge and learning application at `/knowledge`. The existing creator toolkit remains available at `/creator`, `/app`, `/dashboard` and `/tools/*`.
+
+Start the frontend with `npm ci` and `npm run dev:app -- --host 0.0.0.0 --port 5173`. Knowledge OS needs no API key or backend. Run `bun run check` followed by `bun run test:changed` for the new workspace.
+
+Read the [complete application guide](docs/KNOWLEDGE-OS.md) for architecture, implemented features, deployment, daily/weekly usage, privacy, backup/recovery and the remaining AI/integration roadmap. The [test report](docs/KNOWLEDGE-OS-TEST-REPORT.md) separates actual verification from remaining limitations.
+
+---
+
 # YouCreator Tools
 
 Professional AI platform for YouTube creators — **50 tools**, bilingual (EN/AR), privacy-first.

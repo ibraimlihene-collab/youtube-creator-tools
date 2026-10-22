@@ -302,9 +302,8 @@ export function Integrations() {
         </h2>
       </div>
       <p className="uko-help">{t('serviceHelp')}</p>
-      <Link className="uko-button secondary" to="/knowledge/assistant">Google Drive · Gmail · Gemini — {t('brainConnection')}</Link>
+      <Link className="uko-button secondary" to="/knowledge/assistant">Composio · Google Drive · Notion · Gmail · Gemini — {t('brainConnection')}</Link>
       {[
-        ['Notion', 'notionHelp'],
         [t('calendar'), 'calendarHelp'],
       ].map(([name, help]) => (
         <details className="uko-integration" key={help}>

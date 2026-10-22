@@ -1,5 +1,5 @@
 import type {Entry} from './model';
-export interface BrainConfig {version:number;enabled:boolean;autoMove:boolean;cloud:boolean;shareDrive:boolean;shareGmail:boolean;emailReports:boolean;hour:number;timeZone:string;history:Record<string,number>}
+export interface BrainConfig {version:number;enabled:boolean;autoMove:boolean;cloud:boolean;shareDrive:boolean;shareGmail:boolean;shareNotion:boolean;emailReports:boolean;hour:number;timeZone:string;history:Record<string,number>}
 export interface BrainMove {id:string;from:string;to:string;expectedUpdatedAt:string}
 export interface BrainPlan {day:string;moves:BrainMove[];attention:{id:string;reason:string}[];overdue:number}
 export const modelId:string;

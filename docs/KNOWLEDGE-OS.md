@@ -111,8 +111,8 @@ Backup procedure:
 | Capability | Current status | Next step |
 | --- | --- | --- |
 | General AI tutor, writing correction and note summaries | Not implemented; daily review has a separate tested Gemini adapter | Authenticated backend with server-held secret, provider validation/health check, rate limits, explicit per-document consent and provenance-labelled output |
-| Notion | Not configured | Supported OAuth flow, selected-page scopes, server token storage, revocation and tested import/sync conflict handling |
-| Google Drive / Gmail | Read-only Composio adapter implemented; credentials/OAuth not configured | Follow [daily assistant setup](./KNOWLEDGE-BRAIN.md); authorize the owner account and test real reads after deployment |
+| Notion | Read-only Composio page adapter implemented; independent app connection not activated | Reuse an existing Composio user/account or optionally authorize; grant selected pages, enable explicit sharing and verify the live workspace. Bounded/partial inspection, not full bidirectional sync. |
+| Google Drive / Gmail | Read-only Composio adapters implemented; current server key fails authentication | Follow [daily assistant setup](./KNOWLEDGE-BRAIN.md); reuse existing active accounts with the exact Composio user ID, verify owner identity and test real reads after valid server setup |
 | Calendar sync | Not configured | OAuth read/write scopes, event mapping and tested two-way conflict rules |
 | Multiuser accounts and general cloud sync | Unavailable; optional daily-assistant snapshots have a separate single-owner backend | Auth/authorization, per-user database records, migrations, backup policy and multi-device conflict resolution |
 | Local uploads and general document parsing | Not implemented; daily assistant supports bounded Drive PDF/image/text inputs | Validated attachments with size/type checks, durable storage and parser/OCR pipeline; links and pasted text work now |

@@ -7,7 +7,7 @@ Foundation verified on 20 October 2026; daily-assistant follow-up verified on 22
 | Check | Result |
 | --- | --- |
 | `bun run check` | Passed: TypeScript application check with no output generation |
-| `bun run test:changed` | Passed: 50 tests, 1,471 assertions, zero failures |
+| `bun run test:changed` | Passed: 58 tests, 1,521 assertions, zero failures |
 | `./node_modules/.bin/eslint src/knowledge src/App.tsx vite.config.ts` | Passed for all new workspace code and the changed router |
 | `bun run lint` | Fails with 31 errors and 2 warnings, identical to the base branch; existing creator components, context, features and libraries |
 | `git diff --check` | Passed |
@@ -108,3 +108,15 @@ These remain outside the Knowledge OS changes; the focused workspace/router/Vite
 | `src/lib/apiKeyManager.ts` | 6:28  error  '_apiKey' is defined but never used  @typescript-eslint/no-unused-vars<br>28:31  error  '_apiKey' is defined but never used  @typescript-eslint/no-unused-vars |
 | `src/lib/useAI.ts` | 25:42  error  '_args' is defined but never used  @typescript-eslint/no-unused-vars |
 | `src/lib/videoProcessor.ts` | 96:14  error  'e' is defined but never used  @typescript-eslint/no-unused-vars<br>99:14  error  'e' is defined but never used  @typescript-eslint/no-unused-vars<br>143:53  error  'e' is defined but never used  @typescript-eslint/no-unused-vars<br>144:53  error  'e' is defined but never used  @typescript-eslint/no-unused-vars<br>145:53  error  'e' is defined but never used  @typescript-eslint/no-unused-vars<br>183:52  error  'e' is defined but never used  @typescript-eslint/no-unused-vars<br>184:53  error  'e' is defined but never used  @typescript-eslint/no-unused-vars |
+
+
+## Existing Composio connections and Notion follow-up — 2026-10-22
+
+- Reuse exact existing Composio user/entity IDs and optional per-service connected-account IDs; OAuth configurations are optional for new links only. Provider checks no longer initialize Netlify Blobs, so they can run from Vite after valid owner login.
+- Eight new automated tests cover account/user/toolkit scoping, ambiguous and paginated account lists, disabled/wrong identities, Notion read-only search and bounded page text, real cursor continuation, explicit partial/error states, no external-link downloads, opt-in portability/revocation, no scans without consent, safe status fields and identity checks without cloud storage. Current totals: **58 pass, 0 fail, 1,521 assertions**. Composio and application Notion requests in these tests are mocked.
+- `bun run check`, focused ESLint, changed server-module syntax and `git diff --check` pass. Full lint retains the same **31 errors / 2 warnings** documented above. No production build over the preview.
+- Actual session connector: Notion WHO_AM_I returned a successful workspace/bot identity. No page content was sent to Gemini and no temporary connector credentials were copied. This proves this conversation’s connector, not independent application authentication.
+- Actual configured server key: a read-only Composio connected-account-list request returned **HTTP 401**. Owner email format was invalid and the configured password failed the 20-character minimum; values are not included in this report. App Drive/Gmail/Notion reads and production scheduling remain inactive/unverified until corrected and deployed.
+- Visual QA refreshes Arabic/French/mobile/dark assistant, settings entry points, local report/notice/rescheduling and adds saved Notion-consent persistence. A mobile language-button selector was hidden; the replacement uses the visible settings selector. Intermittent navigation timeouts were resolved with route preflight and a different real entry route. Final successful captures replace failed labels.
+- Flow evidence refreshes daily review, cloud consent, independent review and the unchanged backup flow; adds the existing-connection identity path. Original education, source content, audio, record/storage and timer evidence stays current because those rendering sources are unchanged.
+- Limits: Notion search lists only shared/indexed pages, 3 per batch, up to 100 top-level blocks and 20,000 characters per page. Nested blocks, attachments, database queries and linked documents are omitted and labelled partial. Other Composio toolkits are not activated automatically. There is no exhaustive all-files-daily claim or bidirectional Notion synchronization.

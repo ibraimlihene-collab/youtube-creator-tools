@@ -34,7 +34,7 @@ export async function handleBrain(request,{env=process.env,storeFactory=()=>open
     const url=new URL(request.url),action=url.pathname.split('/').filter(Boolean).pop();
     if(!['GET','POST'].includes(request.method))return respond(405,{ok:false,code:'methodNotAllowed'});
     if(request.method==='POST' && request.headers.get('origin')!==url.origin)throw new BrainError('originRejected',403);
-    if(action==='status'&&request.method==='GET')return respond(200,{ok:true,configured:configured(env),authenticated:configured(env)&&authenticated(request.headers.get('cookie'),env),geminiKey:!!env.GEMINI_API_KEY,composioKey:!!env.COMPOSIO_API_KEY,model:MODEL,scheduled:!!env.NETLIFY,missing:['KNOWLEDGE_OWNER_PASSWORD','KNOWLEDGE_OWNER_EMAIL','COMPOSIO_API_KEY','COMPOSIO_DRIVE_AUTH_CONFIG_ID','COMPOSIO_GMAIL_AUTH_CONFIG_ID'].filter(k=>!env[k])});
+    if(action==='status'&&request.method==='GET')return respond(200,{ok:true,configured:configured(env),authenticated:configured(env)&&authenticated(request.headers.get('cookie'),env),geminiKey:!!env.GEMINI_API_KEY,composioKey:!!env.COMPOSIO_API_KEY,existingUser:!!env.COMPOSIO_USER_ID,authLinks:{drive:!!env.COMPOSIO_DRIVE_AUTH_CONFIG_ID,gmail:!!env.COMPOSIO_GMAIL_AUTH_CONFIG_ID,notion:!!env.COMPOSIO_NOTION_AUTH_CONFIG_ID},model:MODEL,scheduled:!!env.NETLIFY,missing:['KNOWLEDGE_OWNER_PASSWORD','KNOWLEDGE_OWNER_EMAIL','COMPOSIO_API_KEY'].filter(k=>!env[k]),invalid:[...(env.KNOWLEDGE_OWNER_PASSWORD&&env.KNOWLEDGE_OWNER_PASSWORD.length<20?['KNOWLEDGE_OWNER_PASSWORD']:[]),...(env.KNOWLEDGE_OWNER_EMAIL&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(env.KNOWLEDGE_OWNER_EMAIL)?['KNOWLEDGE_OWNER_EMAIL']:[])]});
     if(!configured(env))throw new BrainError('serverSetupNeeded',503);
     let body={};
     if(request.method==='POST') {
@@ -56,9 +56,9 @@ export async function handleBrain(request,{env=process.env,storeFactory=()=>open
     }
     if(!authenticated(request.headers.get('cookie'),env))throw new BrainError('loginNeeded',401);
     if(action==='logout'&&request.method==='POST'){headers['Set-Cookie']='uko_brain=; HttpOnly; Secure; SameSite=Strict; Path=/api/knowledge-brain; Max-Age=0';return respond(200,{ok:true});}
-    const store=storeFactory();
-    if(action==='state'&&request.method==='GET'){const {value}=await store.read();return respond(200,{ok:true,state:value});}
+    if(action==='state'&&request.method==='GET'){const {value}=await storeFactory().read();return respond(200,{ok:true,state:value});}
     if(action==='sync'&&request.method==='POST') {
+      const store=storeFactory();
       const incomingConfig=validateSnapshot(body),current=await store.read();
       if(body.configure!==true&&(!current.value.config?.enabled||!current.value.config?.cloud))throw new BrainError('cloudDisabled',409);
       const config=body.configure===true?incomingConfig:current.value.config;
@@ -66,15 +66,21 @@ export async function handleBrain(request,{env=process.env,storeFactory=()=>open
       for(const [id,count] of Object.entries(current.value.config?.history||{}))config.history[id]=Math.max(count,config.history[id]||0);
       const next={...current.value,revision:current.value.revision+1,tasks:body.tasks,capacity:body.capacity,config,snapshotAt:new Date().toISOString()};
       if(!config.shareDrive)next.cursor=null;
+      if(!config.shareNotion)next.notionCursor=null;
       await store.write(next,current.etag);return respond(200,{ok:true,revision:next.revision,snapshotAt:next.snapshotAt});
     }
     if(action==='run'&&request.method==='POST') {
+      const store=storeFactory();
       const current=await store.read();if(!current.value.config?.enabled||!current.value.config?.cloud)throw new BrainError('cloudDisabled',409);
       await enqueueReview(env,true);return respond(202,{ok:true,queued:true});
     }
     if(action==='test-model'&&request.method==='POST')return respond(200,{ok:true,model:await testGemini(env)});
-    if(['connect-drive','connect-gmail'].includes(action)&&request.method==='POST')return respond(200,{ok:true,url:await authLink(action==='connect-drive'?'googledrive':'gmail',env,url.origin)});
-    if(['check-drive','check-gmail'].includes(action)&&request.method==='POST')return respond(200,{ok:true,email:(await accountFor(action==='check-drive'?'googledrive':'gmail',env)).email});
+    const service=({'drive':'googledrive','gmail':'gmail','notion':'notion'})[action.split('-')[1]];
+    if(['connect-drive','connect-gmail','connect-notion'].includes(action)&&request.method==='POST')return respond(200,{ok:true,url:await authLink(service,env,url.origin)});
+    if(['check-drive','check-gmail','check-notion'].includes(action)&&request.method==='POST') {
+      const account=await accountFor(service,env);
+      return respond(200,{ok:true,identity:account.email||account.identity,email:account.email});
+    }
     return respond(404,{ok:false,code:'notFound'});
   }catch(e){return respond(e.status||503,{ok:false,code:e.code||'backendUnavailable'});}
 }

@@ -12,13 +12,13 @@ export function dayPlus(day, offset) {
 }
 export function defaults() {
   return { version: 1, enabled: false, autoMove: false, cloud: false, shareDrive: false,
-    shareGmail: false, emailReports: false, hour: 18, timeZone: 'Africa/Casablanca', history: {} };
+    shareGmail: false, shareNotion: false, emailReports: false, hour: 18, timeZone: 'Africa/Casablanca', history: {} };
 }
 export function readConfig(records) {
   try {
     const value = JSON.parse(records.find(e => e.id === configId)?.content || '{}');
     const config = defaults();
-    for (const key of ['enabled','autoMove','cloud','shareDrive','shareGmail','emailReports'])
+    for (const key of ['enabled','autoMove','cloud','shareDrive','shareGmail','shareNotion','emailReports'])
       if (typeof value[key] === 'boolean') config[key] = value[key];
     if (Number.isInteger(value.hour) && value.hour >= 0 && value.hour <= 23) config.hour = value.hour;
     if (typeof value.timeZone === 'string') {

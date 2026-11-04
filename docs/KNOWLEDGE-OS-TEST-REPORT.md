@@ -1,13 +1,13 @@
 # Universal Knowledge OS — verification report
 
-Foundation verified on 20 October 2026; daily-assistant follow-up verified on 22 October 2026 against the same task branch. This is the first functional, browser-local version described in [the application guide](./KNOWLEDGE-OS.md), not completion of every phase of the master roadmap.
+Foundation verified on 20 October 2026; daily-assistant/commands follow-ups verified on 22 October 2026 and weekly skill goals on 4 November 2026 against the same task branch. This is the functional, browser-local version described in [the application guide](./KNOWLEDGE-OS.md), not completion of every phase of the master roadmap.
 
 ## Checks actually run
 
 | Check | Result |
 | --- | --- |
 | `bun run check` | Passed: TypeScript application check with no output generation |
-| `bun run test:changed` | Passed: 58 tests, 1,521 assertions, zero failures |
+| `bun run test:changed` | Passed: 82 tests, 1,945 assertions, zero failures across six files |
 | `./node_modules/.bin/eslint src/knowledge src/App.tsx vite.config.ts` | Passed for all new workspace code and the changed router |
 | `bun run lint` | Fails with 31 errors and 2 warnings, identical to the base branch; existing creator components, context, features and libraries |
 | `git diff --check` | Passed |
@@ -31,7 +31,7 @@ Lightsprint server-side Chromium drives the real Vite application on service `cr
 | Editing | Record Edit And Refresh; change saved title, save and reload |
 | Arabic/French search | Multilingual Search; French accent and Arabic alef normalization find the saved record; filter controls are visible |
 | Task status | Task Completion In Planner; create, complete with checkbox, then reload the weekly planner |
-| Outcome-based analytics | Recorded Study Outcome; save a completed 25-minute example session with an actual outcome, then reload analytics |
+| Outcome-based analytics | Recorded Study Outcome; save a labelled synthetic completed session with 18 actual minutes and a written outcome, then reload analytics |
 | Connections | Linked Concepts Graph; create two records, select a real link in the editor and open the graph |
 | Recall/review | Flashcard Answer Reveal, Flashcard Scheduled Review; reveal, self-rate, reload and verify that the future review is outside the due queue |
 | Lesson practice | Lesson Practice And Correction; attempt the supplied gravitation exercise, submit and then reveal its non-official saved correction |
@@ -41,7 +41,7 @@ Lightsprint server-side Chromium drives the real Vite application on service `cr
 | Privacy, profile and availability | Settings And Privacy, AI Availability; local-storage disclosure and unconfigured external services are visible |
 | Responsive navigation/forms | Mobile Navigation, Mobile Settings, French Mobile Settings; desktop captures are 1280 pixels wide and mobile captures 390 pixels wide |
 
-The refreshed verification set now contains 46 UI screenshots, one timer recording and seven code-flow diagrams for transactional saves, non-destructive import, install-once content and plan rescheduling. Final reconciliation confirms zero stale artifacts and no failed entries. The diagrams explain implementation paths; they are not substitutes for executing browser file interactions.
+The earlier daily-assistant verification set contained 46 UI screenshots, one timer recording and seven code-flow diagrams. Later follow-up sections describe the expanded current set. The diagrams explain implementation paths; they are not substitutes for executing browser file interactions.
 
 Visual review found and fixed horizontal overflow caused by the hidden file picker in settings. Subsequent desktop/mobile screenshots fit their viewports. Global search focus/remount behavior and review-callout text contrast were also corrected before the final captures. Intermittent capture transport timeouts/HTTP 504 responses were resolved by smaller capture batches and successful replacement of the affected views; no failed capture remains in the final set.
 
@@ -131,3 +131,16 @@ These remain outside the Knowledge OS changes; the focused workspace/router/Vite
 - **Visual QA:** `/qa` routes commands/entry changes to `/visual-qa` and command state/auth/ledger behavior to `/flow-diff`, repeated after the final application edit. Four command stills cover Arabic source → exact text → save → reload, French bilingual text/language persistence, mobile and dark/consent/blocked execution. Existing assistant entries, daily-read consent/report/notice/rescheduling are refreshed; three existing flow diagrams are updated and two command flows added. Server-side immutable-preview/success UI is not reachable with current credentials/Blobs and is not claimed visually verified. Source diagrams plus mocked tests cover those code paths.
 - **Capture repair:** over-limit metadata requests returned `invalid_request`/HTTP 400 and were split/reduced to applicable rendering sources. A batch returned HTTP 504 (`The preview gateway was temporarily unavailable. The transport already retried once`); route inspection and later smaller captures succeeded. One listing exposed a daily-review capture marked `capture timed out before the request budget expired` despite an initial success URL; it was replaced under the same label. Two diagram registrations returned HTTP 504 while the later listing confirmed that the upserts had succeeded. No application/auth code was weakened for screenshots.
 - **Activation/limits:** application Composio authentication remains rejected (HTTP 401), owner email/password require correction, exact existing user/entity ID is needed, this workspace role cannot persist sandbox configuration (403), and production Blobs/deployment are unavailable. Search/prepare/one actual confirmation must be tested on a disposable authorized page after setup. This implementation supports append text to existing pages only, not arbitrary tools, page creation, deletion, replacement, external ChatGPT MCP access or full service synchronization. Ambiguous operations stay locked; ledger cleanup and encryption-key migration are not automatic. See [command operation and recovery guide](./KNOWLEDGE-COMMANDS.md).
+
+## Weekly skill goals — 4 November 2026
+
+The current check and test results are 82 passing tests, zero failures and 1,945 assertions across six files. The 13 new weekly tests exercise real local allocation and persistence. No new dependency, server endpoint or credential is required. Focused ESLint passes. Full-project lint retains the same 31 existing errors and 2 warnings documented above. The active Vite preview was not replaced by a production build.
+
+- **Allocation:** real saved lessons/project supply optional skill suggestions. Related existing sessions satisfy coverage without mutation. Tests cover Monday boundaries, past days, all seven days, school-first ordering, exam protection, completed/unknown-duration commitments, 10-minute gaps, budget combinations, invalid and archived skills, missing capacity and repeated generation.
+- **Integrity:** moving, editing, completing or archiving an origin slot does not duplicate it. A moved goal counts in its new week. Skill configuration, actual results and generated goals survive IndexedDB reopening and validated JSON backup/merge. No old schema migration or record rewrite is needed.
+- **Real preview controls:** Weekly Goals Entry and Arabic Skill Form show setup before saving. Arabic Weekly Priorities Persistence restores the lesson-based priorities after reload. Skill Edit Persistence creates and edits a labelled synthetic skill, then reloads. French Weekly Plan Persistence saves the next week's distribution, reloads and revisits that week. Mobile Weekly Goals and Dark Weekly Goals verify responsive/theme rendering. Daily Goal Outcome Persistence records labelled synthetic evidence and actual minutes before reload. Daily Goals In Dashboard verifies the existing today-action integration.
+- **Visual quality:** Arabic uses RTL and French uses LTR. Saved French science text remains French. The mobile capture is 466 pixels wide including its 38-pixel frame on each side, corresponding to the expected 390-pixel viewport. Inspected crops show readable goals, capacity gaps and recorded outcomes without horizontal overflow. Dark mode uses the existing theme tokens.
+- **Reconciliation:** 17 older views whose `Pages.tsx` coverage became stale were captured again under their existing labels. Nine new weekly views and two allocation/feedback flow charts supplement the current set of 73 artifacts. The listing reports zero stale or failed entries. Static collection captures do not imply exhaustive interaction coverage. The capture runner initially rejected an invalid `:first` selector for the new outcome view and a calendar selector for an undated task; corrected selectors successfully replaced both failed entries.
+- **Proof workflow:** the installed catalog now provides `/proof`, `/visual-proof` and `/logic-proof` in place of the older `/qa` naming. The run uses these current skills, real server-side Chromium captures and local Mermaid renders. Flow diagrams describe code; tests and reload-proven UI writes provide execution evidence. Existing unrelated flow artifacts remain current.
+
+The feature does not promise measured skill improvement, create future weeks automatically, evaluate proficiency, schedule exact clock times, certify all browsers or activate Gemini/Composio. Weekly-reflection creation is inspected in code, but its complete browser save/reload path remains unverified. Native archive confirmation, browser download/file-picker import and a complete accessibility audit remain outside end-to-end verification. All local data and backup limitations in the main report still apply.

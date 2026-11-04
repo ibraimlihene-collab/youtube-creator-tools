@@ -69,6 +69,10 @@ The existing creator AI functions remain separate and optional; their `.env.exam
 - Editable optional profile, explicit profile clearing, learning-time preferences, explanation language and review interval. Supplied school context is the only prefilled personal fact.
 - Daily assistant with portable reports, local scheduling, guarded moves, honest server/provider checks and optional server-only Gemini/Composio configuration. Google access requires OAuth and per-service sharing consent. No frontend API-key input. The previous global analytics script has been removed.
 
+## Daily skill goals
+
+The planner now connects selected skills to daily practice goals and a weekly coverage view. Existing linked school sessions count toward targets. New sessions respect the saved budget and academic priorities. See [daily goals and weekly practice](./KNOWLEDGE-WEEKLY-GOALS.md) for setup, allocation rules, outcome recording and backup guidance.
+
 ## Daily guide / دليل يومي / Guide quotidien
 
 1. Open the dashboard. Choose one realistic task; use capture for ideas you do not want to organize yet.

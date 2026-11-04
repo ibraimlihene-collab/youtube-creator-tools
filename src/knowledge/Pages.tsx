@@ -19,6 +19,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useKnowledge } from './context';
+import WeeklyGoals from './WeeklyGoals';
 import { Empty, EntryRow } from './Dashboard';
 import { pageKinds, defaultKind } from './config';
 import { domains } from './i18n';
@@ -584,6 +585,7 @@ export function Planner() {
   }
   return (
     <div data-testid="page-planner">
+      <WeeklyGoals />
       <p className="uko-info">
         <CalendarDays size={18} />
         {t('capacityText')} {t('priorityAcademic')}

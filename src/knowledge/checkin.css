@@ -1,0 +1,13 @@
+.uko-daily { display: grid; gap: 1.25rem; }
+.uko-daily h2 { display: flex; gap: .6rem; align-items: center; }
+.uko-checkin-steps { display: flex; gap: .75rem; padding: 0; list-style: none; margin-block: 1.5rem; }
+.uko-checkin-steps li { width: 2rem; height: 2rem; border: 1px solid var(--uko-line); border-radius: 50%; display: grid; place-items: center; }
+.uko-checkin-steps [aria-current=step], .uko-checkin-steps .done { background: var(--uko-green); color: var(--uko-bg); }
+.uko-conversation fieldset { border: 0; padding: 0; min-width: 0; }
+.uko-conversation textarea { min-height: 6rem; }
+.uko-daily-actions { display: grid; gap: .75rem; margin-block: 1rem; }
+.uko-daily-actions article { border: 1px solid var(--uko-line); padding: 1rem; border-radius: .75rem; overflow-wrap: anywhere; }
+.uko-voice { border-block-start: 1px solid var(--uko-line); padding-block: .75rem; }
+.uko-phone { min-width: 0; }
+.uko-daily [data-testid=daily-apply] { white-space: normal; }
+@media (min-width: 1000px) { .uko-daily-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

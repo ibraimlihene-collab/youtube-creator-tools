@@ -1,0 +1,44 @@
+.uko-weekly { margin-block-end: 24px; }
+.uko-weekly .uko-section-heading { flex-wrap: wrap; gap: 12px; }
+.uko-weekly > p, .uko-weekly-rules { margin-block: 12px; }
+.uko-weekly h2, .uko-weekly h3 { display: flex; align-items: center; gap: 8px; }
+.uko-weekly p, .uko-weekly strong, .uko-weekly small, .uko-weekly bdi { overflow-wrap: anywhere; }
+.uko-weekly-rules { background: var(--uko-soft); padding: 12px; border-radius: 8px; }
+.uko-weekly-rules summary, .uko-weekly-form summary { cursor: pointer; font-weight: 600; }
+.uko-weekly-rules p { margin-block: 10px; }
+.uko-weekly-toolbar { margin-block: 20px; }
+.uko-weekly-toolbar label { display: grid; gap: 4px; color: var(--uko-muted); }
+.uko-weekly input:not([type='checkbox']), .uko-weekly select, .uko-weekly textarea {
+  width: 100%; min-width: 0; border: 1px solid var(--uko-line); background: var(--uko-input);
+  color: var(--uko-text); border-radius: 7px; padding: 9px 11px;
+}
+.uko-weekly textarea { min-height: 80px; resize: vertical; }
+.uko-weekly .uko-weekly-check { display: flex; align-items: center; gap: 8px; }
+.uko-weekly-form { border: 1px solid var(--uko-line); border-radius: 10px; padding: 16px; margin-block: 16px; }
+.uko-weekly-form fieldset { border: 0; padding: 0; margin-block-end: 12px; min-width: 0; }
+.uko-weekly-form label { display: grid; gap: 6px; }
+.uko-weekly-sources { display: grid; gap: 8px; max-height: 230px; overflow: auto; margin-block-start: 12px; }
+.uko-weekly-sources label { display: flex; align-items: baseline; gap: 8px; }
+.uko-weekly-skills { list-style: none; padding: 0; margin-block: 14px; }
+.uko-weekly-skills li { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-block-end: 1px solid var(--uko-line); padding-block: 12px; }
+.uko-weekly-skills small, .uko-weekly-goal > small, .uko-weekly-goal > strong { display: block; }
+.uko-weekly-skills small, .uko-weekly-days header small { color: var(--uko-muted); }
+.uko-weekly-skills p { font-size: 12px; }
+.uko-weekly-suggestions { display: grid; justify-items: start; gap: 10px; margin-block: 14px; }
+.uko-weekly-preview { margin-block: 24px 14px; }
+.uko-weekly-gaps { background: var(--uko-soft); border-inline-start: 3px solid var(--uko-green); padding: 14px 30px; }
+.uko-weekly-days { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-block: 16px; }
+.uko-weekly-days article { min-width: 0; border: 1px solid var(--uko-line); border-radius: 10px; padding: 14px; }
+.uko-weekly-days article.today { border-color: var(--uko-green); }
+.uko-weekly-days header { display: grid; gap: 4px; margin-block-end: 12px; }
+.uko-weekly-days h3 { font-size: 14px; }
+.uko-weekly-goal { background: var(--uko-soft); border-radius: 8px; padding: 12px; margin-block: 10px; }
+.uko-weekly-goal.proposed { background: var(--uko-surface); border: 1px dashed var(--uko-line); }
+.uko-weekly-goal .uko-badge { display: inline-block; margin-block-end: 6px; }
+.uko-weekly-goal p, .uko-weekly-goal > small { margin-block: 7px; white-space: pre-line; }
+.uko-weekly-goal blockquote { margin: 10px 0; padding-inline-start: 12px; border-inline-start: 3px solid var(--uko-green); }
+@media (max-width: 700px) {
+  .uko-weekly-days { grid-template-columns: minmax(0, 1fr); }
+  .uko-weekly-skills li { align-items: start; flex-direction: column; }
+  .uko-weekly-form { padding: 12px; }
+}

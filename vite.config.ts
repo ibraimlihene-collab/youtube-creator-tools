@@ -1,9 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { knowledgeBrainPreview } from './scripts/knowledge-brain-vite.mjs'
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [knowledgeBrainPreview(), react(), tailwindcss()],
   server: {
     proxy: {
       '/api': {

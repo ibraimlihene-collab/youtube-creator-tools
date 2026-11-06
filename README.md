@@ -1,3 +1,13 @@
+# Universal Knowledge OS + YouCreator Tools
+
+The default entry now opens **Universal Knowledge OS**, an Arabic/French, browser-local knowledge and learning application at `/knowledge`. The existing creator toolkit remains available at `/creator`, `/app`, `/dashboard` and `/tools/*`.
+
+Start the frontend with `npm ci` and `npm run dev:app -- --host 0.0.0.0 --port 5173`. Knowledge OS needs no API key or backend. Run `bun run check` followed by `bun run test:changed` for the new workspace.
+
+Read the [complete application guide](docs/KNOWLEDGE-OS.md) for architecture, implemented features, deployment, daily/weekly usage, privacy, backup/recovery and the remaining AI/integration roadmap. The [test report](docs/KNOWLEDGE-OS-TEST-REPORT.md) separates actual verification from remaining limitations.
+
+---
+
 # YouCreator Tools
 
 Professional AI platform for YouTube creators — **50 tools**, bilingual (EN/AR), privacy-first.
@@ -45,6 +55,12 @@ npm run dev:app
 npm run build
 ```
 
+Vite copies the contents of `public/` into `dist/`, including `_headers`,
+`_redirects` and the Knowledge OS audio. Netlify runs the same build command.
+The legacy sound-effects catalogue references `public/sounds/`, which is absent
+from this repository. Those sounds remain unavailable until the assets are
+provided. If added under `public/sounds/`, Vite includes them automatically.
+
 ## Thumbnail Generator
 
 The AI **Thumbnail Generator** was **removed** by product decision. Use Thumbnail Downloader, Previewer, Text Ideas, and Color tools instead.
@@ -52,3 +68,5 @@ The AI **Thumbnail Generator** was **removed** by product decision. Use Thumbnai
 ## License
 
 MIT
+
+Daily planning: [three questions, optional dictation and Android reminder setup](docs/KNOWLEDGE-DAILY-CONVERSATION.md).

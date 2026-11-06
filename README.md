@@ -55,6 +55,12 @@ npm run dev:app
 npm run build
 ```
 
+Vite copies the contents of `public/` into `dist/`, including `_headers`,
+`_redirects` and the Knowledge OS audio. Netlify runs the same build command.
+The legacy sound-effects catalogue references `public/sounds/`, which is absent
+from this repository. Those sounds remain unavailable until the assets are
+provided. If added under `public/sounds/`, Vite includes them automatically.
+
 ## Thumbnail Generator
 
 The AI **Thumbnail Generator** was **removed** by product decision. Use Thumbnail Downloader, Previewer, Text Ideas, and Color tools instead.

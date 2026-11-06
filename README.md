@@ -62,3 +62,5 @@ The AI **Thumbnail Generator** was **removed** by product decision. Use Thumbnai
 ## License
 
 MIT
+
+Daily planning: [three questions, optional dictation and Android reminder setup](docs/KNOWLEDGE-DAILY-CONVERSATION.md).

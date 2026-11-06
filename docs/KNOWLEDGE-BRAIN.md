@@ -65,7 +65,7 @@ Cloud state is encrypted with AES-256-GCM and a scrypt-derived key in the site-s
 - Notion lists **three accessible pages per batch**, newest edited first, using read-only search (a POST by the Notion API convention). It retains the real search cursor for hourly continuation. Each page reads at most 100 top-level blocks and 20,000 text characters. Nested blocks, attachments, linked pages/databases, embeds and additional block pages are not traversed; truncation/omissions are marked partial. Search only covers pages shared with the integration, can lag indexing and is not an exhaustive workspace inventory. The daily scanner performs no Notion writes, external link downloads or full database-row query. A separate user-confirmed append command is documented below. Completed service listings are not restarted during another service’s same-day automatic continuation; a manual run can restart them.
 - Gmail reads up to five recent messages (last day), subject and snippet only; extra pages are marked partial. It does not read attachments or whole conversations, and does not send email.
 - Sources are untrusted data. Model output is plain text without tools or executable actions. Only deterministic code proposes/moves dates. Summaries cite supplied IDs; they remain model suggestions, not verified facts. The provider can reject/rate-limit; the report lists failures and never claims a successful model call in that case.
-- Latest **30 cloud batch reports** are retained; retrieve/export regularly. Hour-slot claim keys prevent duplicate jobs and currently accumulate one small encrypted key per active hour (no automatic retention cleanup). A failed run claims its slot; retry next hour. No automatic email/push/SMS delivery exists: reports appear in-app when opened.
+- Latest **30 cloud batch reports** are retained; retrieve/export regularly. Hour-slot claim keys prevent duplicate jobs and currently accumulate one small encrypted key per active hour (no automatic retention cleanup). A failed run claims its slot; retry next hour. Reports appear in-app when opened. Separate opt-in Android Web Push reminders are implemented but need deployment and device verification; see [three questions and phone setup](./KNOWLEDGE-DAILY-CONVERSATION.md). Email and SMS delivery remain unavailable.
 
 ## Pause, revoke, back up, recover
 
@@ -84,3 +84,7 @@ Notion references: [search](https://developers.notion.com/reference/post-search)
 ## Commands inside the website
 
 Use the assistant’s command entry for selected-content → optional Gemini draft → real Notion page lookup → immutable server preview → explicit append confirmation. This path requires Notion Insert content and a durable encrypted operation ledger; it is separate from daily read-only sharing. See [command use, activation and interrupted-request recovery](./KNOWLEDGE-COMMANDS.md).
+
+## Three questions and phone reminders
+
+The daily conversation and opt-in Android push use a separate local review record and encrypted remote subscription. Stopping cloud scanning does not stop push. No personal answers are sent to Gemini. Follow the [daily conversation guide](./KNOWLEDGE-DAILY-CONVERSATION.md) for setup, separate stopping controls and honest delivery status.

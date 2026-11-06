@@ -8,6 +8,7 @@ import './brain.css';
 import {brainTranslator} from './brain-i18n';
 import {useSearchParams} from 'react-router-dom';
 import CommandsWorkspace,{CommandLink} from './CommandsWorkspace';
+import DailyConversation,{DailyConversationLink} from './DailyConversation';
 type ServerStatus={configured:boolean;authenticated:boolean;geminiKey:boolean;composioKey:boolean;scheduled:boolean;missing:string[];invalid:string[];existingUser:boolean;authLinks:Record<string,boolean>};
 export default function BrainWorkspace() {
   const [params]=useSearchParams();
@@ -81,7 +82,9 @@ export default function BrainWorkspace() {
   }
   function toggle(key:keyof Pick<BrainConfig,'enabled'|'autoMove'|'cloud'|'shareDrive'|'shareGmail'|'shareNotion'>) {setConfig(c=>({...c,[key]:!c[key]}));}
   if(params.get('commands')==='1')return <CommandsWorkspace/>;
+  if(params.get('today')==='1')return <DailyConversation/>;
   return <div className="uko-brain" data-testid="page-assistant">
+    <DailyConversationLink/>
     <section className="uko-panel uko-brain-hero">
       <span className="uko-ai-symbol"><BrainCircuit size={32}/></span>
       <div><span className="uko-eyebrow">{t('brainKicker')}</span><h2>{t('brainTitle')}</h2><p>{t('brainIntro')}</p></div>

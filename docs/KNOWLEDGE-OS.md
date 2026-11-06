@@ -125,7 +125,7 @@ Backup procedure:
 | Intelligent timetable/energy scheduling | Manual planner with capacity warnings | Explicit availability/commitments model and academic-priority scheduling with protected breaks/sleep |
 | Automated answer checking, targeted exercises | Manual self-review using saved corrections | Verified answer representation or tested tutor service, confidence/disclaimer policy and pedagogical validation |
 | Formula typography/diagrams | Unicode/plain text fields | Mathematical renderer and accessible scientific diagram attachments |
-| Notifications | No push or background reminders | Permission-based reminder scheduler and browser/service-worker integration |
+| Android notifications | Opt-in Web Push and hourly server scheduler implemented; actual deployment/device receipt unverified | Configure server VAPID/owner/Blobs, enroll the intended Android browser and verify real delivery; see [daily conversation](./KNOWLEDGE-DAILY-CONVERSATION.md) |
 
 Other limits: no multiuser access, fine-grained private/public publishing, drag-and-drop board, full project timeline, budget calculations, dependency enforcement, full progress history, course-file storage, knowledge prerequisite inference, dashboard reordering, offline app-shell caching, or automatic weekly recommendations. Resource/domain-specific displays share a generic record editor. Large workspaces use snapshot writes and linear search; move to indexed per-record queries before very large libraries. Date fields use local calendar days; there is no multi-timezone calendar sync.
 
@@ -153,3 +153,7 @@ See [KNOWLEDGE-BRAIN.md](./KNOWLEDGE-BRAIN.md) for browser-open review, independ
 ## Commands inside the website
 
 The assistant includes a bilingual command workspace for a selected source or pasted text, optional Gemini drafting, Notion page selection and explicit server-preview confirmation. Exact-text drafts and backups work locally. External execution requires valid server configuration and durable Blobs; it is not currently activated. See [KNOWLEDGE-COMMANDS.md](./KNOWLEDGE-COMMANDS.md).
+
+## Daily conversation and Android reminders
+
+The assistant now offers a locally saved three-question conversation, optional browser dictation, a capacity-aware linked plan and opt-in Android Web Push. See [daily use, deployment and recovery](./KNOWLEDGE-DAILY-CONVERSATION.md). Production scheduling, browser permissions, microphone recognition and actual Android receipt need real-device verification.

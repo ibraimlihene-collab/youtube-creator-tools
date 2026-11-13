@@ -70,3 +70,5 @@ The AI **Thumbnail Generator** was **removed** by product decision. Use Thumbnai
 MIT
 
 Daily planning: [three questions, optional dictation and Android reminder setup](docs/KNOWLEDGE-DAILY-CONVERSATION.md).
+
+Baloura channel prompts: [original package, contents and import checks](docs/baloura/README.md).
